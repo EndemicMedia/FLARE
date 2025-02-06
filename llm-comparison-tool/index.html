@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Model Comparison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind to use class-based dark mode
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .markdown-content code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .markdown-content pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .markdown-content blockquote {
+            border-left: 4px solid #ccc;
+            padding-left: 10px;
+            color: #666;
+            margin: 0;
+        }
+        /* Dark mode markdown styles */
+        .dark .markdown-content code {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        .dark .markdown-content pre {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        .dark .markdown-content blockquote {
+            border-left: 4px solid #4a5568;
+            color: #a0aec0;
+        }
+        .model-status-queued {
+            color: #718096; /* gray */
+            font-style: italic;
+        }
+        .model-status-loading {
+            color: #3182ce; /* blue */
+            font-style: italic;
+        }
+        .model-status-completed {
+            /*color: #48bb78; /* green */
+        }
+        .model-status-error {
+            color: #e53e3e; /* red */
+        }
+        .fastest-model {
+            border: 2px solid #48bb78 !important; /* Green border for fastest models */
+        }
+        /* Fullscreen modal styles */
+        #fullscreen-modal {
+            transition: opacity 0.3s ease;
+        }
+        #fullscreen-modal .markdown-content {
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+        /* Fixed font size for fullscreen content */
+        #fullscreen-content {
+            font-size: 1.125rem !important; /* Equivalent to text-lg */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
+    <div class="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-md z-10">
+        <div class="max-w-6xl mx-auto p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Pollinations.ai Model Comparison</h1>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <button id="font-decrease-btn" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 rounded">-</button>
+                        <button id="font-increase-btn" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 rounded">+</button>
+                    </div>
+                    <button 
+                        id="theme-toggle" 
+                        class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-3 py-1 rounded"
+                    >
+                        🌓
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label for="prompt-input" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Enter Prompt</label>
+                <div class="flex space-x-2">
+                    <select 
+                        id="system-context" 
+                        class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <!-- dynamically populated from system.json -->
+                    </select>
+                    <input 
+                        type="text" 
+                        id="prompt-input" 
+                        list="prompt-history"
+                        class="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter your prompt here..."
+                    >
+                    <datalist id="prompt-history">
+                        <!-- Dynamically populated with previous prompts -->
+                    </datalist>
+                    <button 
+                        id="submit-btn" 
+                        class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+                    >
+                        Submit
+                    </button>
+                    <button 
+                        id="cancel-btn" 
+                        class="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 hidden"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="models-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 p-4 pt-40 overflow-y-auto">
+        <!-- Model results will be dynamically populated here -->
+    </div>
+
+    <!-- Fullscreen Modal -->
+    <div 
+        id="fullscreen-modal" 
+        class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden flex items-center justify-center p-4"
+    >
+        <div class="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+            <div class="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex space-x-2"> 
+                <button 
+                    class="copy-btn"
+                    title="Copy model output"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                </button>
+                <button 
+                    id="close-fullscreen-btn" 
+                    class=""
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <div>
+                    <h2 
+                        id="fullscreen-model-name" 
+                        class="text-xl font-semibold text-gray-800 dark:text-white"
+                    ></h2>
+                    <p 
+                        id="fullscreen-model-stats" 
+                        class="text-sm text-gray-500 dark:text-gray-400"
+                    ></p>
+                </div>
+            </div>
+            <div 
+                id="fullscreen-content" 
+                class="markdown-content p-8 text-lg dark:text-white"
+            ></div>
+        </div>
+    </div>
+
+    <script>
+        const MODELS_URL = 'https://text.pollinations.ai/models';
+        const CHAT_URL = 'https://text.pollinations.ai/openai';
+        const MAX_PROMPT_HISTORY = 20; // Maximum number of prompts to store
+        var SYSTEM_PROMPTS
+
+        // Prompt history management
+        function savePrompt(prompt) {
+            if (!prompt) return;
+
+            // Retrieve existing prompts
+            let promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+            
+            // Remove duplicates and add new prompt to the beginning
+            promptHistory = promptHistory.filter(p => p !== prompt);
+            promptHistory.unshift(prompt);
+
+            // Limit history size
+            promptHistory = promptHistory.slice(0, MAX_PROMPT_HISTORY);
+
+            // Save back to localStorage
+            localStorage.setItem('promptHistory', JSON.stringify(promptHistory));
+        }
+
+        function loadPromptHistory() {
+            const promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+            const datalist = document.getElementById('prompt-history');
+            
+            // Clear existing options
+            datalist.innerHTML = '';
+
+            // Populate datalist with prompt history
+            promptHistory.forEach(prompt => {
+                const option = document.createElement('option');
+                option.value = prompt;
+                datalist.appendChild(option);
+            });
+        }
+
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+
+        // Initialize theme on page load
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                htmlElement.classList.add('dark');
+            } else {
+                htmlElement.classList.remove('dark');
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            // Toggle dark mode
+            const isDarkMode = htmlElement.classList.toggle('dark');
+            
+            // Save theme preference
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        });
+
+        // Initialize theme when page loads
+        initTheme();
+
+        // Font size controls
+        const fontDecreaseBtn = document.getElementById('font-decrease-btn');
+        const fontIncreaseBtn = document.getElementById('font-increase-btn');
+        
+        // Tailwind text size classes from smallest to largest
+        const fontSizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl'];
+        let currentFontSizeIndex = 2; // Default to 'text-base'
+
+        function updateModelResponseFontSize() {
+            const modelResponses = document.querySelectorAll('.markdown-content:not(#fullscreen-content)');
+            modelResponses.forEach(response => {
+                // Remove all font size classes
+                fontSizes.forEach(size => response.classList.remove(size));
+                // Add current font size class
+                response.classList.add(fontSizes[currentFontSizeIndex]);
+            });
+        }
+
+        fontDecreaseBtn.addEventListener('click', () => {
+            if (currentFontSizeIndex > 0) {
+                currentFontSizeIndex--;
+                updateModelResponseFontSize();
+            }
+        });
+
+        fontIncreaseBtn.addEventListener('click', () => {
+            if (currentFontSizeIndex < fontSizes.length - 1) {
+                currentFontSizeIndex++;
+                updateModelResponseFontSize();
+            }
+        });
+
+        // System context selection
+        const systemContextSelect = document.getElementById('system-context');
+
+        // Load saved system context preference
+        const savedSystemContext = localStorage.getItem('systemContext') || 'concise';
+        systemContextSelect.value = savedSystemContext;
+
+        // Save system context preference when changed
+        systemContextSelect.addEventListener('change', () => {
+            localStorage.setItem('systemContext', systemContextSelect.value);
+        });
+
+        async function fetchModels() {
+            try {
+                const response = await axios.get(MODELS_URL);
+                return response.data.filter(model => model.type === 'chat');
+            } catch (error) {
+                console.error('Error fetching models:', error);
+                return [];
+            }
+        }
+
+        function calculateTextStatistics(text) {
+            const cleanText = text.trim();
+            return {
+                characters: cleanText.length,
+                words: cleanText.split(/\s+/).filter(word => word.length > 0).length,
+                sentences: cleanText.split(/[.!?]+/).filter(sentence => sentence.trim().length > 0).length
+            };
+        }
+
+        function getSystemPrompt(context) { return SYSTEM_PROMPTS[context] }
+
+        async function queryModel(model, prompt, retryCount = 0, abortSignal = null) {
+            const MAX_RETRIES = 3;
+            const RETRY_DELAY = 1000; // 1 second initial delay
+            const systemContext = systemContextSelect.value;
+
+            const startTime = performance.now();
+            try {
+                const response = await axios.post(CHAT_URL, {
+                    model: model.name,
+                    messages: [
+                        { 
+                            role: 'system', 
+                            content: getSystemPrompt(systemContext)
+                        },
+                        { role: 'user', content: prompt }
+                    ]
+                }, {
+                    timeout: 60 * 1000, // 60 second timeout
+                    signal: abortSignal // Add abort signal support
+                });
+                
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+                
+                return {
+                    text: response.data.choices[0].message.content,
+                    duration: duration,
+                    usage: response.data.usage || {}
+                };
+            } catch (error) {
+                // Check if the error is due to cancellation
+                if (axios.isCancel(error)) {
+                    console.log('Request cancelled:', error.message);
+                    return { text: 'Request cancelled', duration: 0 };
+                }
+
+                console.error(`Error with ${model.name}:`, error);
+                
+                if (retryCount < MAX_RETRIES && !abortSignal?.aborted) {
+                    // Exponential backoff
+                    const delay = RETRY_DELAY * Math.pow(2, retryCount);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    
+                    console.log(`Retrying ${model.name} - Attempt ${retryCount + 1}`);
+                    return queryModel(model, prompt, retryCount + 1, abortSignal);
+                }
+                
+                return {
+                    text: `Error after ${MAX_RETRIES} attempts: ${error.message}`,
+                    duration: Infinity
+                };
+            }
+        }
+
+        async function initializeModelFields() {
+            const modelsContainer = document.getElementById('models-container');
+            const models = await fetchModels();
+
+            models.forEach(model => {
+                const modelDiv = document.createElement('div');
+                modelDiv.classList.add('border', 'rounded-lg', 'p-3', 'bg-white', 'dark:bg-gray-800', 'shadow-sm');
+                modelDiv.innerHTML = `
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-start space-x-2">
+                            <label class="text-gray-700 dark:text-gray-300 font-semibold text-sm">${model.name}</label>
+                        </div>
+                        <div class="flex items-start">
+                            <div id="model-stats-${model.name}" class="text-xs text-gray-500 dark:text-gray-400"></div>
+                            <div class="grid">
+                                <button 
+                                    class="fullscreen-btn hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" 
+                                    data-model="${model.name}"
+                                    title="View fullscreen"
+                                    >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                    </svg>
+                                </button>
+                                <button 
+                                    class="copy-btn hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" 
+                                    data-model="${model.name}"
+                                    title="Copy model output"
+                                    >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                    </svg>
+                                </button>    
+                            </div>
+                        </div>
+                    </div>
+                    <div 
+                        id="model-${model.name}" 
+                        class="markdown-content w-full px-2 py-1 h-48 overflow-y-auto text-base dark:text-white"
+                        placeholder="Model response will appear here..."
+                    ></div>
+                `;
+                modelsContainer.appendChild(modelDiv);
+            });
+
+            return models;
+        }
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Dynamically load system prompts and populate dropdown
+    async function loadSystemPrompts() {
+        // Method 1: Standard fetch
+        try {
+            console.log('Attempting to load system prompts via fetch...');
+            const response = await fetch('./system.json');
+            if (!response.ok) {
+                throw new Error('Failed to load system prompts via fetch');
+            }
+            return await response.json();
+        } catch (fetchError) {
+            console.warn('Fetch method failed:', fetchError);
+
+            // Method 2: XMLHttpRequest for local file loading
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', './system.json', true);
+                xhr.responseType = 'json';
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        console.log('Successfully loaded system prompts via XMLHttpRequest');
+                        resolve(xhr.response);
+                    } else {
+                        reject(new Error('XMLHttpRequest failed'));
+                    }
+                };
+                xhr.onerror = () => reject(new Error('XMLHttpRequest error'));
+                xhr.send();
+            });
+        }
+    }
+
+    try {
+        const systemPromptsData = await loadSystemPrompts();
+        SYSTEM_PROMPTS = systemPromptsData.systemPrompts;
+        const systemContextSelect = document.getElementById('system-context');
+        
+        // Clear existing options
+        systemContextSelect.innerHTML = '';
+        
+        // Populate dropdown with keys from systemPrompts
+        Object.keys(SYSTEM_PROMPTS).forEach(context => {
+            const option = document.createElement('option');
+            option.value = context;
+            option.textContent = context.charAt(0).toUpperCase() + context.slice(1);
+            systemContextSelect.appendChild(option);
+        });
+
+        // Set default value to saved or first option
+        const savedSystemContext = localStorage.getItem('systemContext') || Object.keys(SYSTEM_PROMPTS)[0];
+        systemContextSelect.value = savedSystemContext;
+    } catch (error) {
+        console.error('Error loading system prompts:', error);
+        alert('Could not load system prompts. Some functionality may be limited.');
+    }
+
+    const models = await initializeModelFields();
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const promptInput = document.getElementById('prompt-input');
+    const modelsContainer = document.getElementById('models-container');
+    const fullscreenModal = document.getElementById('fullscreen-modal');
+    const fullscreenContent = document.getElementById('fullscreen-content');
+    const closeFullscreenBtn = document.getElementById('close-fullscreen-btn');
+
+    // Cancellation controller
+    let currentAbortController = null;
+
+    // Clipboard and fullscreen functionality
+        modelsContainer.addEventListener('click', (event) => {
+            const copyBtn = event.target.closest('.copy-btn');
+            const fullscreenBtn = event.target.closest('.fullscreen-btn');
+
+                if (copyBtn) {
+                    const modelName = copyBtn.getAttribute('data-model');
+                    const modelOutput = document.getElementById(`model-${modelName}`);
+                    
+                    // Create a temporary textarea to copy text
+                    const tempTextArea = document.createElement('textarea');
+                    tempTextArea.value = modelOutput.textContent;
+                    document.body.appendChild(tempTextArea);
+                    tempTextArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempTextArea);
+
+                    // Optional: Provide visual feedback
+                    copyBtn.innerHTML = '✓';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                        `;
+                    }, 1000);
+                }
+
+                if (fullscreenBtn) {
+                    const modelName = fullscreenBtn.getAttribute('data-model');
+                    const modelOutput = document.getElementById(`model-${modelName}`);
+                    const modelNameLabel = document.querySelector(`label[class*="${modelName}"]`);
+                    const modelStatsElement = document.getElementById(`model-stats-${modelName}`);
+                    
+                    // Set fullscreen content
+                    fullscreenContent.innerHTML = modelOutput.innerHTML;
+                    
+                    // Set model name and stats
+                    const fullscreenModelName = document.getElementById('fullscreen-model-name');
+                    const fullscreenModelStats = document.getElementById('fullscreen-model-stats');
+                    console.log('Opening fullscreen modal for model:', modelName);
+                    console.log('Model output:', modelOutput.innerHTML);
+                    
+                    fullscreenModelName.textContent = modelNameLabel ? modelNameLabel.textContent : modelName;
+                    fullscreenModelStats.innerHTML = modelStatsElement ? modelStatsElement.innerHTML : '';
+                    
+                    // Update copy button's data-model attribute
+                    const fullscreenCopyBtn = fullscreenModal.querySelector('.copy-btn');
+                    if (fullscreenCopyBtn) {
+                        console.log('Found fullscreen copy button');
+                        fullscreenCopyBtn.setAttribute('data-model', modelName);
+                    } else {
+                        console.error('Could not find fullscreen copy button');
+                    }
+                    
+                    // Show modal
+                    fullscreenModal.classList.remove('hidden');
+                    fullscreenModal.classList.add('opacity-100');
+                }
+        });
+
+            // Close fullscreen modal
+            closeFullscreenBtn.addEventListener('click', () => {
+                fullscreenModal.classList.add('hidden');
+                fullscreenModal.classList.remove('opacity-100');
+            });
+
+            // Close modal when clicking outside the content
+            fullscreenModal.addEventListener('click', (event) => {
+                if (event.target === fullscreenModal) {
+                    fullscreenModal.classList.add('hidden');
+                    fullscreenModal.classList.remove('opacity-100');
+                }
+            });
+
+            // Handle copy button click in fullscreen modal
+            fullscreenModal.querySelector('.copy-btn').addEventListener('click', (event) => {
+                console.log('Fullscreen copy button clicked');
+                const modelName = event.target.closest('.copy-btn').getAttribute('data-model');
+                console.log('Copying content for model:', modelName);
+                
+                // Create a temporary textarea to copy text
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = fullscreenContent.textContent;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
+
+                // Visual feedback
+                const copyBtn = event.target.closest('.copy-btn');
+                copyBtn.innerHTML = '✓';
+                setTimeout(() => {
+                    copyBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                    `;
+                }, 1000);
+            });
+
+            // Load prompt history on page load
+            loadPromptHistory();
+
+            // Cancel button functionality
+            cancelBtn.addEventListener('click', () => {
+                if (currentAbortController) {
+                    currentAbortController.abort();
+                    
+                    // Reset UI
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    cancelBtn.classList.add('hidden');
+
+                    // Update model statuses
+                    models.forEach(model => {
+                        const textarea = document.getElementById(`model-${model.name}`);
+                        const statsElement = document.getElementById(`model-stats-${model.name}`);
+                        
+                        if (textarea.innerHTML === 'Loading...') {
+                            textarea.innerHTML = 'Cancelled';
+                            textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
+                            statsElement.textContent = 'Cancelled';
+                        }
+                    });
+                }
+            });
+
+            // Function to handle submission
+            async function handleSubmission() {
+                const prompt = promptInput.value.trim();
+                if (!prompt) return;
+
+                // Create a new abort controller for this submission
+                currentAbortController = new AbortController();
+
+                // Save prompt to history
+                savePrompt(prompt);
+                // Reload prompt history to update autocomplete
+                loadPromptHistory();
+
+                // Disable submit button, show cancel button
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Processing...';
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                cancelBtn.classList.remove('hidden');
+
+                // Clear previous results and set initial states
+                const modelResults = [];
+                models.forEach(model => {
+                    const textarea = document.getElementById(`model-${model.name}`);
+                    const statsElement = document.getElementById(`model-stats-${model.name}`);
+                    const modelContainer = textarea.closest('.border');
+                    
+                    // Remove any previous fastest model highlights
+                    modelContainer.classList.remove('fastest-model');
+                    
+                    // Set initial state to queued
+                    textarea.innerHTML = 'Queued';
+                    textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
+                    statsElement.textContent = '';
+                });
+
+        const processModelWithUI = async (model) => {
+                    const textarea = document.getElementById(`model-${model.name}`);
+                    const statsElement = document.getElementById(`model-stats-${model.name}`);
+                    
+                    // Update status to loading
+                    textarea.innerHTML = 'Loading...';
+                    textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-loading';
+
+                    try {
+                        // Pass the abort signal to queryModel
+                        const result = await queryModel(model, prompt, 0, currentAbortController?.signal);
+                        
+                        // If cancelled, skip processing
+                        if (currentAbortController?.signal?.aborted) {
+                            textarea.innerHTML = 'Cancelled';
+                            textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
+                            return null;
+                        }
+
+                        const markdownContent = marked.parse(result.text);
+                        
+                if (result.text.startsWith('Error') || result.text === 'Request cancelled') {
+                            textarea.innerHTML = result.text;
+                            textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-error';
+                            textarea.closest('.border').classList.add('opacity-50', 'grayscale');
+                            statsElement.textContent = 'Error';
+                            modelResults.push({ model: model.name, duration: Infinity });
+                            textarea.closest('.border').querySelector('.copy-btn').classList.add('hidden');
+                            textarea.closest('.border').querySelector('.fullscreen-btn').classList.add('hidden');
+                } else {
+                    textarea.innerHTML = markdownContent;
+                    textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-completed';
+                    textarea.closest('.border').classList.remove('opacity-50', 'grayscale');
+                    
+                    // Show copy and fullscreen buttons
+                    const copyBtn = textarea.closest('.border').querySelector('.copy-btn');
+                    const fullscreenBtn = textarea.closest('.border').querySelector('.fullscreen-btn');
+                    copyBtn.classList.remove('hidden');
+                    fullscreenBtn.classList.remove('hidden');
+                    
+                    // Calculate and display text statistics
+                    const stats = calculateTextStatistics(result.text);
+                      statsElement.innerHTML = `
+                        ${result.duration}ms | ${stats.characters}chr | ${stats.words}w
+                        <br><span class="text-xs text-gray-400">
+                        ${result.usage.prompt_tokens || 0} + ${result.usage.completion_tokens || 0} = ${result.usage.total_tokens || 0} tks
+                        </span>
+                    `;
+                    
+                    modelResults.push({ model: model.name, duration: result.duration });
+                }
+            } catch (error) {
+                        textarea.innerHTML = `Error: ${error.message}`;
+                        textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-error';
+                        statsElement.textContent = 'Error retrieving stats';
+                        modelResults.push({ model: model.name, duration: Infinity });
+                    }
+                };
+
+                // Concurrent processing with max 2 simultaneous requests
+                const processBatches = async () => {
+                    for (let i = 0; i < models.length; i += 2) {
+                        const batch = models.slice(i, i + 2);
+                        await Promise.all(batch.map(processModelWithUI));
+                    }
+                };
+
+                await processBatches();
+
+                // Highlight 3 fastest models
+                const sortedResults = modelResults
+                    .filter(result => result.duration !== Infinity)
+                    .sort((a, b) => a.duration - b.duration)
+                    .slice(0, 3);
+
+                sortedResults.forEach(result => {
+                    const modelContainer = document.querySelector(`[id="model-${result.model}"]`).closest('.border');
+                    modelContainer.classList.add('fastest-model');
+                });
+
+                // Re-enable submit button and hide cancel button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                cancelBtn.classList.add('hidden');
+            }
+
+            // Click event for submit button
+            submitBtn.addEventListener('click', handleSubmission);
+
+            // Enter key support for input
+            promptInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Prevent default form submission
+                    handleSubmission();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
