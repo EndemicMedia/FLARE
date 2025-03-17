@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple LLM Routing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/marked@4.3.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .conversation-container {
+            height: calc(100vh - 280px);
+            min-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .conversation-container {
+                height: calc(100vh - 380px);
+            }
+        }
+        .thinking-dot {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+        .api-tab-active {
+            background-color: #4B5563;
+            color: #93C5FD;
+            border-bottom: 2px solid #3B82F6;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <div class="max-w-6xl mx-auto p-4">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 mb-4">
+            <h1 class="text-2xl font-bold text-center mb-4 text-blue-400">Simple 1to1 LLM Routing</h1>
+            
+            <!-- Settings Panel -->
+            <div class="mb-4">
+                <button id="toggle-settings" class="bg-gray-700 text-gray-200 px-3 py-1 rounded hover:bg-gray-600 mb-2 text-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Settings
+                </button>
+                
+                <div id="settings-panel" class="bg-gray-700 rounded-lg p-4 mb-4 hidden">
+                    <!-- API Provider Selection -->
+                    <div class="mb-4 border-b border-gray-600 pb-3">
+                        <div class="flex">
+                            <button id="puter-api-tab" class="px-4 py-2 font-medium rounded-t-lg focus:outline-none api-tab-active">Puter</button>
+                            <button id="pollinations-api-tab" class="px-4 py-2 font-medium rounded-t-lg focus:outline-none">Pollinations</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Bot Selection -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="border border-gray-600 rounded-lg p-3">
+                            <h2 class="text-lg font-semibold mb-2 text-blue-300">Bot 1</h2>
+                            <select id="bot1-model" class="w-full p-2 border rounded bg-gray-800 text-gray-100 border-gray-600">
+                                <!-- Puter Models -->
+                                <optgroup label="Puter Models" class="puter-models">
+                                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                    <option value="gpt-4o">GPT-4o</option>
+                                    <option value="o1-mini">OpenAI o1-mini</option>
+                                    <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo">Meta Llama 3.1 8B</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo">Meta Llama 3.1 70B</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo">Meta Llama 3.1 405B</option>
+                                    <option value="mistral-large-latest">Mistral Large</option>
+                                    <option value="pixtral-large-latest">Pixtral Large</option>
+                                    <option value="codestral-latest">Codestral</option>
+                                    <option value="google/gemma-2-27b-it">Google Gemma 2 27B</option>
+                                    <option value="deepseek-chat">DeepSeek Chat</option>
+                                    <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                                    <option value="grok-beta">Grok Beta</option>
+                                    <option value="o3-mini">OpenAI o3-mini</option>
+                                </optgroup>
+                                <!-- Pollinations Models -->
+                                <optgroup label="Pollinations Models" class="pollinations-models" style="display:none">
+                                    <option value="pollinations:openai">OpenAI</option>
+                                    <option value="pollinations:openai-large">OpenAI Large</option>
+                                    <option value="pollinations:mistral">Mistral</option>
+                                    <option value="pollinations:claude-hybridspace">Claude HybridSpace</option>
+                                    <option value="pollinations:gemini">Gemini</option>
+                                </optgroup>
+                            </select>
+                            <div class="mt-2">
+                                <label for="bot1-system-prompt" class="block text-sm font-medium mb-1 text-gray-300">System Prompt:</label>
+                                <textarea id="bot1-system-prompt" class="w-full p-2 border rounded bg-gray-800 text-gray-100 border-gray-600 text-sm h-24" placeholder="Enter system prompt for Bot 1...">You're engaging in a lively, unscripted conversation. Keep your responses natural and spontaneous, using casual language, contractions, and varied sentence structures. Instead of relying on repetitive phrases like “Oh, totally!” or “Yeah, I get that,” be unique within the context of the whole conversation, avoid similar responses. Adapt your tone and style to match the flow of the conversation—whether that means being playful, thoughtful, skeptical, or enthusiastic. If the dialogue starts feeling too agreeable or monotonous, introduce a fresh perspective or pose a challenging question to spark further debate. Your goal is to create an authentic, engaging, and evolving discussion that mimics how real people talk, ensuring each response feels distinct and reflective of its moment in the conversation.</textarea>
+                            </div>
+                        </div>
+                        <div class="border border-gray-600 rounded-lg p-3">
+                            <h2 class="text-lg font-semibold mb-2 text-purple-300">Bot 2</h2>
+                            <select id="bot2-model" class="w-full p-2 border rounded bg-gray-800 text-gray-100 border-gray-600">
+                                <!-- Puter Models -->
+                                <optgroup label="Puter Models" class="puter-models">
+                                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                    <option value="gpt-4o">GPT-4o</option>
+                                    <option value="o1-mini">OpenAI o1-mini</option>
+                                    <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo">Meta Llama 3.1 8B</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo">Meta Llama 3.1 70B</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo">Meta Llama 3.1 405B</option>
+                                    <option value="mistral-large-latest">Mistral Large</option>
+                                    <option value="pixtral-large-latest">Pixtral Large</option>
+                                    <option value="codestral-latest">Codestral</option>
+                                    <option value="google/gemma-2-27b-it">Google Gemma 2 27B</option>
+                                    <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                                    <option value="deepseek-chat">DeepSeek Chat</option>
+                                    <option value="grok-beta">Grok Beta</option>
+                                    <option value="o3-mini">OpenAI o3-mini</option>
+                                </optgroup>
+                                <!-- Pollinations Models -->
+                                <optgroup label="Pollinations Models" class="pollinations-models" style="display:none">
+                                    <option value="pollinations:openai">OpenAI</option>
+                                    <option value="pollinations:openai-large">OpenAI Large</option>
+                                    <option value="pollinations:mistral">Mistral</option>
+                                    <option value="pollinations:claude-hybridspace">Claude HybridSpace</option>
+                                    <option value="pollinations:gemini">Gemini</option>
+                                </optgroup>
+                            </select>
+                            <div class="mt-2">
+                                <label for="bot2-system-prompt" class="block text-sm font-medium mb-1 text-gray-300">System Prompt:</label>
+                                <textarea id="bot2-system-prompt" class="w-full p-2 border rounded bg-gray-800 text-gray-100 border-gray-600 text-sm h-24" placeholder="Enter system prompt for Bot 2...">You're engaging in a lively, unscripted conversation. Keep your responses natural and spontaneous, using casual language, contractions, and varied sentence structures. Instead of relying on repetitive phrases like “Oh, totally!” or “Yeah, I get that,” be unique within the context of the whole conversation, avoid similar responses. Adapt your tone and style to match the flow of the conversation—whether that means being playful, thoughtful, skeptical, or enthusiastic. If the dialogue starts feeling too agreeable or monotonous, introduce a fresh perspective or pose a challenging question to spark further debate. Your goal is to create an authentic, engaging, and evolving discussion that mimics how real people talk, ensuring each response feels distinct and reflective of its moment in the conversation.</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conversation Settings -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="border border-gray-600 rounded-lg p-3">
+                            <h2 class="text-lg font-semibold mb-2 text-gray-300">Appearance</h2>
+                            <div class="flex items-center mb-2">
+                                <input type="checkbox" id="enable-avatar" class="mr-2">
+                                <label for="enable-avatar" class="text-sm">Show Bot Avatars</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="enable-timestamps" class="mr-2">
+                                <label for="enable-timestamps" class="text-sm">Show Timestamps</label>
+                            </div>
+                        </div>
+                        <div class="border border-gray-600 rounded-lg p-3">
+                            <h2 class="text-lg font-semibold mb-2 text-gray-300">Conversation</h2>
+                            <div class="flex items-center mb-2">
+                                <input type="checkbox" id="auto-scroll" class="mr-2" checked>
+                                <label for="auto-scroll" class="text-sm">Auto-scroll to Bottom</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="enable-markdown" class="mr-2" checked>
+                                <label for="enable-markdown" class="text-sm">Render Markdown</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Input -->
+            <div class="mb-4">
+                <textarea id="user-input" class="w-full p-3 border rounded-lg bg-gray-700 text-gray-100 border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Enter a topic or question to start the conversation..." rows="3"></textarea>
+                <div class="flex flex-wrap gap-2 justify-end mt-2">
+                    <button id="start-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Start Conversation</button>
+                    <button id="clear-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">Clear</button>
+                </div>
+            </div>
+            
+            <!-- Conversation Display -->
+            <div class="border border-gray-600 rounded-lg p-4 mb-4 conversation-container overflow-y-auto bg-gray-800" id="conversation-display">
+                <div class="text-center text-gray-400">Start a conversation to see messages here</div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="flex flex-wrap gap-2 justify-between">
+                <div>
+                    <button id="interrupt-btn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>Interrupt</button>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button id="copy-btn" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition disabled:opacity-50" disabled>
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Copy
+                        </span>
+                    </button>
+                    <button id="save-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50" disabled>
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Save
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Interruption Form -->
+        <div id="interruption-form" class="hidden bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 mb-4">
+            <h2 class="text-lg font-semibold mb-2 text-yellow-400">Your Interruption:</h2>
+            <textarea id="interruption-input" class="w-full p-3 border rounded-lg bg-gray-700 text-gray-100 border-gray-600 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none" placeholder="Enter your question or message..." rows="3"></textarea>
+            <div class="flex justify-end mt-2">
+                <button id="cancel-interruption" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition mr-2">Cancel</button>
+                <button id="submit-interruption" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Dialog -->
+    <div id="save-dialog" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-lg w-full mx-4">
+            <h2 class="text-lg font-semibold mb-4 text-blue-400">Save Conversation</h2>
+            <div class="mb-4">
+                <label for="conversation-name" class="block text-sm font-medium mb-1 text-gray-300">Conversation Name:</label>
+                <input type="text" id="conversation-name" class="w-full p-2 border rounded bg-gray-700 text-gray-100 border-gray-600" placeholder="My AI Conversation">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1 text-gray-300">Format:</label>
+                <div class="flex gap-2">
+                    <button id="save-markdown" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition flex-1">Markdown (.md)</button>
+                    <button id="save-json" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition flex-1">JSON (.json)</button>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button id="cancel-save" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition mr-2">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Puter library FIRST before our script -->
+    <script src="https://js.puter.com/v2/"></script>
+    
+    <script>
+        // Wait for Puter to be loaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Ensure puter is available before proceeding
+            if (typeof puter === 'undefined') {
+                alert('Error: Puter library not loaded. Please check your internet connection and try again.');
+                return;
+            }
+            
+            // Function to fetch and populate Pollinations models
+            async function populatePollutionsModels() {
+                try {
+                    const response = await fetch('https://text.pollinations.ai/models');
+                    const models = await response.json();
+                    
+                    // Get the Pollinations model optgroups
+                    const pollModelGroups = document.querySelectorAll('.pollinations-models');
+                    
+                    // Clear existing options
+                    pollModelGroups.forEach(group => {
+                        group.innerHTML = '';
+                    });
+                    
+                    // Populate dropdown with fetched models
+                    models.forEach(model => {
+                        // Create option with model name and description
+                        const optionValue = `pollinations:${model.name}`;
+                        const optionText = `${model.description} (${model.name})`;
+                        
+                        // Create option element
+                        const option = document.createElement('option');
+                        option.value = optionValue;
+                        option.textContent = optionText;
+                        
+                        // Add to both Pollinations model groups
+                        pollModelGroups.forEach(group => {
+                            group.appendChild(option.cloneNode(true));
+                        });
+                    });
+                } catch (error) {
+                    console.error('Error fetching Pollinations models:', error);
+                    alert('Failed to load Pollinations models. Using default models.');
+                }
+            }
+            
+            // Global variables
+            let conversationHistory = [];
+            let isConversationActive = false;
+            let currentBot = 1;
+            let waitingForUserInterruption = false;
+            let currentApiProvider = 'puter'; // 'puter' or 'pollinations'
+            
+            // DOM elements
+            const bot1Select = document.getElementById('bot1-model');
+            const bot2Select = document.getElementById('bot2-model');
+            const bot1SystemPrompt = document.getElementById('bot1-system-prompt');
+            const bot2SystemPrompt = document.getElementById('bot2-system-prompt');
+            const userInput = document.getElementById('user-input');
+            const startBtn = document.getElementById('start-btn');
+            const interruptBtn = document.getElementById('interrupt-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const conversationDisplay = document.getElementById('conversation-display');
+            const interruptionForm = document.getElementById('interruption-form');
+            const interruptionInput = document.getElementById('interruption-input');
+            const submitInterruption = document.getElementById('submit-interruption');
+            const cancelInterruption = document.getElementById('cancel-interruption');
+            const copyBtn = document.getElementById('copy-btn');
+            const saveBtn = document.getElementById('save-btn');
+            const toggleSettings = document.getElementById('toggle-settings');
+            const settingsPanel = document.getElementById('settings-panel');
+            const enableMarkdown = document.getElementById('enable-markdown');
+            const enableAvatar = document.getElementById('enable-avatar');
+            const enableTimestamps = document.getElementById('enable-timestamps');
+
+            // API Provider Tabs
+            const puterApiTab = document.getElementById('puter-api-tab');
+            const pollApiTab = document.getElementById('pollinations-api-tab');
+            const puterModelGroup = document.querySelectorAll('.puter-models');
+            const pollModelGroup = document.querySelectorAll('.pollinations-models');
+            
+            // Populate Pollinations models on page load
+            await populatePollutionsModels();
+
+            // API Provider Tab Switching
+            puterApiTab.addEventListener('click', () => {
+                currentApiProvider = 'puter';
+                puterApiTab.classList.add('api-tab-active');
+                pollApiTab.classList.remove('api-tab-active');
+                
+                // Show Puter models, hide Pollinations models
+                puterModelGroup.forEach(group => group.style.display = '');
+                pollModelGroup.forEach(group => group.style.display = 'none');
+                
+                // Reset model selections to first Puter model
+                bot1Select.selectedIndex = 0;
+                bot2Select.selectedIndex = 0;
+            });
+
+            pollApiTab.addEventListener('click', () => {
+                currentApiProvider = 'pollinations';
+                pollApiTab.classList.add('api-tab-active');
+                puterApiTab.classList.remove('api-tab-active');
+                
+                // Show Pollinations models, hide Puter models
+                puterModelGroup.forEach(group => group.style.display = 'none');
+                pollModelGroup.forEach(group => group.style.display = '');
+                
+                // Reset model selections to first Pollinations model
+                bot1Select.selectedIndex = puterModelGroup[0].children.length;
+                bot2Select.selectedIndex = puterModelGroup[0].children.length;
+            });
+            const autoScroll = document.getElementById('auto-scroll');
+            
+            // Save dialog elements
+            const saveDialog = document.getElementById('save-dialog');
+            const conversationName = document.getElementById('conversation-name');
+            const saveMarkdown = document.getElementById('save-markdown');
+            const saveJson = document.getElementById('save-json');
+            const cancelSave = document.getElementById('cancel-save');
+            
+            // Helper functions
+            function getTimestamp() {
+                const now = new Date();
+                return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            
+            function appendMessage(sender, message, model) {
+                // Create message timestamp
+                const timestamp = getTimestamp();
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'mb-4';
+                
+                let senderClass = '';
+                let avatarColor = '#4B5563'; // Default gray
+                
+                if (sender === 'User') {
+                    senderClass = 'bg-gray-700 border-gray-600';
+                    avatarColor = '#3B82F6'; // Blue
+                } else if (sender === 'Bot 1') {
+                    senderClass = 'bg-gray-700 border-l-4 border-l-green-500 border-t border-r border-b border-gray-600';
+                    avatarColor = '#10B981'; // Green
+                } else if (sender === 'Bot 2') {
+                    senderClass = 'bg-gray-700 border-l-4 border-l-purple-500 border-t border-r border-b border-gray-600';
+                    avatarColor = '#8B5CF6'; // Purple
+                }
+                
+                // Generate avatar initials
+                let initials = sender === 'User' ? 'U' : sender === 'Bot 1' ? 'B1' : 'B2';
+                
+                // Process markdown if enabled
+                let processedMessage = message;
+                if (enableMarkdown.checked && sender !== 'User') {
+                    try {
+                        processedMessage = marked.parse(message);
+                    } catch (e) {
+                        console.error("Error parsing markdown:", e);
+                        processedMessage = message;
+                    }
+                } else {
+                    // Simple text formatting with line breaks
+                    processedMessage = message.replace(/\n/g, '<br>');
+                }
+                
+                let avatarHtml = '';
+                if (enableAvatar.checked) {
+                    avatarHtml = `
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background-color: ${avatarColor}">
+                            ${initials}
+                        </div>
+                    `;
+                }
+                
+                let timestampHtml = '';
+                if (enableTimestamps.checked) {
+                    timestampHtml = `<span class="text-xs text-gray-400 ml-2">${timestamp}</span>`;
+                }
+                
+                messageDiv.innerHTML = `
+                    <div class="flex items-start mb-1">
+                        ${enableAvatar.checked ? avatarHtml : ''}
+                        <div class="flex-grow ${enableAvatar.checked ? 'ml-2' : ''}">
+                            <div class="font-medium ${sender === 'User' ? 'text-blue-400' : sender === 'Bot 1' ? 'text-green-400' : 'text-purple-400'}">
+                                ${sender} ${model ? `(${model})` : ''} ${timestampHtml}
+                            </div>
+                            <div class="p-3 rounded-lg ${senderClass} mt-1 overflow-x-auto">
+                                <div class="prose prose-invert max-w-none">${processedMessage}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                conversationDisplay.appendChild(messageDiv);
+                if (autoScroll.checked) {
+                    conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+                }
+                
+                // Save to history
+                conversationHistory.push({
+                    sender,
+                    message,
+                    model,
+                    timestamp
+                });
+                
+                // Enable copy and save buttons if there's content
+                if (conversationHistory.length > 0) {
+                    copyBtn.disabled = false;
+                    saveBtn.disabled = false;
+                }
+            }
+            
+            function appendThinkingMessage(botNumber, model) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'mb-4 thinking-message';
+                
+                let senderClass = botNumber === 1 ? 
+                    'bg-gray-700 border-l-4 border-l-green-500 border-t border-r border-b border-gray-600' : 
+                    'bg-gray-700 border-l-4 border-l-purple-500 border-t border-r border-b border-gray-600';
+                
+                let avatarColor = botNumber === 1 ? '#10B981' : '#8B5CF6';
+                let initials = botNumber === 1 ? 'B1' : 'B2';
+                
+                let avatarHtml = '';
+                if (enableAvatar.checked) {
+                    avatarHtml = `
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background-color: ${avatarColor}">
+                            ${initials}
+                        </div>
+                    `;
+                }
+                
+                let timestampHtml = '';
+                if (enableTimestamps.checked) {
+                    timestampHtml = `<span class="text-xs text-gray-400 ml-2">${getTimestamp()}</span>`;
+                }
+                
+                messageDiv.innerHTML = `
+                    <div class="flex items-start mb-1">
+                        ${enableAvatar.checked ? avatarHtml : ''}
+                        <div class="flex-grow ${enableAvatar.checked ? 'ml-2' : ''}">
+                            <div class="font-medium ${botNumber === 1 ? 'text-green-400' : 'text-purple-400'}">
+                                Bot ${botNumber} (${model}) ${timestampHtml}
+                            </div>
+                            <div class="p-3 rounded-lg ${senderClass} mt-1">
+                                <div class="flex items-center">
+                                    <span class="thinking-dot mr-1">●</span>
+                                    <span class="thinking-dot mx-1" style="animation-delay: 0.2s">●</span>
+                                    <span class="thinking-dot ml-1" style="animation-delay: 0.4s">●</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                conversationDisplay.appendChild(messageDiv);
+                if (autoScroll.checked) {
+                    conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+                }
+                
+                return messageDiv;
+            }
+            
+            async function sendToBot(message, botNumber) {
+                const model = botNumber === 1 ? bot1Select.value : bot2Select.value;
+                const systemPrompt = botNumber === 1 ? bot1SystemPrompt.value : bot2SystemPrompt.value;
+                let fullResponse = '';
+                
+                try {
+                    console.log(`sendToBot called for Bot ${botNumber} with model ${model}`);
+                    console.log(`Message to Bot ${botNumber}: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`);
+                    // Show thinking state
+                    const thinkingMessageDiv = appendThinkingMessage(botNumber, model);
+                    
+                    // Build complete message history for context
+                    const messages = [
+                        { role: "system", content: systemPrompt }
+                    ];
+                    
+                    console.log(`Building message history for Bot ${botNumber}...`);
+                    
+                    // Add all previous conversation history with proper role attribution
+                    for (let i = 0; i < conversationHistory.length; i++) {
+                        const entry = conversationHistory[i];
+                        if (entry.sender === 'User') {
+                            messages.push({ role: "user", content: entry.message });
+                            console.log(`Added user message to history: "${entry.message.substring(0, 30)}${entry.message.length > 30 ? '...' : ''}"`);
+                        } else {
+                            // Determine which bot sent the message
+                            const botRole = "assistant"; // Both bots use assistant role
+                            messages.push({ role: botRole, content: entry.message });
+                            console.log(`Added Bot ${entry.sender.split(' ')[1]} message to history (as ${botRole}): "${entry.message.substring(0, 30)}${entry.message.length > 30 ? '...' : ''}"`);
+                        }
+                    }
+                    
+                    // // Add the current message if it's not already in the history
+                    // const lastEntry = conversationHistory.length > 0 ? conversationHistory[conversationHistory.length - 1] : null;
+                    // if (!lastEntry || 
+                    //     lastEntry.sender !== 'User' || 
+                    //     lastEntry.message !== message) {
+                    //     messages.push({ role: "user", content: message });
+                    //     console.log(`Added current user message to history: "${message.substring(0, 30)}${message.length > 30 ? '...' : ''}"`);
+                    // }
+                    
+                    console.log(`Sending ${messages.length} messages to ${model} (${currentApiProvider} API)`);
+                    console.log(`Full message payload:`, JSON.stringify(messages, null, 2));
+                    
+                    let response;
+                    
+                    if (currentApiProvider === 'puter') {
+                        console.log(`Using puter API for Bot ${botNumber}`);
+                        response = await puter.ai.chat(messages, {
+                            model: model,
+                            stream: true
+                        });
+                    } else if (currentApiProvider === 'pollinations') {
+                        console.log(`Using pollinations API for Bot ${botNumber}`);
+                        response = await sendToPollinations(messages, model);
+                    }           
+                    
+                    console.log(`Stream response started for Bot ${botNumber}`);
+                    for await (const part of response) {
+                        if (part?.text) {
+                            fullResponse += part.text;
+                            // console.log(`Received stream chunk from Bot ${botNumber}, total length: ${fullResponse.length}`);
+                            
+                            // Process markdown if enabled
+                            let processedContent = fullResponse;
+                            if (enableMarkdown.checked) {
+                                try {
+                                    processedContent = marked.parse(fullResponse);
+                                } catch (e) {
+                                    console.warn(`Markdown parsing error for Bot ${botNumber}:`, e);
+                                    processedContent = fullResponse.replace(/\n/g, '<br>');
+                                }
+                            } else {
+                                processedContent = fullResponse.replace(/\n/g, '<br>');
+                            }
+                            
+                            const responseContainer = thinkingMessageDiv.querySelector('.rounded-lg');
+                            responseContainer.innerHTML = `<div class="prose prose-invert max-w-none">${processedContent}</div>`;
+                            
+                            if (autoScroll.checked) {
+                                conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+                            }
+                        }
+                    }
+                    
+                    // Remove thinking class
+                    console.log(`Response completed for Bot ${botNumber}, length: ${fullResponse.length}`);
+                    thinkingMessageDiv.classList.remove('thinking-message');
+                    
+                    // Add to history - make sure we're not duplicating entries
+                    // Remove the temporary thinking message if it exists in history
+                    if (conversationHistory.length > 0 && 
+                        conversationHistory[conversationHistory.length - 1].sender === `Bot ${botNumber}` &&
+                        conversationHistory[conversationHistory.length - 1].status === 'thinking') {
+                        console.log(`Removing temporary thinking message for Bot ${botNumber}`);
+                        conversationHistory.pop();
+                    }
+                    
+                    console.log(`Adding Bot ${botNumber} response to conversation history`);
+                    conversationHistory.push({
+                        sender: `Bot ${botNumber}`,
+                        message: fullResponse,
+                        model,
+                        timestamp: getTimestamp(),
+                        status: 'completed'
+                    });
+                    
+                    // Enable copy and save buttons
+                    copyBtn.disabled = false;
+                    saveBtn.disabled = false;
+                    
+                    console.log(`Bot ${botNumber} response complete`);
+                    console.log(`Current conversation history has ${conversationHistory.length} entries`);
+                    return fullResponse;
+                } catch (error) {
+                    console.error(`Error with Bot ${botNumber}:`, error);
+                    
+                    // Remove thinking message
+                    const thinkingMessages = document.getElementsByClassName('thinking-message');
+                    if (thinkingMessages.length > 0) {
+                        thinkingMessages[0].remove();
+                    }
+                    
+                    // Add error message
+                    appendMessage(`Bot ${botNumber}`, `Error: ${error.message}`, model);
+                    return null;
+                }
+            }     
+            
+            async function sendToPollinations(messages, model) {
+                const baseUrl = 'https://text.pollinations.ai/';
+                const pollModel = model.replace('pollinations:', '');
+                
+                // Log the messages being sent to Pollinations
+                console.log('Sending to Pollinations:', JSON.stringify(messages));
+                
+                // Ensure we're sending the complete conversation history in the correct format
+                // The Pollinations API expects an array of messages with role and content
+                const formattedMessages = messages.map(msg => ({
+                    role: msg.role,
+                    content: msg.content
+                }));
+                
+                console.log('Formatted messages for Pollinations:', JSON.stringify(formattedMessages));
+                
+                const response = await fetch(baseUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messages: formattedMessages,
+                        model: pollModel,
+                        stream: true,
+                        private: true // Add private flag to prevent appearing in public feed
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Pollinations API error: ${response.statusText}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let isDone = false;
+
+                return {
+                    [Symbol.asyncIterator]() {
+                        return {
+                            async next() {
+                                if (isDone) {
+                                    return { done: true };
+                                }
+
+                                while (true) {
+                                    const { done, value } = await reader.read();
+                                    
+                                    if (done) {
+                                        isDone = true;
+                                        // Return any remaining text
+                                        if (buffer.trim()) {
+                                            const text = buffer.trim();
+                                            buffer = '';
+                                            return {
+                                                done: false,
+                                                value: { text: text }
+                                            };
+                                        }
+                                        return { done: true };
+                                    }
+                                    
+                                    buffer += decoder.decode(value);
+                                    
+                                    // Try to parse complete JSON chunks
+                                    const lines = buffer.split('\n');
+                                    buffer = lines.pop(); // Keep incomplete line in buffer
+                                    
+                                    let text = '';
+                                    for (const line of lines) {
+                                        if (line.trim().startsWith('data:')) {
+                                            try {
+                                                const jsonData = JSON.parse(line.slice(5).trim());
+                                                
+                                                // Log the received JSON data for debugging
+                                                // console.log('Pollinations response chunk:', jsonData);
+                                                
+                                                // Extract text from different Pollinations response formats
+                                                if (jsonData.choices && jsonData.choices[0]) {
+                                                    const delta = jsonData.choices[0].delta;
+                                                    if (delta && delta.content) {
+                                                        text += delta.content;
+                                                    }
+                                                } else if (jsonData.response) {
+                                                    text += jsonData.response;
+                                                } else if (jsonData.content) {
+                                                    // Handle direct content field if present
+                                                    text += jsonData.content;
+                                                }
+                                            } catch (e) {
+                                                console.error('Error parsing Pollinations response:', e);
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (text) {
+                                        return {
+                                            done: false,
+                                            value: { text: text }
+                                        };
+                                    }
+                                }
+                            }
+                        };
+                    }
+                };
+            }
+            
+            async function startConversationLoop() {
+                if (!userInput.value.trim()) {
+                    alert('Please enter a topic or question to start the conversation');
+                    return;
+                }
+                
+                console.log('Starting conversation loop');
+                isConversationActive = true;
+                interruptBtn.disabled = false;
+                startBtn.disabled = true;
+                
+                // If first message, clear the placeholder
+                if (conversationHistory.length === 0) {
+                    conversationDisplay.innerHTML = '';
+                }
+                
+                // Add user input
+                console.log('Adding user input to conversation');
+                appendMessage('User', userInput.value);
+                
+                let currentMessage = userInput.value;
+                userInput.value = '';
+                
+                // Start the conversation loop
+                while (isConversationActive) {
+                    // Bot 1's turn
+                    if (currentBot === 1) {
+                        console.log('Bot 1 turn started');
+                        const response = await sendToBot(currentMessage, 1);
+                        if (!response) {
+                            console.log('Bot 1 response failed, breaking loop');
+                            break;
+                        }
+                        currentMessage = response;
+                        currentBot = 2;
+                        console.log('Bot 1 turn completed, switching to Bot 2');
+                    }
+                    // Bot 2's turn
+                    else {
+                        console.log('Bot 2 turn started');
+                        const response = await sendToBot(currentMessage, 2);
+                        if (!response) {
+                            console.log('Bot 2 response failed, breaking loop');
+                            break;
+                        }
+                        currentMessage = response;
+                        currentBot = 1;
+                        console.log('Bot 2 turn completed, switching to Bot 1');
+                    }
+                    
+                    // Check if user wants to interrupt
+                    if (waitingForUserInterruption) {
+                        console.log('User interruption detected');
+                        interruptionForm.classList.remove('hidden');
+                        break;
+                    }
+                    
+                    // Add a random delay between responses (1-3 seconds)
+                    const randomDelay = Math.floor(Math.random() * 10000) + 2000; // 1-3 seconds
+                    console.log(`Adding random delay between messages: ${randomDelay}ms`);
+                    await new Promise(resolve => setTimeout(resolve, randomDelay));
+
+                    // Occasional extra message from the same bot (30% chance)
+                    const extraMessageChance = Math.random()+1;
+                    if (extraMessageChance < 0.3) {
+                        console.log(`Extra message chance triggered (${extraMessageChance.toFixed(2)}) for Bot ${currentBot}`);
+                        const extraMessagePrompts = [
+                            "Could you elaborate on your previous point?",
+                            "That's an interesting perspective. Can you expand on that?",
+                            "I'd like to hear more about what you just said.",
+                            "Can you provide some additional context?",
+                            "What led you to that conclusion?"
+                        ];
+                        const randomPrompt = extraMessagePrompts[Math.floor(Math.random() * extraMessagePrompts.length)];
+                        
+                        console.log(`Sending extra message prompt: "${randomPrompt}"`);
+                        const extraResponse = await sendToBot(randomPrompt, currentBot === 1 ? 2 : 1);
+                        if (extraResponse) {
+                            console.log(`Extra message successfully sent by Bot ${currentBot === 1 ? 2 : 1}`);
+                            currentMessage = extraResponse;
+                            // Keep the same bot order
+                        } else {
+                            console.log('Extra message failed');
+                        }
+                    }
+                }
+                
+                console.log('Conversation loop ended');
+                startBtn.disabled = false;
+            }
+            
+            function convertToMarkdown() {
+                let markdown = "# AI Chatbot Conversation\n\n";
+                
+                conversationHistory.forEach(entry => {
+                    const timestamp = entry.timestamp ? ` - ${entry.timestamp}` : '';
+                    const model = entry.model ? ` (${entry.model})` : '';
+                    
+                    markdown += `## ${entry.sender}${model}${timestamp}\n\n`;
+                    markdown += `${entry.message}\n\n`;
+                });
+                
+                return markdown;
+            }
+            
+            function copyToClipboard() {
+                const markdown = convertToMarkdown();
+                navigator.clipboard.writeText(markdown)
+                    .then(() => {
+                        const originalText = copyBtn.innerHTML;
+                        copyBtn.innerHTML = `
+                            <span class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Copied!
+                            </span>
+                        `;
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalText;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        alert('Failed to copy conversation: ' + err);
+                    });
+            }
+            
+            function saveConversation(format) {
+                let filename = conversationName.value || "ai-conversation";
+                let content;
+                let mimeType;
+                // Remove the incorrect log statement that uses undefined variable
+                
+                if (format === 'markdown') {
+                    content = convertToMarkdown();
+                    filename = filename.endsWith('.md') ? filename : filename + '.md';
+                    mimeType = 'text/markdown';
+                } else {
+                    content = JSON.stringify(conversationHistory, null, 2);
+                    filename = filename.endsWith('.json') ? filename : filename + '.json';
+                    mimeType = 'application/json';
+                }
+                
+                const blob = new Blob([content], { type: mimeType });
+                saveAs(blob, filename);
+                
+                // Close dialog
+                saveDialog.classList.add('hidden');
+            }
+            
+            // Event listeners
+            startBtn.addEventListener('click', startConversationLoop);
+            
+            // Allow Enter key to submit
+            userInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    console.log(`User pressed Enter key to start conversation`);
+                    e.preventDefault();
+                    if (!startBtn.disabled) {
+                        startBtn.click();
+                    }
+                }
+            });
+            
+            interruptionInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!submitInterruption.disabled) {
+                        submitInterruption.click();
+                    }
+                }
+            });
+            
+            interruptBtn.addEventListener('click', () => {
+                console.log('User clicked interrupt button');
+                waitingForUserInterruption = true;
+                interruptBtn.disabled = true;
+                interruptionForm.classList.remove('hidden');
+            });
+            
+            cancelInterruption.addEventListener('click', () => {
+                console.log('User cancelled interruption');
+                waitingForUserInterruption = false;
+                interruptBtn.disabled = false;
+                interruptionForm.classList.add('hidden');
+            });
+            
+            submitInterruption.addEventListener('click', async () => {
+                const interruptionMessage = interruptionInput.value.trim();
+                if (!interruptionMessage) {
+                    alert('Please enter your question');
+                    return;
+                }
+                
+                appendMessage('User', interruptionMessage);
+                interruptionInput.value = '';
+                interruptionForm.classList.add('hidden');
+                
+                // Send to the next bot in sequence
+                const nextBotResponse = await sendToBot(interruptionMessage, currentBot);
+                if (nextBotResponse) {
+                    currentMessage = nextBotResponse;
+                    currentBot = currentBot === 1 ? 2 : 1;
+                    
+                    // Resume conversation
+                    waitingForUserInterruption = false;
+                    interruptBtn.disabled = false;
+                    
+                    // Continue the loop
+                    isConversationActive = true;
+                    startConversationLoop();
+                }
+            });
+            
+            clearBtn.addEventListener('click', () => {
+                console.log('User clicked clear button');
+                if (conversationHistory.length > 0 && !confirm('Are you sure you want to clear the current conversation?')) {
+                    return;
+                }
+                
+                conversationDisplay.innerHTML = '<div class="text-center text-gray-400">Start a conversation to see messages here</div>';
+                conversationHistory = [];
+                isConversationActive = false;
+                interruptBtn.disabled = true;
+                startBtn.disabled = false;
+                interruptionForm.classList.add('hidden');
+                userInput.value = '';
+                interruptionInput.value = '';
+                copyBtn.disabled = true;
+                saveBtn.disabled = true;
+            });
+            
+            copyBtn.addEventListener('click', copyToClipboard);
+            
+            saveBtn.addEventListener('click', () => {
+                // Generate default filename
+                const date = new Date();
+                const defaultName = `ai-conversation-${date.toISOString().split('T')[0]}`;
+                conversationName.value = defaultName;
+                
+                // Show save dialog
+                saveDialog.classList.remove('hidden');
+            });
+            
+            saveMarkdown.addEventListener('click', () => saveConversation('markdown'));
+            saveJson.addEventListener('click', () => saveConversation('json'));
+            cancelSave.addEventListener('click', () => saveDialog.classList.add('hidden'));
+            
+            // Close dialog when clicking outside
+            saveDialog.addEventListener('click', (e) => {
+                if (e.target === saveDialog) {
+                    saveDialog.classList.add('hidden');
+                }
+            });
+            
+            // Settings toggle
+            toggleSettings.addEventListener('click', () => {
+                settingsPanel.classList.toggle('hidden');
+            });
+            
+            // Toggle markdown rendering
+            enableMarkdown.addEventListener('change', () => {
+                // Redraw messages if needed
+                if (conversationHistory.length > 0) {
+                    conversationDisplay.innerHTML = '';
+                    conversationHistory.forEach(entry => {
+                        appendMessage(entry.sender, entry.message, entry.model);
+                    });
+                }
+            });
+            
+            // Toggle avatars
+            enableAvatar.addEventListener('change', () => {
+                // Redraw messages if needed
+                if (conversationHistory.length > 0) {
+                    conversationDisplay.innerHTML = '';
+                    conversationHistory.forEach(entry => {
+                        appendMessage(entry.sender, entry.message, entry.model);
+                    });
+                }
+            });
+            
+            // Toggle timestamps
+            enableTimestamps.addEventListener('change', () => {
+                // Redraw messages if needed
+                if (conversationHistory.length > 0) {
+                    conversationDisplay.innerHTML = '';
+                    conversationHistory.forEach(entry => {
+                        appendMessage(entry.sender, entry.message, entry.model);
+                    });
+                }
+            });
+            
+            // Handle keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Cmd/Ctrl+C to copy
+                if ((e.metaKey || e.ctrlKey) && e.key === 'c' && !copyBtn.disabled) {
+                    copyToClipboard();
+                }
+                
+                // Cmd/Ctrl+S to save
+                if ((e.metaKey || e.ctrlKey) && e.key === 's' && !saveBtn.disabled) {
+                    e.preventDefault();
+                    saveBtn.click();
+                }
+                
+                // Escape to close dialogs
+                if (e.key === 'Escape') {
+                    if (!saveDialog.classList.contains('hidden')) {
+                        saveDialog.classList.add('hidden');
+                    }
+                    if (!interruptionForm.classList.contains('hidden')) {
+                        interruptionForm.classList.add('hidden');
+                        waitingForUserInterruption = false;
+                        interruptBtn.disabled = false;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
