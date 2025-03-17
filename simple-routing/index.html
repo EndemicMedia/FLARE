@@ -95,7 +95,7 @@
                             </select>
                             <div class="mt-2">
                                 <label for="bot1-system-prompt" class="block text-sm font-medium mb-1 text-gray-300">System Prompt:</label>
-                                <textarea id="bot1-system-prompt" class="w-full p-2 border rounded bg-gray-800 text-gray-100 border-gray-600 text-sm h-24" placeholder="Enter system prompt for Bot 1...">You're engaging in a lively, unscripted conversation. Keep your responses natural and spontaneous, using casual language, contractions, and varied sentence structures. Instead of relying on repetitive phrases like “Oh, totally!” or “Yeah, I get that,” be unique within the context of the whole conversation, avoid similar responses. Adapt your tone and style to match the flow of the conversation—whether that means being playful, thoughtful, skeptical, or enthusiastic. If the dialogue starts feeling too agreeable or monotonous, introduce a fresh perspective or pose a challenging question to spark further debate. Your goal is to create an authentic, engaging, and evolving discussion that mimics how real people talk, ensuring each response feels distinct and reflective of its moment in the conversation.</textarea>
+                                <textarea id="bot1-system-prompt" class="w-full p-2 border rounded bg-gray-800 text-gray-100 border-gray-600 text-sm h-24" placeholder="Enter system prompt for Bot 1...">You're engaging in a lively, unscripted conversation. Keep your responses natural and spontaneous, using casual language, contractions, and varied sentence structures. Instead of relying on repetitive phrases like “Oh, totally!” or “Yeah, I get that,” be unique within the context of the whole conversation, avoid similar responses. Try to answer relevant questions in the previous chat message. Adapt your tone and style to match the flow of the conversation—whether that means being playful, thoughtful, skeptical, or enthusiastic. If the dialogue starts feeling too agreeable or monotonous, introduce a fresh perspective or pose a challenging question to spark further debate. Your goal is to create an authentic, engaging, and evolving discussion that mimics how real people talk, ensuring each response feels distinct and reflective of its moment in the conversation.</textarea>
                             </div>
                         </div>
                         <div class="border border-gray-600 rounded-lg p-3">
@@ -132,7 +132,7 @@
                             </select>
                             <div class="mt-2">
                                 <label for="bot2-system-prompt" class="block text-sm font-medium mb-1 text-gray-300">System Prompt:</label>
-                                <textarea id="bot2-system-prompt" class="w-full p-2 border rounded bg-gray-800 text-gray-100 border-gray-600 text-sm h-24" placeholder="Enter system prompt for Bot 2...">You're engaging in a lively, unscripted conversation. Keep your responses natural and spontaneous, using casual language, contractions, and varied sentence structures. Instead of relying on repetitive phrases like “Oh, totally!” or “Yeah, I get that,” be unique within the context of the whole conversation, avoid similar responses. Adapt your tone and style to match the flow of the conversation—whether that means being playful, thoughtful, skeptical, or enthusiastic. If the dialogue starts feeling too agreeable or monotonous, introduce a fresh perspective or pose a challenging question to spark further debate. Your goal is to create an authentic, engaging, and evolving discussion that mimics how real people talk, ensuring each response feels distinct and reflective of its moment in the conversation.</textarea>
+                                <textarea id="bot2-system-prompt" class="w-full p-2 border rounded bg-gray-800 text-gray-100 border-gray-600 text-sm h-24" placeholder="Enter system prompt for Bot 2...">You're engaging in a lively, unscripted conversation. Keep your responses natural and spontaneous, using casual language, contractions, and varied sentence structures. Instead of relying on repetitive phrases like “Oh, totally!” or “Yeah, I get that,” be unique within the context of the whole conversation, avoid similar responses. Try to answer relevant questions in the previous chat message. Adapt your tone and style to match the flow of the conversation—whether that means being playful, thoughtful, skeptical, or enthusiastic. If the dialogue starts feeling too agreeable or monotonous, introduce a fresh perspective or pose a challenging question to spark further debate. Your goal is to create an authentic, engaging, and evolving discussion that mimics how real people talk, ensuring each response feels distinct and reflective of its moment in the conversation.</textarea>
                             </div>
                         </div>
                     </div>
@@ -263,8 +263,43 @@
                         group.innerHTML = '';
                     });
                     
-                    // Populate dropdown with fetched models
-                    models.forEach(model => {
+                    // Function to check model health with timeout
+                    const checkModelHealth = async (model) => {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 6000); // 6-second timeout
+                        
+                        try {
+                            const healthCheckResponse = await fetch('https://text.pollinations.ai/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    messages: [{ role: 'user', content: '1+1 = ?' }],
+                                    model: model.name,
+                                    stream: false
+                                }),
+                                signal: controller.signal
+                            });
+
+                            clearTimeout(timeoutId);
+                            return healthCheckResponse.ok ? model : null;
+                        } catch (error) {
+                            clearTimeout(timeoutId);
+                            console.warn(`Health check failed for model ${model.name}:`, error);
+                            return null;
+                        }
+                    };
+
+                    // Perform simultaneous health checks
+                    const healthyModels = await Promise.all(
+                        models.map(model => checkModelHealth(model))
+                    );
+
+                    // Filter out null (failed) models and add successful ones to dropdown
+                    const validModels = healthyModels.filter(model => model !== null);
+                    
+                    validModels.forEach(model => {
                         // Create option with model name and description
                         const optionValue = `pollinations:${model.name}`;
                         const optionText = `${model.description} (${model.name})`;
@@ -290,6 +325,7 @@
             let isConversationActive = false;
             let currentBot = 1;
             let waitingForUserInterruption = false;
+            let pollutionsModelsPopulated = false; // Flag to track if Pollinations models have been populated
             let currentApiProvider = 'puter'; // 'puter' or 'pollinations'
             
             // DOM elements
@@ -320,8 +356,8 @@
             const puterModelGroup = document.querySelectorAll('.puter-models');
             const pollModelGroup = document.querySelectorAll('.pollinations-models');
             
-            // Populate Pollinations models on page load
-            await populatePollutionsModels();
+            // We'll populate Pollinations models only when the tab is clicked for the first time
+            // Not populating on page load anymore
 
             // API Provider Tab Switching
             puterApiTab.addEventListener('click', () => {
@@ -338,7 +374,7 @@
                 bot2Select.selectedIndex = 0;
             });
 
-            pollApiTab.addEventListener('click', () => {
+            pollApiTab.addEventListener('click', async () => {
                 currentApiProvider = 'pollinations';
                 pollApiTab.classList.add('api-tab-active');
                 puterApiTab.classList.remove('api-tab-active');
@@ -346,6 +382,13 @@
                 // Show Pollinations models, hide Puter models
                 puterModelGroup.forEach(group => group.style.display = 'none');
                 pollModelGroup.forEach(group => group.style.display = '');
+                
+                // Populate Pollinations models only on first click
+                if (!pollutionsModelsPopulated) {
+                    console.log('First click on Pollinations tab - populating models');
+                    await populatePollutionsModels();
+                    pollutionsModelsPopulated = true;
+                }
                 
                 // Reset model selections to first Pollinations model
                 bot1Select.selectedIndex = puterModelGroup[0].children.length;
@@ -525,13 +568,21 @@
                     for (let i = 0; i < conversationHistory.length; i++) {
                         const entry = conversationHistory[i];
                         if (entry.sender === 'User') {
-                            messages.push({ role: "user", content: entry.message });
+                            messages.push({
+                                role: "user",
+                                name: "user",
+                                content: entry.message
+                                
+                            });
                             console.log(`Added user message to history: "${entry.message.substring(0, 30)}${entry.message.length > 30 ? '...' : ''}"`);
                         } else {
                             // Determine which bot sent the message
-                            const botRole = "assistant"; // Both bots use assistant role
-                            messages.push({ role: botRole, content: entry.message });
-                            console.log(`Added Bot ${entry.sender.split(' ')[1]} message to history (as ${botRole}): "${entry.message.substring(0, 30)}${entry.message.length > 30 ? '...' : ''}"`);
+                            messages.push({
+                                role: "user",
+                                name: entry.sender.replace(' ', '_').toLowerCase(),
+                                content: entry.message
+                            });
+                            console.log(`Added Bot ${entry.sender.split(' ')[1]} message to history (as assistant): "${entry.message.substring(0, 30)}${entry.message.length > 30 ? '...' : ''}"`);
                         }
                     }
                     
