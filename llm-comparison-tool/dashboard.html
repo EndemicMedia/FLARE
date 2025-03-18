@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pollinations Text Model Monitoring Dashboard</title>
+    <!-- Added SEO metadata -->
+    <meta name="description" content="Real-time performance monitoring dashboard for Pollinations text generation models. Track response times, error rates, and model availability.">
+    <meta name="keywords" content="Pollinations, AI models, LLM, text generation, model monitoring, dashboard, performance metrics, AI latency">
+    <meta name="author" content="Pollinations.ai">
+    <meta property="og:title" content="Pollinations Text Model Monitoring Dashboard">
+    <meta property="og:description" content="Real-time performance monitoring for AI text generation models by Pollinations.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://text.pollinations.ai/dashboard">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pollinations Text Model Monitoring Dashboard">
+    <meta name="twitter:description" content="Real-time performance monitoring for AI text generation models by Pollinations.">
+    <link rel="canonical" href="https://text.pollinations.ai/dashboard">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash/4.17.21/lodash.min.js"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+    <header class="bg-gray-800 shadow-md p-4">
+        <h1 class="text-2xl font-bold">Pollinations Text Model Monitoring Dashboard</h1>
+    </header>
+    
+    <main class="flex-grow p-4 md:flex">
+        <!-- Filters Sidebar -->
+        <div id="filters-container" class="md:w-1/4 bg-gray-800 rounded-lg shadow-md p-4 mb-4 md:mr-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Filters</h2>
+                <button id="collapse-filters" class="bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded">
+                    <span id="collapse-icon">▼</span>
+                </button>
+            </div>
+            
+            <div id="filters-content">
+                <div class="mb-6">
+                    <h3 class="font-medium mb-2">Model Features</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-censored" class="mr-2 h-4 w-4 rounded">
+                            <label for="filter-censored" class="text-sm">Censored</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-uncensored" class="mr-2 h-4 w-4 rounded">
+                            <label for="filter-uncensored" class="text-sm">Uncensored</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-vision" class="mr-2 h-4 w-4 rounded">
+                            <label for="filter-vision" class="text-sm">Vision</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-reasoning" class="mr-2 h-4 w-4 rounded">
+                            <label for="filter-reasoning" class="text-sm">Reasoning</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-hide-offline" class="mr-2 h-4 w-4 rounded">
+                            <label for="filter-hide-offline" class="text-sm">Hide Offline</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-only-offline" class="mr-2 h-4 w-4 rounded">
+                            <label for="filter-only-offline" class="text-sm">Only Offline</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="font-medium mb-2">Model Size</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-size-small" class="mr-2 h-4 w-4 rounded">
+                            <label for="filter-size-small" class="text-sm">Small</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-size-medium" class="mr-2 h-4 w-4 rounded">
+                            <label for="filter-size-medium" class="text-sm">Medium</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-size-large" class="mr-2 h-4 w-4 rounded">
+                            <label for="filter-size-large" class="text-sm">Large</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-medium mb-2">Models</h3>
+                    <div id="model-filters" class="space-y-2 max-h-64 overflow-y-auto">
+                        <!-- Will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Expand sidebar button (hidden by default) -->
+        <div id="expand-sidebar-container" class="hidden fixed left-0 top-1/2 transform -translate-y-1/2 z-10">
+            <button id="expand-sidebar" class="bg-gray-700 hover:bg-gray-600 text-white px-2 py-4 rounded-r">
+                <span>►</span>
+            </button>
+        </div>
+        
+        <!-- Main Content -->
+        <div id="main-content" class="w-full md:w-3/4">
+            <div class="bg-gray-800 rounded-lg shadow-md p-4">
+                <h2 class="text-lg font-semibold mb-4">Model Performance Summary</h2>
+                <div id="modelList" class="space-y-2">
+                    <!-- Models will be dynamically populated here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 p-4 text-center text-sm">
+        <p>© 2023 Pollinations.ai - Real-time AI model monitoring dashboard</p>
+    </footer>
+
+    <script>
+        const MODELS_URL = 'https://text.pollinations.ai/models';
+        const CHAT_URL = 'https://text.pollinations.ai/openai';
+        
+        // Generate random math questions to prevent caching
+        function generateMathQuestion() {
+            const a = Math.floor(Math.random() * 100) + 1;
+            const b = Math.floor(Math.random() * 100) + 1;
+            return `What is ${a} + ${b}?`;
+        }
+        
+        let modelPerformanceHistory = {};
+        let modelCharts = {}; // Track chart instances for each model
+        let modelPreviousValues = {}; // Track previous values for trend indicators
+        let allModels = []; // Keep track of all models for filtering
+        let modelResponseStatus = {}; // Track which models have responded
+        
+        // Filter states
+        const filters = {
+            censored: false,
+            uncensored: false,
+            vision: false,
+            reasoning: false,
+            hideOffline: false,
+            onlyOffline: false,
+            size: {
+                small: false,
+                medium: false,
+                large: false
+            },
+            models: {} // Will be populated with model names
+        };
+        
+        function setupFilterListeners() {
+            document.getElementById('filter-censored').addEventListener('change', function() {
+                filters.censored = this.checked;
+                applyFilters();
+            });
+            
+            document.getElementById('filter-uncensored').addEventListener('change', function() {
+                filters.uncensored = this.checked;
+                applyFilters();
+            });
+            
+            document.getElementById('filter-vision').addEventListener('change', function() {
+                filters.vision = this.checked;
+                applyFilters();
+            });
+            
+            document.getElementById('filter-reasoning').addEventListener('change', function() {
+                filters.reasoning = this.checked;
+                applyFilters();
+            });
+            
+            document.getElementById('filter-hide-offline').addEventListener('change', function() {
+                filters.hideOffline = this.checked;
+                if (this.checked) {
+                    document.getElementById('filter-only-offline').checked = false;
+                    filters.onlyOffline = false;
+                }
+                applyFilters();
+            });
+            
+            document.getElementById('filter-only-offline').addEventListener('change', function() {
+                filters.onlyOffline = this.checked;
+                if (this.checked) {
+                    document.getElementById('filter-hide-offline').checked = false;
+                    filters.hideOffline = false;
+                }
+                applyFilters();
+            });
+            
+            document.getElementById('filter-size-small').addEventListener('change', function() {
+                filters.size.small = this.checked;
+                applyFilters();
+            });
+            
+            document.getElementById('filter-size-medium').addEventListener('change', function() {
+                filters.size.medium = this.checked;
+                applyFilters();
+            });
+            
+            document.getElementById('filter-size-large').addEventListener('change', function() {
+                filters.size.large = this.checked;
+                applyFilters();
+            });
+            
+            // Setup collapse button for filters
+            document.getElementById('collapse-filters').addEventListener('click', function() {
+                const filtersContainer = document.getElementById('filters-container');
+                const expandSidebarContainer = document.getElementById('expand-sidebar-container');
+                const mainContent = document.getElementById('main-content');
+                
+                filtersContainer.style.display = 'none';
+                expandSidebarContainer.style.display = 'block';
+                mainContent.classList.remove('md:w-3/4');
+                mainContent.classList.add('md:w-full');
+            });
+            
+            // Setup expand button for filters
+            document.getElementById('expand-sidebar').addEventListener('click', function() {
+                const filtersContainer = document.getElementById('filters-container');
+                const expandSidebarContainer = document.getElementById('expand-sidebar-container');
+                const mainContent = document.getElementById('main-content');
+                
+                filtersContainer.style.display = 'block';
+                expandSidebarContainer.style.display = 'none';
+                mainContent.classList.remove('md:w-full');
+                mainContent.classList.add('md:w-3/4');
+            });
+        }
+        
+        function populateModelFilters(models) {
+            const modelFiltersDiv = document.getElementById('model-filters');
+            modelFiltersDiv.innerHTML = '';
+            
+            models.forEach(model => {
+                // Initialize model filter if not exists
+                if (filters.models[model.name] === undefined) {
+                    filters.models[model.name] = true;
+                }
+                
+                const modelFilterDiv = document.createElement('div');
+                modelFilterDiv.classList.add('flex', 'items-center');
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `filter-model-${model.name.replace(/\s+/g, '-')}`;
+                checkbox.classList.add('mr-2', 'h-4', 'w-4', 'rounded');
+                checkbox.checked = filters.models[model.name];
+                checkbox.addEventListener('change', function() {
+                    filters.models[model.name] = this.checked;
+                    applyFilters();
+                });
+                
+                const label = document.createElement('label');
+                label.htmlFor = checkbox.id;
+                label.classList.add('text-sm');
+                label.textContent = model.name;
+                
+                modelFilterDiv.appendChild(checkbox);
+                modelFilterDiv.appendChild(label);
+                modelFiltersDiv.appendChild(modelFilterDiv);
+            });
+        }
+        
+        function applyFilters() {
+            const filteredModels = allModels.filter(model => {
+                // Check model-specific filter
+                if (!filters.models[model.name]) return false;
+                
+                // Check feature filters
+                if (filters.censored && !model.censored) return false;
+                if (filters.uncensored && model.censored) return false;
+                if (filters.vision && !model.vision) return false;
+                if (filters.reasoning && !model.reasoning) return false;
+                
+                // Check online/offline status
+                const isOffline = isModelOffline(model.name);
+                if (filters.hideOffline && isOffline) return false;
+                if (filters.onlyOffline && !isOffline) return false;
+                
+                // Check size filter (if any size filter is active)
+                const anySizeFilterActive = filters.size.small || filters.size.medium || filters.size.large;
+                if (anySizeFilterActive) {
+                    const modelSize = getModelSize(model.name);
+                    if ((filters.size.small && modelSize !== 'small') &&
+                        (filters.size.medium && modelSize !== 'medium') &&
+                        (filters.size.large && modelSize !== 'large')) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            updateModelList(filteredModels);
+        }
+        
+        function getModelSize(modelName) {
+            const name = modelName.toLowerCase();
+            if (name.includes('large')) return 'large';
+            if (name.includes('medium')) return 'medium';
+            return 'small';
+        }
+        
+        function isModelOffline(modelName) {
+            // A model is considered offline if its last response was an error
+            const history = modelPerformanceHistory[modelName];
+            if (!history || history.length === 0) return false;
+            
+            const lastEntry = history[history.length - 1];
+            return lastEntry.error === true;
+        }
+
+        function calculateErrorRate(modelName) {
+            const history = modelPerformanceHistory[modelName];
+            if (!history || history.length === 0) return { rate: 0, total: 0 };
+            
+            const totalRequests = history.length;
+            const failedRequests = history.filter(entry => entry.error).length;
+            const errorRate = (failedRequests / totalRequests) * 100;
+            
+            return {
+                rate: errorRate.toFixed(1),
+                total: totalRequests,
+                failed: failedRequests,
+                success: totalRequests - failedRequests
+            };
+        }
+        
+        async function fetchModels() {
+            try {
+                const response = await axios.get(MODELS_URL);
+                return response.data.filter(model => model.type === 'chat').map(model => ({
+                    name: model.name,
+                    description: model.description || '',
+                    baseModel: model.baseModel || false,
+                    censored: model.censored || false,
+                    reasoning: model.reasoning || false,
+                    vision: model.vision || false,
+                    provider: model.provider || 'Unknown',
+                    fullName: model.fullName || model.name
+                }));
+            } catch (error) {
+                console.error('Error fetching models:', error);
+                return [];
+            }
+        }
+        
+        async function queryModel(model, prompt) {
+            const startTime = performance.now();
+            try {
+                const response = await axios.post(CHAT_URL, {
+                    model: model.name,
+                    messages: [{ role: 'user', content: prompt }]
+                });
+                const endTime = performance.now();
+                return {
+                    duration: Math.round(endTime - startTime),
+                    error: false
+                };
+            } catch (error) {
+                console.error(`Error querying ${model.name}:`, error);
+                return {
+                    duration: null,
+                    error: true
+                };
+            }
+        }
+        
+        function calculateMetrics(data) {
+            if (!data || data.length === 0) {
+                return { min: 'N/A', avg: 'N/A', max: 'N/A' };
+            }
+            
+            const validData = data.filter(entry => entry.duration !== null);
+            if (validData.length === 0) {
+                return { min: 'N/A', avg: 'N/A', max: 'N/A' };
+            }
+            
+            const durations = validData.map(entry => entry.duration);
+            const min = (Math.min(...durations) / 1000).toFixed(1);
+            const max = (Math.max(...durations) / 1000).toFixed(1);
+            const avg = (durations.reduce((sum, value) => sum + value, 0) / durations.length / 1000).toFixed(1);
+            
+            return { min, avg, max };
+        }
+        
+        function getTrendIndicator(current, previous, isLower = true) {
+            if (previous === undefined || current === 'N/A' || previous === 'N/A') {
+                return '';
+            }
+            
+            const currentVal = parseFloat(current);
+            const previousVal = parseFloat(previous);
+            
+            if (currentVal < previousVal) {
+                return isLower ? 
+                    '<span class="text-green-500 mr-1">↓</span>' : 
+                    '<span class="text-red-500 mr-1">↓</span>';
+            } else if (currentVal > previousVal) {
+                return isLower ? 
+                    '<span class="text-red-500 mr-1">↑</span>' : 
+                    '<span class="text-green-500 mr-1">↑</span>';
+            }
+            
+            return '';
+        }
+        
+        function updateModelList(models) {
+            const modelList = document.getElementById('modelList');
+            modelList.innerHTML = '';
+            
+            // Sort models by response time (fastest first)
+            const sortedModels = [...models].sort((a, b) => {
+                const metricsA = calculateMetrics(modelPerformanceHistory[a.name]);
+                const metricsB = calculateMetrics(modelPerformanceHistory[b.name]);
+                
+                if (metricsA.avg === 'N/A' && metricsB.avg === 'N/A') return 0;
+                if (metricsA.avg === 'N/A') return 1;
+                if (metricsB.avg === 'N/A') return -1;
+                
+                return parseFloat(metricsA.avg) - parseFloat(metricsB.avg);
+            });
+            
+            // Destroy any existing charts before creating new ones
+            Object.values(modelCharts).forEach(chart => {
+                if (chart) {
+                    chart.destroy();
+                }
+            });
+            modelCharts = {}; // Reset chart instances
+            
+            sortedModels.forEach(model => {
+                const modelHistory = modelPerformanceHistory[model.name] || [];
+                const metrics = calculateMetrics(modelHistory);
+                const errorStats = calculateErrorRate(model.name);
+                
+                // Calculate trend indicators
+                let trendIndicators = { min: '', avg: '', max: '' };
+                if (modelPreviousValues[model.name]) {
+                    trendIndicators.min = getTrendIndicator(metrics.min, modelPreviousValues[model.name].min);
+                    trendIndicators.avg = getTrendIndicator(metrics.avg, modelPreviousValues[model.name].avg);
+                    trendIndicators.max = getTrendIndicator(metrics.max, modelPreviousValues[model.name].max);
+                }
+                
+                // Store current values for next comparison
+                modelPreviousValues[model.name] = { ...metrics };
+                
+                // Create chart ID
+                const chartId = `chart-${model.name.replace(/\s+/g, '-')}`;
+                
+                const modelDiv = document.createElement('div');
+                modelDiv.classList.add('bg-gray-700', 'rounded', 'p-2', 'mb-2');
+                
+                // Provider display with icon for Unknown
+                let providerDisplay = model.provider;
+                if (model.provider === 'Unknown') {
+                    providerDisplay = '<span title="Provider Unknown">❓</span>';
+                }
+                
+                // Create error rate indicator
+                let errorRateClass = "bg-green-600";
+                if (errorStats.rate > 5) errorRateClass = "bg-yellow-600";
+                if (errorStats.rate > 20) errorRateClass = "bg-orange-600";
+                if (errorStats.rate > 50) errorRateClass = "bg-red-600";
+                
+                // Set model row content with a single row layout
+                modelDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-1/5">
+                            <div class="font-medium">
+                                ${model.name}
+                                ${model.fullName && model.fullName !== model.name ? 
+                                    `<span class="text-xs text-gray-400 ml-1">(${model.fullName})</span>` : 
+                                    ''}
+                            </div>
+                            <div class="text-xs text-gray-300 mt-1 mb-2">
+                                ${model.description ? model.description : 'No description available'}
+                            </div>
+                            <div class="flex flex-wrap mt-1">
+                                <div class="flex items-center mr-2 mb-1" title="Provider">
+                                    <span class="text-sm mr-1">🌐</span>
+                                    <span class="text-xs bg-gray-600 rounded px-1">${providerDisplay}</span>
+                                </div>
+                                <div class="flex items-center mr-2 mb-1" title="Base Model">
+                                    <span class="text-sm mr-1">🧠</span>
+                                    <span class="text-xs rounded px-1">${model.baseModel ? '✓' : '✗'}</span>
+                                </div>
+                                <div class="flex items-center mr-2 mb-1" title="Reasoning">
+                                    <span class="text-sm mr-1">🤔</span>
+                                    <span class="text-xs rounded px-1">${model.reasoning ? '✓' : '✗'}</span>
+                                </div>
+                                <div class="flex items-center mr-2 mb-1" title="Vision">
+                                    <span class="text-sm mr-1">👁️</span>
+                                    <span class="text-xs rounded px-1">${model.vision ? '✓' : '✗'}</span>
+                                </div>
+                                <div class="flex items-center mb-1" title="Censored">
+                                    <span class="text-sm mr-1">🚫</span>
+                                    <span class="text-xs rounded px-1">${model.censored ? '✓' : '✗'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="w-3/5 px-2">
+                            <div class="h-16">
+                                <canvas id="${chartId}"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="w-1/5 text-right">
+                            <div>${trendIndicators.min}Min: ${metrics.min} s</div>
+                            <div>${trendIndicators.avg}Avg: ${metrics.avg} s</div>
+                            <div>${trendIndicators.max}Max: ${metrics.max} s</div>
+                            <div class="mt-2 flex items-center justify-end" title="Success/Error Rate">
+                                <div class="text-xs mr-2">Error Rate:</div>
+                                <div class="w-16 h-4 bg-gray-600 rounded-full overflow-hidden">
+                                    <div class="${errorRateClass} h-full" style="width: ${errorStats.rate}%"></div>
+                                </div>
+                                <div class="text-xs ml-2">${errorStats.rate}%</div>
+                            </div>
+                            <div class="text-xs text-gray-300">
+                                ${errorStats.success}/${errorStats.total} requests successful
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                modelList.appendChild(modelDiv);
+                
+                // Create chart
+                const ctx = document.getElementById(chartId).getContext('2d');
+                
+                modelCharts[model.name] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: modelHistory.map(() => ''),  // Remove time labels
+                        datasets: [{
+                            label: 'Response Time',
+                            data: modelHistory.map(entry => entry.duration ? entry.duration / 1000 : null),
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.3,
+                            pointRadius: 3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        animation: false, // Remove animations
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: false,  // Hide y-axis title
+                                    text: 'Seconds',
+                                    color: '#FFFFFF'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#FFFFFF'
+                                }
+                            },
+                            x: {
+                                display: false,  // Hide x-axis completely
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                titleColor: '#FFFFFF',
+                                bodyColor: '#FFFFFF',
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Response time: ${context.raw.toFixed(1)} s`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        }
+        
+        async function updateModelPerformance() {
+            const models = await fetchModels();
+            allModels = models;
+            
+            // Update model filter checkboxes
+            populateModelFilters(models);
+            
+            // Send a prompt with random math problem to avoid caching
+            const prompt = generateMathQuestion();
+            
+            // Query each model individually and update UI as soon as each model responds
+            models.forEach(async (model) => {
+                // Add model to UI immediately with placeholder data
+                if (!modelResponseStatus[model.name]) {
+                    modelResponseStatus[model.name] = true;
+                    
+                    // Apply current filters to show the new model
+                    applyFilters();
+                }
+                
+                const result = await queryModel(model, prompt);
+                
+                if (!modelPerformanceHistory[model.name]) {
+                    modelPerformanceHistory[model.name] = [];
+                }
+                
+                if (result.duration !== null || result.error) {
+                    const now = new Date();
+                    modelPerformanceHistory[model.name].push({
+                        timestamp: now,
+                        duration: result.duration,
+                        error: result.error
+                    });
+                    
+                    // Keep only data from the last 3 hours
+                    modelPerformanceHistory[model.name] = 
+                        modelPerformanceHistory[model.name].filter(entry =>
+                            now - new Date(entry.timestamp) <= 3 * 60 * 60 * 1000
+                        );
+                }
+                
+                // Update UI for this specific model
+                applyFilters();
+            });
+        }
+        
+        // Initialize filters
+        setupFilterListeners();
+        
+        // Initial load and then every minute
+        updateModelPerformance();
+        setInterval(updateModelPerformance, 60 * 1000);
+        
+        // Handle responsive behavior
+        window.addEventListener('resize', function() {
+            Object.values(modelCharts).forEach(chart => {
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        });
+
+        // Add structured data for SEO
+        const structuredData = {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Pollinations Text Model Monitoring Dashboard",
+            "applicationCategory": "MonitoringTool",
+            "operatingSystem": "Any",
+            "description": "Real-time performance monitoring for Pollinations AI text generation models",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        };
+
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.text = JSON.stringify(structuredData);
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>
