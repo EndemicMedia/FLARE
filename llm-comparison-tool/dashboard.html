@@ -1,3 +1,6 @@
+Here's the full code with the model size classification integrated:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,7 +90,7 @@
                 
                 <div>
                     <h3 class="font-medium mb-2">Models</h3>
-                    <div id="model-filters" class="space-y-2 max-h-64 overflow-y-auto">
+                    <div id="model-filters" class="space-y-2 overflow-y-auto">
                         <!-- Will be populated dynamically -->
                     </div>
                 </div>
@@ -132,6 +135,7 @@
         let modelPreviousValues = {}; // Track previous values for trend indicators
         let allModels = []; // Keep track of all models for filtering
         let modelResponseStatus = {}; // Track which models have responded
+        let modelSizeClassification = { large: [], medium: [], small: [] }; // Store model size classifications
         
         // Filter states
         const filters = {
@@ -148,6 +152,45 @@
             },
             models: {} // Will be populated with model names
         };
+        
+        // Function to classify AI models based on their descriptions
+        function classifyModelsBySize(models) {
+          // Initialize arrays for each size category
+          const large = [];
+          const medium = [];
+          const small = [];
+          
+          // Define regex patterns for size classification
+          const largeModelRegex = /\b(large|70b|32b|4o(?!-mini)|deepseek r1 - full)\b/i;
+          const mediumModelRegex = /\b(medium|small|mini|instruct|flash|8b|11b|12b|7b|v3|3\.1|3\.2|3\.3|phi-4|mistral(?! large))\b/i;
+          
+          // Classify each model
+          models.forEach(model => {
+            const description = model.description.toLowerCase();
+            const name = model.name.toLowerCase();
+            
+            // Special case handling
+            if (name === 'deepseek-reasoner' || description.includes('deepseek r1 - full')) {
+              large.push(model.name);
+            }
+            else if (name === 'llama-scaleway') {
+              // Assuming this is a variant of Llama 70B since not specified
+              large.push(model.name);
+            }
+            else if (largeModelRegex.test(description) || largeModelRegex.test(name)) {
+              large.push(model.name);
+            } 
+            else if (mediumModelRegex.test(description) || mediumModelRegex.test(name)) {
+              medium.push(model.name);
+            } 
+            else {
+              // For models with no clear size indicators
+              small.push(model.name);
+            }
+          });
+          
+          return { large, medium, small };
+        }
         
         function setupFilterListeners() {
             document.getElementById('filter-censored').addEventListener('change', function() {
@@ -282,10 +325,14 @@
                 const anySizeFilterActive = filters.size.small || filters.size.medium || filters.size.large;
                 if (anySizeFilterActive) {
                     const modelSize = getModelSize(model.name);
-                    if ((filters.size.small && modelSize !== 'small') &&
-                        (filters.size.medium && modelSize !== 'medium') &&
-                        (filters.size.large && modelSize !== 'large')) {
-                        return false;
+                    if (
+                        (filters.size.small && modelSize === 'small') || 
+                        (filters.size.medium && modelSize === 'medium') || 
+                        (filters.size.large && modelSize === 'large')
+                    ) {
+                        // This is fine, model matches one of the selected sizes
+                    } else {
+                        return false; // Model doesn't match any selected size filter
                     }
                 }
                 
@@ -296,9 +343,8 @@
         }
         
         function getModelSize(modelName) {
-            const name = modelName.toLowerCase();
-            if (name.includes('large')) return 'large';
-            if (name.includes('medium')) return 'medium';
+            if (modelSizeClassification.large.includes(modelName)) return 'large';
+            if (modelSizeClassification.medium.includes(modelName)) return 'medium';
             return 'small';
         }
         
@@ -330,7 +376,7 @@
         async function fetchModels() {
             try {
                 const response = await axios.get(MODELS_URL);
-                return response.data.filter(model => model.type === 'chat').map(model => ({
+                const models = response.data.filter(model => model.type === 'chat').map(model => ({
                     name: model.name,
                     description: model.description || '',
                     baseModel: model.baseModel || false,
@@ -340,6 +386,11 @@
                     provider: model.provider || 'Unknown',
                     fullName: model.fullName || model.name
                 }));
+                
+                // Classify models by size
+                modelSizeClassification = classifyModelsBySize(models);
+                
+                return models;
             } catch (error) {
                 console.error('Error fetching models:', error);
                 return [];
@@ -502,15 +553,15 @@
                         </div>
                         
                         <div class="w-3/5 px-2">
-                            <div class="h-16">
+                            <div class="h-24">
                                 <canvas id="${chartId}"></canvas>
                             </div>
                         </div>
                         
                         <div class="w-1/5 text-right">
-                            <div>${trendIndicators.min}Min: ${metrics.min} s</div>
-                            <div>${trendIndicators.avg}Avg: ${metrics.avg} s</div>
-                            <div>${trendIndicators.max}Max: ${metrics.max} s</div>
+                            <div>${trendIndicators.min}<span class="text-xs">Min:</span> ${metrics.min} s</div>
+                            <div>${trendIndicators.avg}<span class="text-xs">Avg:</span> ${metrics.avg} s</div>
+                            <div>${trendIndicators.max}<span class="text-xs">Max:</span> ${metrics.max} s</div>
                             <div class="mt-2 flex items-center justify-end" title="Success/Error Rate">
                                 <div class="text-xs mr-2">Error Rate:</div>
                                 <div class="w-16 h-4 bg-gray-600 rounded-full overflow-hidden">
