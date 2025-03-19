@@ -134,6 +134,13 @@
         let modelResponseStatus = {}; // Track which models have responded
         let modelSizeClassification = { large: [], medium: [], small: [] }; // Store model size classifications
         
+        // Determine sequential request mode from URL query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const SEQUENTIAL_REQUEST_MODE = urlParams.get('sequential') === 'true';
+        
+        // Log the current request mode for debugging
+        console.log(`Sequential Request Mode: ${SEQUENTIAL_REQUEST_MODE}`);
+        
         // Filter states
         const filters = {
             censored: false,
@@ -651,40 +658,73 @@
             // Send a prompt with random math problem to avoid caching
             const prompt = generateMathQuestion();
             
-            // Query each model individually and update UI as soon as each model responds
-            models.forEach(async (model) => {
-                // Add model to UI immediately with placeholder data
-                if (!modelResponseStatus[model.name]) {
-                    modelResponseStatus[model.name] = true;
+            // If sequential mode is on, process models one at a time
+            if (SEQUENTIAL_REQUEST_MODE) {
+                for (const model of models) {
+                    // Add model to UI immediately with placeholder data
+                    if (!modelResponseStatus[model.name]) {
+                        modelResponseStatus[model.name] = true;
+                        applyFilters();
+                    }
                     
-                    // Apply current filters to show the new model
+                    const result = await queryModel(model, prompt);
+                    
+                    if (!modelPerformanceHistory[model.name]) {
+                        modelPerformanceHistory[model.name] = [];
+                    }
+                    
+                    if (result.duration !== null || result.error) {
+                        const now = new Date();
+                        modelPerformanceHistory[model.name].push({
+                            timestamp: now,
+                            duration: result.duration,
+                            error: result.error
+                        });
+                        
+                        // Keep only data from the last 3 hours
+                        modelPerformanceHistory[model.name] =
+                            modelPerformanceHistory[model.name].filter(entry =>
+                                now - new Date(entry.timestamp) <= 3 * 60 * 60 * 1000
+                            );
+                    }
+                    
+                    // Update UI for this specific model
                     applyFilters();
                 }
-                
-                const result = await queryModel(model, prompt);
-                
-                if (!modelPerformanceHistory[model.name]) {
-                    modelPerformanceHistory[model.name] = [];
-                }
-                
-                if (result.duration !== null || result.error) {
-                    const now = new Date();
-                    modelPerformanceHistory[model.name].push({
-                        timestamp: now,
-                        duration: result.duration,
-                        error: result.error
-                    });
+            } else {
+                // Original concurrent request logic
+                models.forEach(async (model) => {
+                    // Add model to UI immediately with placeholder data
+                    if (!modelResponseStatus[model.name]) {
+                        modelResponseStatus[model.name] = true;
+                        applyFilters();
+                    }
                     
-                    // Keep only data from the last 3 hours
-                    modelPerformanceHistory[model.name] = 
-                        modelPerformanceHistory[model.name].filter(entry =>
-                            now - new Date(entry.timestamp) <= 3 * 60 * 60 * 1000
-                        );
-                }
-                
-                // Update UI for this specific model
-                applyFilters();
-            });
+                    const result = await queryModel(model, prompt);
+                    
+                    if (!modelPerformanceHistory[model.name]) {
+                        modelPerformanceHistory[model.name] = [];
+                    }
+                    
+                    if (result.duration !== null || result.error) {
+                        const now = new Date();
+                        modelPerformanceHistory[model.name].push({
+                            timestamp: now,
+                            duration: result.duration,
+                            error: result.error
+                        });
+                        
+                        // Keep only data from the last 3 hours
+                        modelPerformanceHistory[model.name] =
+                            modelPerformanceHistory[model.name].filter(entry =>
+                                now - new Date(entry.timestamp) <= 3 * 60 * 60 * 1000
+                            );
+                    }
+                    
+                    // Update UI for this specific model
+                    applyFilters();
+                });
+            }
         }
         
         // Initialize filters
