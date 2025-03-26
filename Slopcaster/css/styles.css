@@ -1,0 +1,78 @@
+/* Main Styles for Slopcaster */
+html {
+    scroll-behavior: smooth; /* Ensure smooth scrolling for navigation */
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    transition: background-color 0.2s, color 0.2s; /* Smooth dark mode transition */
+}
+.conversation-container {
+    height: calc(100vh - 400px); /* Adjusted for player controls */
+    min-height: 300px;
+}
+@media (max-width: 768px) {
+    .conversation-container {
+        height: calc(100vh - 500px); /* Further adjusted for smaller screens */
+    }
+}
+.thinking-dot {
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}
+.api-tab-active {
+    background-color: #E5E7EB; /* gray-200 */
+    color: #1F2937; /* gray-800 */
+    border-bottom: 2px solid #3B82F6; /* blue-500 */
+}
+/* Highlight style for current playback line */
+.current-playback-line {
+    /* Use Tailwind classes directly for consistency */
+    @apply ring-2 ring-offset-2 ring-blue-500 shadow-lg;
+    ring-offset-color: white; /* Light mode offset */
+    transition: box-shadow 0.2s ease-in-out, ring 0.2s ease-in-out;
+}
+/* Dark mode specific styles */
+.dark .api-tab-active {
+    @apply bg-gray-700 text-blue-300 border-blue-500;
+}
+.dark .current-playback-line {
+    @apply ring-blue-400;
+    ring-offset-color: #1f2937; /* gray-800 */
+}
+/* Ensure prose styles work well in dark mode */
+.dark .prose-invert {
+    color: #d1d5db; /* gray-300 */
+}
+.dark .prose-invert h1, .dark .prose-invert h2, .dark .prose-invert h3, .dark .prose-invert strong {
+    color: #f9fafb; /* gray-50 */
+}
+.dark .prose-invert a {
+    color: #60a5fa; /* blue-400 */
+}
+.dark .prose-invert code {
+    color: #facc15; /* yellow-400 */
+    background-color: #374151; /* gray-700 */
+    padding: 0.1em 0.3em;
+    border-radius: 0.25em;
+}
+.dark .prose-invert pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+.dark .prose-invert pre {
+    background-color: #111827; /* gray-900 slightly darker */
+    color: #d1d5db; /* gray-300 */
+}
+/* Style for audio status icons */
+.audio-status i {
+    vertical-align: middle;
+}
+/* Ensure selects look okay in dark mode */
+.dark select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}

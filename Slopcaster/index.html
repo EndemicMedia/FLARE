@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slopcaster - AI Conversation Player</title>
+    
+    <!-- External CSS libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Our custom styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+    <div class="max-w-6xl mx-auto p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 mb-4">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-2xl font-bold text-center text-blue-600 dark:text-blue-400 flex-grow">Slopcaster</h1>
+                <!-- Dark Mode Toggle -->
+                <button id="darkModeToggle" title="Toggle Dark Mode" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ml-4 text-gray-700 dark:text-gray-300">
+                    <i id="moonIcon" class="fas fa-moon"></i>
+                    <i id="sunIcon" class="fas fa-sun hidden"></i>
+                </button>
+            </div>
+
+            <!-- Settings Panel -->
+            <div class="mb-4">
+                <button id="toggle-settings" class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600 mb-2 text-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826 3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Settings
+                </button>
+
+                <div id="settings-panel" class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mb-4 hidden">
+                    <!-- API Provider Selection -->
+                    <div class="mb-4 border-b border-gray-300 dark:border-gray-600 pb-3">
+                        <h2 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">LLM Provider</h2>
+                        <div class="flex">
+                            <button id="puter-api-tab" class="px-4 py-2 font-medium rounded-t-lg focus:outline-none api-tab-active">Puter</button>
+                            <button id="pollinations-api-tab" class="px-4 py-2 font-medium rounded-t-lg focus:outline-none text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600">Pollinations</button>
+                        </div>
+                    </div>
+
+                    <!-- Bot Selection & System Prompts -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-3">
+                            <h2 class="text-lg font-semibold mb-2 text-blue-500 dark:text-blue-300">Bot 1</h2>
+                            <select id="bot1-model" class="w-full p-2 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 mb-2 focus:ring-blue-500 focus:border-blue-500">
+                                <!-- Puter Models -->
+                                <optgroup label="Puter Models" class="puter-models">
+                                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                    <option value="gpt-4o">GPT-4o</option>
+                                    <option value="o1-mini">OpenAI o1-mini</option>
+                                    <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo">Meta Llama 3.1 8B</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo">Meta Llama 3.1 70B</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo">Meta Llama 3.1 405B</option>
+                                    <option value="mistral-large-latest">Mistral Large</option>
+                                    <option value="pixtral-large-latest">Pixtral Large</option>
+                                    <option value="codestral-latest">Codestral</option>
+                                    <option value="google/gemma-2-27b-it">Google Gemma 2 27B</option>
+                                    <option value="deepseek-chat">DeepSeek Chat</option>
+                                    <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                                    <option value="grok-beta">Grok Beta</option>
+                                    <option value="o3-mini">OpenAI o3-mini</option>
+                                </optgroup>
+                                <!-- Pollinations Models -->
+                                <optgroup label="Pollinations Models" class="pollinations-models" style="display:none">
+                                    <!-- Options populated dynamically -->
+                                </optgroup>
+                            </select>
+                            <div class="mt-2">
+                                <label for="bot1-system-prompt" class="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-300">System Prompt:</label>
+                                <textarea id="bot1-system-prompt" class="w-full p-2 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 text-sm h-24 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter system prompt for Bot 1...">You're engaging in a lively, unscripted conversation. Keep your responses natural and spontaneous, using casual language, contractions, and varied sentence structures. Instead of relying on repetitive phrases like "Oh, totally!" or "Yeah, I get that," be unique within the context of the whole conversation, avoid similar responses. Try to answer relevant questions in the previous chat message. Adapt your tone and style to match the flow of the conversation—whether that means being playful, thoughtful, skeptical, or enthusiastic. If the dialogue starts feeling too agreeable or monotonous, introduce a fresh perspective or pose a challenging question to spark further debate. Your goal is to create an authentic, engaging, and evolving discussion that mimics how real people talk, ensuring each response feels distinct and reflective of its moment in the conversation.</textarea>
+                            </div>
+                        </div>
+                        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-3">
+                            <h2 class="text-lg font-semibold mb-2 text-purple-500 dark:text-purple-300">Bot 2</h2>
+                            <select id="bot2-model" class="w-full p-2 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 mb-2 focus:ring-blue-500 focus:border-blue-500">
+                                <!-- Puter Models -->
+                                <optgroup label="Puter Models" class="puter-models">
+                                     <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                    <option value="gpt-4o">GPT-4o</option>
+                                    <option value="o1-mini">OpenAI o1-mini</option>
+                                    <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo">Meta Llama 3.1 8B</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo">Meta Llama 3.1 70B</option>
+                                    <option value="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo">Meta Llama 3.1 405B</option>
+                                    <option value="mistral-large-latest">Mistral Large</option>
+                                    <option value="pixtral-large-latest">Pixtral Large</option>
+                                    <option value="codestral-latest">Codestral</option>
+                                    <option value="google/gemma-2-27b-it">Google Gemma 2 27B</option>
+                                    <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                                    <option value="deepseek-chat">DeepSeek Chat</option>
+                                    <option value="grok-beta">Grok Beta</option>
+                                    <option value="o3-mini">OpenAI o3-mini</option>
+                                </optgroup>
+                                <!-- Pollinations Models -->
+                                <optgroup label="Pollinations Models" class="pollinations-models" style="display:none">
+                                    <!-- Options populated dynamically -->
+                                </optgroup>
+                            </select>
+                            <div class="mt-2">
+                                <label for="bot2-system-prompt" class="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-300">System Prompt:</label>
+                                <textarea id="bot2-system-prompt" class="w-full p-2 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 text-sm h-24 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter system prompt for Bot 2...">You're engaging in a lively, unscripted conversation. Keep your responses natural and spontaneous, using casual language, contractions, and varied sentence structures. Instead of relying on repetitive phrases like "Oh, totally!" or "Yeah, I get that," be unique within the context of the whole conversation, avoid similar responses. Try to answer relevant questions in the previous chat message. Adapt your tone and style to match the flow of the conversation—whether that means being playful, thoughtful, skeptical, or enthusiastic. If the dialogue starts feeling too agreeable or monotonous, introduce a fresh perspective or pose a challenging question to spark further debate. Your goal is to create an authentic, engaging, and evolving discussion that mimics how real people talk, ensuring each response feels distinct and reflective of its moment in the conversation.</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Voice Selection -->
+                     <div class="mb-4 p-4 bg-gray-200 dark:bg-gray-800 rounded-md shadow border border-gray-300 dark:border-gray-600">
+                        <h2 class="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">Voice Settings (TTS)</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="flex flex-col">
+                                <label class="text-gray-700 dark:text-gray-300 mb-1 font-medium text-sm">User Voice</label>
+                                <select id="userVoiceSelect" class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="alloy">Alloy</option>
+                                    <option value="echo">Echo</option>
+                                    <option value="fable">Fable</option>
+                                    <option value="onyx">Onyx</option>
+                                    <option value="nova">Nova</option>
+                                    <option value="shimmer">Shimmer</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-gray-700 dark:text-gray-300 mb-1 font-medium text-sm">Bot 1 Voice</label>
+                                <select id="bot1VoiceSelect" class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="alloy">Alloy</option>
+                                    <option value="echo">Echo</option>
+                                    <option value="fable">Fable</option>
+                                    <option value="onyx" selected>Onyx</option>
+                                    <option value="nova">Nova</option>
+                                    <option value="shimmer">Shimmer</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-gray-700 dark:text-gray-300 mb-1 font-medium text-sm">Bot 2 Voice</label>
+                                <select id="bot2VoiceSelect" class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="alloy">Alloy</option>
+                                    <option value="echo">Echo</option>
+                                    <option value="fable">Fable</option>
+                                    <option value="onyx">Onyx</option>
+                                    <option value="nova" selected>Nova</option>
+                                    <option value="shimmer">Shimmer</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appearance & Conversation Settings -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-3">
+                            <h2 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Appearance</h2>
+                            <div class="flex items-center mb-2">
+                                <input type="checkbox" id="enable-avatar" class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:focus:ring-offset-gray-800">
+                                <label for="enable-avatar" class="text-sm text-gray-700 dark:text-gray-300">Show Bot Avatars</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="enable-timestamps" class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:focus:ring-offset-gray-800">
+                                <label for="enable-timestamps" class="text-sm text-gray-700 dark:text-gray-300">Show Timestamps</label>
+                            </div>
+                        </div>
+                        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-3">
+                            <h2 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Conversation</h2>
+                            <div class="flex items-center mb-2">
+                                <input type="checkbox" id="auto-scroll" class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:focus:ring-offset-gray-800" checked>
+                                <label for="auto-scroll" class="text-sm text-gray-700 dark:text-gray-300">Auto-scroll during generation</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="enable-markdown" class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:focus:ring-offset-gray-800" checked>
+                                <label for="enable-markdown" class="text-sm text-gray-700 dark:text-gray-300">Render Markdown</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Input -->
+            <div class="mb-4">
+                <textarea id="user-input" class="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Enter a topic or question to start the conversation..." rows="3"></textarea>
+                <div class="flex flex-wrap gap-2 justify-end mt-2">
+                    <button id="start-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Start Conversation</button>
+                    <button id="clear-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">Clear</button>
+                </div>
+            </div>
+
+            <!-- Conversation Display -->
+            <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 mb-4 conversation-container overflow-y-auto bg-gray-50 dark:bg-gray-900" id="conversation-display">
+                <div class="text-center text-gray-500 dark:text-gray-400">Start a conversation to see messages here</div>
+            </div>
+
+            <!-- Player Controls -->
+            <div class="flex items-center justify-between mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md shadow border border-gray-300 dark:border-gray-600">
+                <button id="prevBtn" title="Previous Message (Left Arrow)" class="p-3 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <div class="flex items-center space-x-4">
+                    <button id="playPauseBtn" title="Play/Pause (Spacebar)" class="p-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-play" id="playIcon"></i>
+                        <i class="fas fa-pause hidden" id="pauseIcon"></i>
+                    </button>
+                    <span id="currentLine" class="text-lg font-medium text-gray-800 dark:text-white tabular-nums">0/0</span>
+                </div>
+                <button id="nextBtn" title="Next Message (Right Arrow)" class="p-3 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+            </div>
+
+             <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden text-center p-4">
+              <div class="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500 dark:border-blue-400"></div>
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Generating audio...</p>
+            </div>
+
+            <!-- Main Controls -->
+            <div class="flex flex-wrap gap-2 justify-between items-center mt-4">
+                <div>
+                    <button id="interrupt-btn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>Interrupt</button>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button id="copy-btn" title="Copy as Markdown (Cmd/Ctrl+C)" class="bg-gray-500 dark:bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-600 dark:hover:bg-gray-700 transition disabled:opacity-50" disabled>
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Copy
+                        </span>
+                    </button>
+                    <button id="save-btn" title="Save Conversation (Cmd/Ctrl+S)" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50" disabled>
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Save
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Interruption Form -->
+        <div id="interruption-form" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 mb-4">
+            <h2 class="text-lg font-semibold mb-2 text-yellow-600 dark:text-yellow-400">Your Interruption:</h2>
+            <textarea id="interruption-input" class="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none" placeholder="Enter your question or message..." rows="3"></textarea>
+            <div class="flex justify-end mt-2">
+                <button id="cancel-interruption" class="bg-gray-500 dark:bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-600 dark:hover:bg-gray-700 transition mr-2">Cancel</button>
+                <button id="submit-interruption" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Dialog -->
+    <div id="save-dialog" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-lg w-full mx-auto">
+            <h2 class="text-lg font-semibold mb-4 text-blue-600 dark:text-blue-400">Save Conversation</h2>
+            <div class="mb-4">
+                <label for="conversation-name" class="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-300">Conversation Name:</label>
+                <input type="text" id="conversation-name" class="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" placeholder="My AI Conversation">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-300">Format:</label>
+                <div class="flex gap-2">
+                    <button id="save-markdown" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition flex-1">Markdown (.md)</button>
+                    <button id="save-json" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition flex-1">JSON (.json)</button>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button id="cancel-save" class="bg-gray-500 dark:bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-600 dark:hover:bg-gray-700 transition mr-2">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- External script dependencies -->
+    <script src="https://unpkg.com/marked@4.3.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://js.puter.com/v2/"></script>
+    
+    <!-- Application modules -->
+    <script src="js/modules/state.js"></script>
+    <script src="js/modules/ui.js"></script>
+    <script src="js/modules/audio.js"></script>
+    <script src="js/modules/llm.js"></script>
+    <script src="js/modules/conversation.js"></script>
+    <script src="js/modules/settings.js"></script>
+    <script src="js/modules/exportImport.js"></script>
+    
+    <!-- Application components -->
+    <script src="js/components/conversationDisplay.js"></script>
+    <script src="js/components/playerControls.js"></script>
+    <script src="js/components/settingsPanel.js"></script>
+    <script src="js/components/userInput.js"></script>
+    <script src="js/components/dialogManager.js"></script>
+    
+    <!-- Main application entry point -->
+    <script src="js/main.js"></script>
+</body>
+</html>
