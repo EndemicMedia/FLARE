@@ -229,6 +229,12 @@
         const MAX_PROMPT_HISTORY = 20; // Maximum number of prompts to store
         var SYSTEM_PROMPTS
 
+        // Set default referer: use "dseeker.github.io" unless running on that domain
+        const DEFAULT_REFERRER = "dseeker.github.io";
+        const referrer = (window.location.hostname === "dseeker.github.io")
+            ? "dseeker.github.io"
+            : DEFAULT_REFERRER;
+
         // Prompt history management
         function savePrompt(prompt) {
             if (!prompt) return;
@@ -336,9 +342,23 @@
         });
 
         async function fetchModels() {
+            console.log('Fetching models...');
             try {
-                const response = await axios.get(MODELS_URL);
-                return response.data.filter(model => model.type === 'chat');
+                // Add referrer param for Pollinations API best practice
+                const response = await axios.get(
+                    MODELS_URL,
+                    { params: { referrer: referrer } }
+                );
+                console.log('Models API response:', response);
+                if (!response.data || !Array.isArray(response.data)) {
+                    console.warn('Models API returned unexpected data:', response.data);
+                } else {
+                    console.log('Fetched models count:', response.data.length);
+                    response.data.forEach((model, idx) => {
+                        console.log(`Model[${idx}]:`, model);
+                    });
+                }
+                return response.data;
             } catch (error) {
                 console.error('Error fetching models:', error);
                 return [];
@@ -366,6 +386,7 @@
             const timeoutValue = parseInt(timeoutDropdown.value, 10);
 
             try {
+                // Add referrer field for Pollinations API best practice
                 const response = await axios.post(CHAT_URL, {
                     model: model.name,
                     messages: [
@@ -374,7 +395,8 @@
                             content: getSystemPrompt(systemContext)
                         },
                         { role: 'user', content: prompt }
-                    ]
+                    ],
+                    referrer: referrer
                 }, {
                     timeout: timeoutValue, // Use selected timeout value
                     signal: abortSignal // Add abort signal support
@@ -415,9 +437,25 @@
 
         async function initializeModelFields() {
             const modelsContainer = document.getElementById('models-container');
+            if (!modelsContainer) {
+                console.error('Could not find #models-container in DOM');
+                return [];
+            }
             const models = await fetchModels();
+            console.log('initializeModelFields: models received:', models);
 
-            models.forEach(model => {
+            if (!models || !Array.isArray(models) || models.length === 0) {
+                console.warn('No models found or models is not an array:', models);
+                modelsContainer.innerHTML = '<div class="col-span-full text-center text-red-500">No models found. Please check the models API response in the console.</div>';
+                return [];
+            }
+
+            models.forEach((model, idx) => {
+                if (!model || !model.name) {
+                    console.warn(`Model at index ${idx} is missing or has no "name":`, model);
+                    return;
+                }
+                console.log(`Rendering model card for: ${model.name}`);
                 const modelDiv = document.createElement('div');
                 modelDiv.classList.add('border', 'rounded-lg', 'p-3', 'bg-white', 'dark:bg-gray-800', 'shadow-sm');
                 modelDiv.innerHTML = `
@@ -428,8 +466,8 @@
                         <div class="flex items-start">
                             <div id="model-stats-${model.name}" class="text-xs text-gray-500 dark:text-gray-400"></div>
                             <div class="grid ml-2">
-                                <button 
-                                    class="fullscreen-btn hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" 
+                                <button
+                                    class="fullscreen-btn hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                                     data-model="${model.name}"
                                     title="View fullscreen"
                                     >
@@ -437,26 +475,28 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                                     </svg>
                                 </button>
-                                <button 
-                                    class="copy-btn hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" 
+                                <button
+                                    class="copy-btn hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                                     data-model="${model.name}"
                                     title="Copy model output"
                                     >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                                     </svg>
-                                </button>    
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div 
-                        id="model-${model.name}" 
+                    <div
+                        id="model-${model.name}"
                         class="markdown-content w-full py-1 h-48 overflow-y-auto text-base dark:text-white"
                         placeholder="Model response will appear here..."
                     ></div>
                 `;
                 modelsContainer.appendChild(modelDiv);
             });
+
+            console.log('Model cards rendered. modelsContainer child count:', modelsContainer.childElementCount);
 
             return models;
         }
@@ -494,6 +534,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    console.log('Loading system prompts...');
     try {
         const systemPromptsData = await loadSystemPrompts();
         SYSTEM_PROMPTS = systemPromptsData.systemPrompts;
@@ -517,6 +558,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error loading system prompts:', error);
         alert('Could not load system prompts. Some functionality may be limited.');
     }
+
+    console.log('System prompts loaded');
 
     const models = await initializeModelFields();
     const submitBtn = document.getElementById('submit-btn');
