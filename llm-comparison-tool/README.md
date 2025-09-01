@@ -31,8 +31,9 @@ python serve.py
 ## Features
 - Dynamic grid layout responsive across multiple screen sizes
 - Real-time model response comparison
+- **Model parameter controls** - Temperature, Top-P, Max Tokens, Seed
 - Performance metrics for each model
-- Token usage statistics
+- Token usage statistics with parameter display
 - Dark/Light mode toggle
 - Fullscreen model response view
 - Copy model response functionality
@@ -41,20 +42,24 @@ python serve.py
 Models are dynamically fetched from: `https://text.pollinations.ai/models`
 
 ### Supported Interactions
-- Prompt Input: Enter a prompt to query multiple models
-- System Context Selection: Choose response style (Concise, Educational, Deep Thinking)
-- Font Size Adjustment: Increase/decrease response text size
-- Theme Toggle: Switch between dark and light modes
+- **Prompt Input**: Enter a prompt to query multiple models
+- **System Context Selection**: Choose response style (Concise, Educational, Deep Thinking, Coder)
+- **Model Parameter Controls**:
+  - **Temperature** (0.0-2.0): Controls randomness/creativity of responses
+  - **Top-P** (0.0-1.0): Nucleus sampling for response diversity
+  - **Max Tokens** (1-4000): Maximum response length
+  - **Seed**: Optional seed for reproducible results (leave empty for random)
+- **Font Size Adjustment**: Increase/decrease response text size
+- **Theme Toggle**: Switch between dark and light modes
 
 ## Performance Metrics
 For each model response, the application displays:
-- Response time (ms)
-- Character count
-- Word count
-- Token usage breakdown:
-  - Prompt Tokens (pt)
-  - Completion Tokens (ct)
-  - Total Tokens (tt)
+- **Response time** (ms)
+- **Character count** and **word count**
+- **Token usage breakdown**:
+  - Prompt Tokens + Completion Tokens = Total Tokens
+- **Model parameters used**:
+  - T: Temperature, P: Top-P, Max: Max Tokens, S: Seed
 
 ## Responsive Design
 The application uses a responsive grid layout:

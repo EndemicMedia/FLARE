@@ -99,6 +99,47 @@
         #fullscreen-content {
             font-size: 1.125rem !important; /* Equivalent to text-lg */
         }
+        
+        /* Custom slider styles */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dark input[type="range"]::-webkit-slider-thumb {
+            background: #60a5fa;
+            border-color: #1f2937;
+        }
+        
+        .dark input[type="range"]::-moz-range-thumb {
+            background: #60a5fa;
+            border-color: #1f2937;
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
@@ -129,6 +170,74 @@
                                 <option value="60000">60s</option>
                             </select>
                         </div>
+                        
+                        <!-- Model Parameters -->
+                        <div class="flex items-center space-x-4">
+                            <!-- Temperature -->
+                            <div class="flex items-center space-x-2">
+                                <label for="temperature-slider" class="text-sm text-gray-700 dark:text-gray-300">
+                                    Temp:
+                                </label>
+                                <input
+                                    type="range"
+                                    id="temperature-slider"
+                                    min="0"
+                                    max="2"
+                                    step="0.1"
+                                    value="0.7"
+                                    class="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                />
+                                <span id="temperature-value" class="text-sm text-gray-700 dark:text-gray-300 w-8">0.7</span>
+                            </div>
+
+                            <!-- Max Tokens -->
+                            <div class="flex items-center space-x-2">
+                                <label for="max-tokens-input" class="text-sm text-gray-700 dark:text-gray-300">
+                                    Max:
+                                </label>
+                                <input
+                                    type="number"
+                                    id="max-tokens-input"
+                                    min="1"
+                                    max="4000"
+                                    value="500"
+                                    class="w-16 px-2 py-1 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white rounded border-0 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <!-- Top P -->
+                            <div class="flex items-center space-x-2">
+                                <label for="top-p-slider" class="text-sm text-gray-700 dark:text-gray-300">
+                                    Top-P:
+                                </label>
+                                <input
+                                    type="range"
+                                    id="top-p-slider"
+                                    min="0"
+                                    max="1"
+                                    step="0.05"
+                                    value="1"
+                                    class="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                />
+                                <span id="top-p-value" class="text-sm text-gray-700 dark:text-gray-300 w-8">1.0</span>
+                            </div>
+
+                            <!-- Seed -->
+                            <div class="flex items-center space-x-2">
+                                <label for="seed-input" class="text-sm text-gray-700 dark:text-gray-300">
+                                    Seed:
+                                </label>
+                                <input
+                                    type="number"
+                                    id="seed-input"
+                                    min="0"
+                                    max="999999"
+                                    placeholder="Random"
+                                    class="w-20 px-2 py-1 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white rounded border-0 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+                        </div>
+                        
                         <button id="font-decrease-btn" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 rounded">-</button>
                         <button id="font-increase-btn" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 rounded">+</button>
                     </div>
@@ -297,6 +406,64 @@
         // Initialize theme when page loads
         initTheme();
 
+        // Model parameter controls
+        const temperatureSlider = document.getElementById('temperature-slider');
+        const temperatureValue = document.getElementById('temperature-value');
+        const topPSlider = document.getElementById('top-p-slider');
+        const topPValue = document.getElementById('top-p-value');
+        const maxTokensInput = document.getElementById('max-tokens-input');
+        const seedInput = document.getElementById('seed-input');
+
+        // Update temperature display
+        temperatureSlider.addEventListener('input', () => {
+            temperatureValue.textContent = parseFloat(temperatureSlider.value).toFixed(1);
+            // Save to localStorage
+            localStorage.setItem('modelTemperature', temperatureSlider.value);
+        });
+
+        // Update top-p display
+        topPSlider.addEventListener('input', () => {
+            topPValue.textContent = parseFloat(topPSlider.value).toFixed(2);
+            // Save to localStorage
+            localStorage.setItem('modelTopP', topPSlider.value);
+        });
+
+        // Save max tokens to localStorage
+        maxTokensInput.addEventListener('input', () => {
+            localStorage.setItem('modelMaxTokens', maxTokensInput.value);
+        });
+
+        // Save seed to localStorage
+        seedInput.addEventListener('input', () => {
+            localStorage.setItem('modelSeed', seedInput.value);
+        });
+
+        // Load saved parameter values
+        function loadSavedParameters() {
+            const savedTemp = localStorage.getItem('modelTemperature');
+            const savedTopP = localStorage.getItem('modelTopP');
+            const savedMaxTokens = localStorage.getItem('modelMaxTokens');
+            const savedSeed = localStorage.getItem('modelSeed');
+
+            if (savedTemp) {
+                temperatureSlider.value = savedTemp;
+                temperatureValue.textContent = parseFloat(savedTemp).toFixed(1);
+            }
+            if (savedTopP) {
+                topPSlider.value = savedTopP;
+                topPValue.textContent = parseFloat(savedTopP).toFixed(2);
+            }
+            if (savedMaxTokens) {
+                maxTokensInput.value = savedMaxTokens;
+            }
+            if (savedSeed) {
+                seedInput.value = savedSeed;
+            }
+        }
+
+        // Load saved parameters on page load
+        loadSavedParameters();
+
         // Font size controls
         const fontDecreaseBtn = document.getElementById('font-decrease-btn');
         const fontIncreaseBtn = document.getElementById('font-increase-btn');
@@ -385,9 +552,15 @@
             const timeoutDropdown = document.getElementById('timeout-dropdown');
             const timeoutValue = parseInt(timeoutDropdown.value, 10);
 
+            // Get model parameters from UI controls
+            const temperature = parseFloat(temperatureSlider.value);
+            const topP = parseFloat(topPSlider.value);
+            const maxTokens = parseInt(maxTokensInput.value);
+            const seed = seedInput.value ? parseInt(seedInput.value) : undefined;
+
             try {
-                // Add referrer field for Pollinations API best practice
-                const response = await axios.post(CHAT_URL, {
+                // Prepare the request body with model parameters
+                const requestBody = {
                     model: model.name,
                     messages: [
                         {
@@ -396,8 +569,19 @@
                         },
                         { role: 'user', content: prompt }
                     ],
+                    temperature: temperature,
+                    top_p: topP,
+                    max_tokens: maxTokens,
                     referrer: referrer
-                }, {
+                };
+
+                // Add seed if specified
+                if (seed !== undefined) {
+                    requestBody.seed = seed;
+                }
+
+                // Add referrer field for Pollinations API best practice
+                const response = await axios.post(CHAT_URL, requestBody, {
                     timeout: timeoutValue, // Use selected timeout value
                     signal: abortSignal // Add abort signal support
                 });
@@ -777,12 +961,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                     copyBtn.classList.remove('hidden');
                     fullscreenBtn.classList.remove('hidden');
                     
-                    // Calculate and display text statistics
+                    // Calculate and display text statistics with model parameters
                     const stats = calculateTextStatistics(result.text);
-                      statsElement.innerHTML = `
+                    const temperature = parseFloat(temperatureSlider.value);
+                    const topP = parseFloat(topPSlider.value);
+                    const maxTokens = parseInt(maxTokensInput.value);
+                    const seed = seedInput.value ? parseInt(seedInput.value) : 'rand';
+                    
+                    statsElement.innerHTML = `
                         ${result.duration}ms | ${stats.characters}chr | ${stats.words}w
                         <br><span class="text-xs text-gray-400">
                         ${result.usage.prompt_tokens || 0} + ${result.usage.completion_tokens || 0} = ${result.usage.total_tokens || 0} tks
+                        </span>
+                        <br><span class="text-xs text-gray-500 dark:text-gray-400">
+                        T:${temperature} P:${topP} Max:${maxTokens} S:${seed}
                         </span>
                     `;
                     
