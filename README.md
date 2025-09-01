@@ -2,6 +2,42 @@
 
 The FLARE language provides a powerful framework for recursive AI prompting. The ability to specify models, control response variability, and apply advanced post-processing functions enables developers to extract the most value from their AI tools. By leveraging multiple models, they can ensure diverse and accurate responses, similar to the "wisdom of the (llm) crowd" while post-processing functions like summarizing, combining, or contrasting these responses allow for nuanced and comprehensive outputs. This flexibility makes FLARE a versatile and valuable language for AI tool development.
 
+## Quick Start
+
+### 1. Environment Setup
+```bash
+# Clone the repository
+git clone <repository-url>
+cd FLARE
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env file with your Pollinations.ai API key
+```
+
+### 2. Running the Application
+```bash
+# Start the backend server
+npm start
+
+# The LLM comparison tool will be available at:
+# http://localhost:8080
+```
+
+### 3. Required Environment Variables
+Create a `.env` file with:
+```
+POLLINATIONS_API_KEY=your_api_key_here
+PORT=8080
+POLLINATIONS_API_URL=https://text.pollinations.ai/openai
+DEFAULT_MODEL=openai
+```
+
+⚠️ **Security Note**: Never commit your `.env` file or API keys to version control!
+
 #### Syntax Integration
 - Use curly braces `{}` to enclose prompts.
 - Each prompt will include properties such as model type, size, temperature, etc., in the format `{ flare model:model_name temp:temperature `prompt text`}`.
