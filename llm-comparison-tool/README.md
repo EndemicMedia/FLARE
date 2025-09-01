@@ -3,6 +3,31 @@
 ## Overview
 This web application provides a comprehensive tool for comparing responses from multiple Large Language Models (LLMs) in real-time. Users can input prompts and receive simultaneous responses from various AI models, with detailed performance metrics.
 
+## Quick Start
+
+### Option 1: Standalone Frontend
+```bash
+cd llm-comparison-tool
+npm install
+npm start
+# Access at http://localhost:8080
+```
+
+### Option 2: Via Backend Server
+```bash
+# From project root
+npm start
+# Access at http://localhost:8080 (serves both backend API and frontend)
+```
+
+### Option 3: Simple HTTP Server
+```bash
+cd llm-comparison-tool
+python -m http.server 8080
+# or
+python serve.py
+```
+
 ## Features
 - Dynamic grid layout responsive across multiple screen sizes
 - Real-time model response comparison
@@ -44,9 +69,32 @@ The application uses a responsive grid layout:
 - Axios for API requests
 - Marked.js for Markdown rendering
 
+## Security & Authentication
+
+### Referrer-Based Authentication
+- The application uses **referrer-based authentication** for Pollinations.ai API
+- No API keys are exposed in the frontend code (secure by design)
+- Referrer is automatically set to `endemicmedia.github.io` for proper attribution
+- Local development uses the same referrer for consistent behavior
+
+### Security Features
+- ✅ **No hardcoded API keys** - All authentication handled via referrer headers
+- ✅ **Client-side only** - No sensitive data stored or transmitted
+- ✅ **Local storage only** - Prompt history saved locally in browser
+- ✅ **HTTPS APIs** - All API calls use secure HTTPS endpoints
+
 ## API Endpoints
 - Model List: `GET https://text.pollinations.ai/models`
 - Model Queries: `POST https://text.pollinations.ai/openai`
+
+### API Request Headers
+```javascript
+// Automatically included in requests:
+{
+  "referrer": "endemicmedia.github.io",
+  "Content-Type": "application/json"
+}
+```
 
 ## Usage
 1. Enter a prompt in the input field
@@ -75,7 +123,38 @@ The application uses a responsive grid layout:
 - View response status (queued, loading, completed, error)
 
 ### History and Context
-- Previous prompts are saved automatically
-- Access prompt history through input field autocomplete
-- Select different system contexts to guide model responses
-- System contexts are loaded from local configuration
+- Previous prompts are saved automatically in browser localStorage
+- Access prompt history through input field autocomplete (max 20 prompts)
+- Select different system contexts to guide model responses:
+  - **Concise** - Short, direct answers (3-4 sentences)
+  - **Educational** - Comprehensive, structured explanations
+  - **Coder** - Code-focused responses with minimal explanation
+  - **Deep Thinking** - Structured analytical framework with thinking process
+- System contexts are loaded from `system.json` configuration
+
+## Configuration
+
+### System Prompts (`system.json`)
+The application loads system context prompts from `system.json`. You can customize these contexts:
+
+```json
+{
+  "systemPrompts": {
+    "concise": "Your concise prompt here...",
+    "educational": "Your educational prompt here...",
+    "custom": "Your custom context here..."
+  }
+}
+```
+
+### Browser Compatibility
+- Modern browsers with ES6+ support
+- Chrome, Firefox, Safari, Edge (latest versions)
+- JavaScript must be enabled
+- LocalStorage support required for prompt history
+
+### Development Notes
+- The tool is **client-side only** - no backend database required
+- All data stays in the browser (localStorage for settings/history)
+- Can be deployed as static files to any web server
+- CORS is handled by the Pollinations.ai API
