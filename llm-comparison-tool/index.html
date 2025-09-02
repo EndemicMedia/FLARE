@@ -140,6 +140,45 @@
             background: #60a5fa;
             border-color: #1f2937;
         }
+        
+        /* Matrix mode styles */
+        .matrix-mode .model-parameters-section {
+            display: none;
+        }
+        
+        .matrix-card {
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        
+        .matrix-card .parameter-label {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+        
+        /* Model name click indicator */
+        .cursor-pointer:hover {
+            color: #3b82f6 !important;
+            text-decoration: underline;
+        }
+        
+        /* Override for dropdown items - no underline */
+        #prompt-dropdown .cursor-pointer:hover {
+            text-decoration: none !important;
+        }
+        
+        /* Maintain text color in light and dark modes */
+        #prompt-dropdown .cursor-pointer:hover {
+            color: #111827 !important; /* gray-900 for light mode */
+        }
+        
+        .dark #prompt-dropdown .cursor-pointer:hover {
+            color: #ffffff !important; /* white for dark mode */
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
@@ -157,13 +196,13 @@
                 </div>
                 
                 <!-- Model Parameters -->
-                <div class="col-span-12 md:col-span-5 lg:col-span-4">
-                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                <div class="col-span-12 md:col-span-5 lg:col-span-4 model-parameters-section">
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
                         <!-- <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 text-center">Model Parameters</div> -->
                         <div class="grid grid-cols-2 gap-x-4 gap-y-2">
                             <!-- Temperature -->
                             <div class="flex items-center space-x-2">
-                                <label for="temperature-slider" class="text-xs text-gray-700 dark:text-gray-300 w-8">
+                                <label for="temperature-slider" class="text-xs text-gray-700 dark:text-gray-300 w-10 flex-shrink-0">
                                     Temp:
                                 </label>
                                 <input
@@ -173,14 +212,14 @@
                                     max="2"
                                     step="0.1"
                                     value="0.7"
-                                    class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    class="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                                 />
-                                <span id="temperature-value" class="text-xs text-gray-700 dark:text-gray-300 w-6">0.7</span>
+                                <span id="temperature-value" class="text-xs text-gray-700 dark:text-gray-300 w-8 flex-shrink-0 text-right">0.7</span>
                             </div>
 
                             <!-- Top P -->
                             <div class="flex items-center space-x-2">
-                                <label for="top-p-slider" class="text-xs text-gray-700 dark:text-gray-300 w-8">
+                                <label for="top-p-slider" class="text-xs text-gray-700 dark:text-gray-300 w-10 flex-shrink-0">
                                     Top-P:
                                 </label>
                                 <input
@@ -190,14 +229,14 @@
                                     max="1"
                                     step="0.05"
                                     value="1"
-                                    class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    class="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                                 />
-                                <span id="top-p-value" class="text-xs text-gray-700 dark:text-gray-300 w-6">1.0</span>
+                                <span id="top-p-value" class="text-xs text-gray-700 dark:text-gray-300 w-8 flex-shrink-0 text-right">1.0</span>
                             </div>
 
                             <!-- Max Tokens -->
                             <div class="flex items-center space-x-2">
-                                <label for="max-tokens-slider" class="text-xs text-gray-700 dark:text-gray-300 w-8">
+                                <label for="max-tokens-slider" class="text-xs text-gray-700 dark:text-gray-300 w-10 flex-shrink-0">
                                     Max:
                                 </label>
                                 <input
@@ -207,14 +246,14 @@
                                     max="4000"
                                     step="50"
                                     value="500"
-                                    class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    class="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                                 />
-                                <span id="max-tokens-value" class="text-xs text-gray-700 dark:text-gray-300 w-6">500</span>
+                                <span id="max-tokens-value" class="text-xs text-gray-700 dark:text-gray-300 w-8 flex-shrink-0 text-right">500</span>
                             </div>
 
                             <!-- Seed -->
                             <div class="flex items-center space-x-2">
-                                <label for="seed-slider" class="text-xs text-gray-700 dark:text-gray-300 w-8">
+                                <label for="seed-slider" class="text-xs text-gray-700 dark:text-gray-300 w-10 flex-shrink-0">
                                     Seed:
                                 </label>
                                 <input
@@ -224,9 +263,9 @@
                                     max="9999"
                                     step="1"
                                     value="0"
-                                    class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    class="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                                 />
-                                <span id="seed-value" class="text-xs text-gray-700 dark:text-gray-300 w-6">rand</span>
+                                <span id="seed-value" class="text-xs text-gray-700 dark:text-gray-300 w-8 flex-shrink-0 text-right">rand</span>
                             </div>
                         </div>
                     </div>
@@ -274,16 +313,22 @@
                     >
                         <!-- dynamically populated from system.json -->
                     </select>
-                    <input 
-                        type="text" 
-                        id="prompt-input" 
-                        list="prompt-history"
-                        class="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter your prompt here..."
-                    >
-                    <datalist id="prompt-history">
-                        <!-- Dynamically populated with previous prompts -->
-                    </datalist>
+                    <div class="relative flex-grow">
+                        <input 
+                            type="text" 
+                            id="prompt-input" 
+                            list="prompt-history"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your prompt here..."
+                        >
+                        <datalist id="prompt-history">
+                            <!-- Dynamically populated with previous prompts -->
+                        </datalist>
+                        <!-- Custom dropdown for better browser support -->
+                        <div id="prompt-dropdown" class="absolute top-full left-0 right-0 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto hidden">
+                            <!-- Dynamically populated dropdown items -->
+                        </div>
+                    </div>
                     <button 
                         id="submit-btn" 
                         class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
@@ -301,8 +346,16 @@
         </div>
     </div>
 
-    <div id="models-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 p-4 pt-48 overflow-y-auto">
-        <!-- Model results will be dynamically populated here -->
+    <div id="models-container" class="p-4 pt-48 overflow-y-auto">
+        <!-- Multi-model view -->
+        <div id="multi-model-view" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <!-- Model results will be dynamically populated here -->
+        </div>
+        
+        <!-- Matrix view -->
+        <div id="matrix-view" class="hidden">
+            <!-- Matrix results will be dynamically populated here -->
+        </div>
     </div>
 
     <!-- Fullscreen Modal -->
@@ -360,37 +413,227 @@
             ? "endemicmedia.github.io"
             : DEFAULT_REFERRER;
 
+        // Matrix mode state
+        let currentMode = 'multi'; // 'multi' or 'matrix'
+        let selectedModel = null;
+        let allModels = [];
+
+        // Parameter validation cache
+        const modelParameterLimits = new Map();
+
+        // Parameter matrix generation
+        function generateParameterMatrix(modelName) {
+            // Get cached limits or use conservative defaults (most models support temp up to 1.0)
+            const limits = modelParameterLimits.get(modelName) || {
+                tempMin: 0.0, tempMax: 1.0, topPMin: 0.1, topPMax: 1.0
+            };
+            
+            // If model only supports defaults, create a single-cell matrix
+            if (limits.useDefaults) {
+                return [{ 
+                    temperature: 1.0, 
+                    top_p: 1.0,
+                    displayLabel: `Default Only`,
+                    useDefaults: true
+                }];
+            }
+            
+            // Define focused parameter combinations for manageable matrix size
+            const parameterCombinations = [
+                // Core temperature/top-p variations (baseline)
+                { temp: 0.0, topP: 1.0, presP: 0, freqP: 0, label: "T=0.0 P=1.0" },
+                { temp: 0.3, topP: 0.7, presP: 0, freqP: 0, label: "T=0.3 P=0.7" },
+                { temp: 0.5, topP: 1.0, presP: 0, freqP: 0, label: "T=0.5 P=1.0" },
+                { temp: 0.7, topP: 0.4, presP: 0, freqP: 0, label: "T=0.7 P=0.4" },
+                { temp: 1.0, topP: 1.0, presP: 0, freqP: 0, label: "T=1.0 P=1.0" },
+                
+                // Presence penalty variations
+                { temp: 0.7, topP: 1.0, presP: -2, freqP: 0, label: "T=0.7 PP=-2" },
+                { temp: 0.7, topP: 1.0, presP: -1, freqP: 0, label: "T=0.7 PP=-1" },
+                { temp: 0.7, topP: 1.0, presP: 1, freqP: 0, label: "T=0.7 PP=+1" },
+                { temp: 0.7, topP: 1.0, presP: 2, freqP: 0, label: "T=0.7 PP=+2" },
+                
+                // Frequency penalty variations  
+                { temp: 0.7, topP: 1.0, presP: 0, freqP: -2, label: "T=0.7 FP=-2" },
+                { temp: 0.7, topP: 1.0, presP: 0, freqP: -1, label: "T=0.7 FP=-1" },
+                { temp: 0.7, topP: 1.0, presP: 0, freqP: 1, label: "T=0.7 FP=+1" },
+                { temp: 0.7, topP: 1.0, presP: 0, freqP: 2, label: "T=0.7 FP=+2" },
+                
+                // Combined penalty effects
+                { temp: 0.5, topP: 1.0, presP: 1, freqP: 1, label: "T=0.5 PP+FP=+1" },
+                { temp: 0.5, topP: 1.0, presP: -1, freqP: -1, label: "T=0.5 PP+FP=-1" },
+                { temp: 0.7, topP: 0.7, presP: 2, freqP: 1, label: "T=0.7 PP=+2 FP=+1" },
+                { temp: 0.3, topP: 0.4, presP: -1, freqP: 1, label: "T=0.3 PP=-1 FP=+1" },
+                
+                // High creativity + penalties
+                { temp: 1.0, topP: 0.7, presP: 1, freqP: 0, label: "T=1.0 P=0.7 PP=+1" },
+                { temp: 1.0, topP: 1.0, presP: 0, freqP: 2, label: "T=1.0 FP=+2" },
+                
+                // Conservative + penalties
+                { temp: 0.1, topP: 0.1, presP: 1, freqP: 1, label: "Conservative+Penalties" },
+                { temp: 0.0, topP: 0.4, presP: 2, freqP: 0, label: "T=0 P=0.4 PP=+2" }
+            ];
+            
+            // Filter combinations based on model limits and convert to expected format
+            return parameterCombinations
+                .filter(combo => combo.temp >= limits.tempMin && combo.temp <= limits.tempMax)
+                .filter(combo => combo.topP >= limits.topPMin && combo.topP <= limits.topPMax)
+                .map(combo => ({
+                    temperature: combo.temp,
+                    top_p: combo.topP, 
+                    presence_penalty: combo.presP,
+                    frequency_penalty: combo.freqP,
+                    displayLabel: combo.label
+                }));
+        }
+
+        // Mode switching functions
+        function enterMatrixMode(modelName) {
+            currentMode = 'matrix';
+            selectedModel = modelName;
+            document.body.classList.add('matrix-mode');
+            updateHeaderForMatrixMode();
+            
+            // Hide multi-model view and show matrix view
+            document.getElementById('multi-model-view').classList.add('hidden');
+            document.getElementById('matrix-view').classList.remove('hidden');
+            
+            renderMatrixView();
+        }
+
+        function exitMatrixMode() {
+            currentMode = 'multi';
+            selectedModel = null;
+            document.body.classList.remove('matrix-mode');
+            updateHeaderForMultiMode();
+            
+            // Hide matrix view and show multi-model view (preserving content)
+            document.getElementById('matrix-view').classList.add('hidden');
+            document.getElementById('multi-model-view').classList.remove('hidden');
+        }
+
+        function updateHeaderForMatrixMode() {
+            const titleElement = document.querySelector('h1');
+            const limits = modelParameterLimits.get(selectedModel);
+            const subtitle = limits?.useDefaults 
+                ? 'Default Parameters Only' 
+                : 'Parameter Matrix: Temperature, Top-P, Presence & Frequency Penalties';
+            
+            titleElement.innerHTML = `
+                <span class="cursor-pointer" onclick="exitMatrixMode()">[← Back to Multi-Model]</span>
+                <br>
+                <span class="text-lg">${selectedModel}</span> Parameter Matrix
+                <span class="block text-sm text-gray-500 dark:text-gray-400 font-normal">${subtitle}</span>
+            `;
+        }
+
+        function updateHeaderForMultiMode() {
+            const titleElement = document.querySelector('h1');
+            titleElement.innerHTML = `
+                Pollinations.ai Model Comparison 
+                <a href="https://github.com/EndemicMedia/FLARE" class="block md:inline text-sm text-orange-400 dark:text-orange-400">
+                    by EndemicMedia
+                </a>
+            `;
+        }
+
         // Prompt history management
         function savePrompt(prompt) {
             if (!prompt) return;
 
-            // Retrieve existing prompts
-            let promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
-            
-            // Remove duplicates and add new prompt to the beginning
-            promptHistory = promptHistory.filter(p => p !== prompt);
-            promptHistory.unshift(prompt);
+            try {
+                // Retrieve existing prompts
+                let promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+                
+                // Remove duplicates and add new prompt to the beginning
+                promptHistory = promptHistory.filter(p => p !== prompt);
+                promptHistory.unshift(prompt);
 
-            // Limit history size
-            promptHistory = promptHistory.slice(0, MAX_PROMPT_HISTORY);
+                // Limit history size
+                promptHistory = promptHistory.slice(0, MAX_PROMPT_HISTORY);
 
-            // Save back to localStorage
-            localStorage.setItem('promptHistory', JSON.stringify(promptHistory));
+                // Save back to localStorage
+                localStorage.setItem('promptHistory', JSON.stringify(promptHistory));
+            } catch (error) {
+                console.error('Error saving prompt to localStorage:', error);
+            }
         }
 
         function loadPromptHistory() {
-            const promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
-            const datalist = document.getElementById('prompt-history');
-            
-            // Clear existing options
-            datalist.innerHTML = '';
+            try {
+                const promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+                const datalist = document.getElementById('prompt-history');
+                const dropdown = document.getElementById('prompt-dropdown');
+                
+                if (!datalist) {
+                    console.error('Could not find prompt-history datalist element');
+                    return;
+                }
+                
+                // Clear existing options
+                datalist.innerHTML = '';
+                if (dropdown) dropdown.innerHTML = '';
 
-            // Populate datalist with prompt history
-            promptHistory.forEach(prompt => {
-                const option = document.createElement('option');
-                option.value = prompt;
-                datalist.appendChild(option);
-            });
+                // Populate datalist with prompt history
+                promptHistory.forEach((prompt, index) => {
+                    const option = document.createElement('option');
+                    option.value = prompt;
+                    datalist.appendChild(option);
+                    
+                    // Also populate custom dropdown
+                    if (dropdown) {
+                        const dropdownItem = document.createElement('div');
+                        dropdownItem.className = 'px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer border-b border-gray-200 dark:border-gray-600 last:border-b-0 text-gray-900 dark:text-white';
+                        dropdownItem.textContent = prompt;
+                        dropdownItem.addEventListener('click', () => {
+                            document.getElementById('prompt-input').value = prompt;
+                            hidePromptDropdown();
+                        });
+                        dropdown.appendChild(dropdownItem);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading prompt history:', error);
+            }
+        }
+
+        function showPromptDropdown() {
+            const dropdown = document.getElementById('prompt-dropdown');
+            const promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+            
+            console.log('showPromptDropdown called');
+            console.log('Dropdown element:', dropdown);
+            console.log('Prompt history length:', promptHistory.length);
+            console.log('Dropdown children count:', dropdown ? dropdown.children.length : 'N/A');
+            
+            if (dropdown && promptHistory.length > 0) {
+                dropdown.classList.remove('hidden');
+                console.log('✅ Showing custom dropdown with', promptHistory.length, 'items');
+                console.log('Dropdown classes:', dropdown.className);
+                
+                // Check if dropdown is actually visible
+                const rect = dropdown.getBoundingClientRect();
+                const computedStyle = window.getComputedStyle(dropdown);
+                console.log('📍 Dropdown position:', {
+                    top: rect.top,
+                    left: rect.left,
+                    width: rect.width,
+                    height: rect.height,
+                    display: computedStyle.display,
+                    visibility: computedStyle.visibility,
+                    opacity: computedStyle.opacity
+                });
+            } else {
+                console.log('❌ Cannot show dropdown - missing element or no history');
+            }
+        }
+
+        function hidePromptDropdown() {
+            const dropdown = document.getElementById('prompt-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+                console.log('🔽 Hiding custom dropdown');
+            }
         }
 
         // Theme toggle functionality
@@ -565,7 +808,64 @@
 
         function getSystemPrompt(context) { return SYSTEM_PROMPTS[context] }
 
-        async function queryModel(model, prompt, retryCount = 0, abortSignal = null) {
+        // Matrix view rendering
+        function renderMatrixView() {
+            const matrixContainer = document.getElementById('matrix-view');
+            const combinations = generateParameterMatrix(selectedModel);
+            
+            // Adaptive grid based on combinations count  
+            let gridCols = 'grid-cols-5'; // default for ~20 combinations
+            if (combinations.length === 1) gridCols = 'grid-cols-1'; // single default-only model
+            else if (combinations.length <= 6) gridCols = 'grid-cols-3'; // smaller matrices
+            else if (combinations.length <= 12) gridCols = 'grid-cols-4'; // medium matrices
+            else if (combinations.length <= 20) gridCols = 'grid-cols-5'; // 20-combination focused matrix
+            
+            matrixContainer.className = `grid ${gridCols} gap-4`;
+            matrixContainer.innerHTML = '';
+            combinations.forEach((combo, idx) => {
+                const matrixDiv = document.createElement('div');
+                matrixDiv.classList.add('matrix-card', 'border', 'rounded-lg', 'p-3', 'bg-white', 'dark:bg-gray-800', 'shadow-sm');
+                matrixDiv.innerHTML = `
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-start space-x-2">
+                            <div class="parameter-label">${combo.displayLabel}</div>
+                        </div>
+                        <div class="flex items-start">
+                            <div id="matrix-stats-${idx}" class="text-xs text-gray-500 dark:text-gray-400"></div>
+                            <div class="grid ml-2">
+                                <button
+                                    class="fullscreen-btn hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                    data-matrix-index="${idx}"
+                                    title="View fullscreen"
+                                    >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                    </svg>
+                                </button>
+                                <button
+                                    class="copy-btn hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                    data-matrix-index="${idx}"
+                                    title="Copy output"
+                                    >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        id="matrix-${idx}"
+                        class="markdown-content w-full py-1 h-48 overflow-y-auto text-base dark:text-white"
+                        placeholder="Response will appear here..."
+                    ></div>
+                `;
+                matrixContainer.appendChild(matrixDiv);
+            });
+        }
+
+
+        async function queryModel(model, prompt, retryCount = 0, abortSignal = null, parameterOverride = null) {
             const MAX_RETRIES = 3;
             const RETRY_DELAY = 1000; // 1 second initial delay
             const systemContext = systemContextSelect.value;
@@ -574,12 +874,27 @@
             const timeoutDropdown = document.getElementById('timeout-dropdown');
             const timeoutValue = parseInt(timeoutDropdown.value, 10);
 
-            // Get model parameters from UI controls
-            const temperature = parseFloat(temperatureSlider.value);
-            const topP = parseFloat(topPSlider.value);
-            const maxTokens = parseInt(maxTokensSlider.value);
-            const seedVal = parseInt(seedSlider.value);
-            const seed = seedVal === 0 ? undefined : seedVal;
+            // Get model parameters from UI controls or override
+            let temperature, topP, maxTokens, seed, presencePenalty, frequencyPenalty;
+            
+            // For models that only support defaults, don't override parameters
+            if (parameterOverride?.useDefaults) {
+                temperature = parseFloat(temperatureSlider.value);
+                topP = parseFloat(topPSlider.value);
+                maxTokens = parseInt(maxTokensSlider.value);
+                const seedVal = parseInt(seedSlider.value);
+                seed = seedVal === 0 ? undefined : seedVal;
+                presencePenalty = 0;
+                frequencyPenalty = 0;
+            } else {
+                temperature = parameterOverride?.temperature ?? parseFloat(temperatureSlider.value);
+                topP = parameterOverride?.top_p ?? parseFloat(topPSlider.value);
+                maxTokens = parameterOverride?.max_tokens ?? parseInt(maxTokensSlider.value);
+                const seedVal = parameterOverride?.seed ?? parseInt(seedSlider.value);
+                seed = seedVal === 0 ? undefined : seedVal;
+                presencePenalty = parameterOverride?.presence_penalty ?? 0;
+                frequencyPenalty = parameterOverride?.frequency_penalty ?? 0;
+            }
 
             try {
                 // Prepare the request body with model parameters
@@ -592,15 +907,32 @@
                         },
                         { role: 'user', content: prompt }
                     ],
-                    temperature: temperature,
-                    top_p: topP,
-                    max_tokens: maxTokens,
                     referrer: referrer
                 };
 
-                // Add seed if specified
-                if (seed !== undefined) {
-                    requestBody.seed = seed;
+                // Check if this model has parameter restrictions
+                const limits = modelParameterLimits.get(model.name);
+                
+                // Only add parameters if model supports them
+                if (!limits?.useDefaults) {
+                    requestBody.temperature = temperature;
+                    requestBody.top_p = topP;
+                    requestBody.max_tokens = maxTokens;
+                    
+                    // Add penalty parameters if non-zero
+                    if (presencePenalty !== 0) {
+                        requestBody.presence_penalty = presencePenalty;
+                    }
+                    if (frequencyPenalty !== 0) {
+                        requestBody.frequency_penalty = frequencyPenalty;
+                    }
+                    
+                    // Add seed if specified
+                    if (seed !== undefined) {
+                        requestBody.seed = seed;
+                    }
+                } else {
+                    console.log(`${model.name}: Using default parameters only (no temp/top_p sent)`);
                 }
 
                 // Add referrer field for Pollinations API best practice
@@ -626,13 +958,41 @@
 
                 console.error(`Error with ${model.name}:`, error);
                 
+                // Handle parameter validation errors
+                if (error.response && error.response.data && error.response.data.details) {
+                    const errorMessage = error.response.data.details.error?.message || '';
+                    if (errorMessage.includes('temperature') || errorMessage.includes('top_p')) {
+                        console.log(`Parameter limits detected for ${model.name}:`, errorMessage);
+                        
+                        // Check if model only supports default values
+                        if (errorMessage.includes('Only the default') || errorMessage.includes('only support')) {
+                            // Model only supports defaults - cache immediately and retry without parameters
+                            modelParameterLimits.set(model.name, {
+                                tempMin: 1.0, tempMax: 1.0, topPMin: 1.0, topPMax: 1.0,
+                                useDefaults: true
+                            });
+                            
+                            // Retry immediately without parameters if we have retries left
+                            if (retryCount < MAX_RETRIES && !abortSignal?.aborted) {
+                                console.log(`Retrying ${model.name} without parameters - Attempt ${retryCount + 1}`);
+                                return queryModel(model, prompt, retryCount + 1, abortSignal, parameterOverride);
+                            }
+                        } else {
+                            // Cache more conservative limits
+                            modelParameterLimits.set(model.name, {
+                                tempMin: 0.0, tempMax: 1.0, topPMin: 0.1, topPMax: 1.0
+                            });
+                        }
+                    }
+                }
+                
                 if (retryCount < MAX_RETRIES && !abortSignal?.aborted) {
                     // Exponential backoff
                     const delay = RETRY_DELAY * Math.pow(2, retryCount);
                     await new Promise(resolve => setTimeout(resolve, delay));
                     
                     console.log(`Retrying ${model.name} - Attempt ${retryCount + 1}`);
-                    return queryModel(model, prompt, retryCount + 1, abortSignal);
+                    return queryModel(model, prompt, retryCount + 1, abortSignal, parameterOverride);
                 }
                 
                 return {
@@ -643,9 +1003,9 @@
         }
 
         async function initializeModelFields() {
-            const modelsContainer = document.getElementById('models-container');
+            const modelsContainer = document.getElementById('multi-model-view');
             if (!modelsContainer) {
-                console.error('Could not find #models-container in DOM');
+                console.error('Could not find #multi-model-view in DOM');
                 return [];
             }
             const models = await fetchModels();
@@ -668,7 +1028,7 @@
                 modelDiv.innerHTML = `
                     <div class="flex justify-between mb-2">
                         <div class="flex items-start space-x-2">
-                            <label class="text-gray-700 dark:text-gray-300 font-semibold text-sm">${model.name}</label>
+                            <label class="text-gray-700 dark:text-gray-300 font-semibold text-sm cursor-pointer" onclick="enterMatrixMode('${model.name}')">${model.name}</label>
                         </div>
                         <div class="flex items-start">
                             <div id="model-stats-${model.name}" class="text-xs text-gray-500 dark:text-gray-400"></div>
@@ -705,6 +1065,8 @@
 
             console.log('Model cards rendered. modelsContainer child count:', modelsContainer.childElementCount);
 
+            // Store models globally for matrix mode
+            allModels = models;
             return models;
         }
 
@@ -777,13 +1139,185 @@ document.addEventListener('DOMContentLoaded', async () => {
     const fullscreenContent = document.getElementById('fullscreen-content');
     const closeFullscreenBtn = document.getElementById('close-fullscreen-btn');
 
+    // Trigger native datalist to show all options on click/focus
+    function triggerDatalistDropdown(inputElement) {
+        console.log('Attempting to trigger datalist dropdown');
+        
+        // Method: Clear value temporarily to show all options, then restore
+        const originalValue = inputElement.value;
+        
+        // Clear the input to show all datalist options
+        inputElement.value = '';
+        
+        // Trigger input event to refresh datalist
+        const inputEvent = new Event('input', { bubbles: true });
+        inputElement.dispatchEvent(inputEvent);
+        
+        // Focus the input to ensure datalist appears
+        inputElement.focus();
+        
+        // Restore original value after a short delay
+        setTimeout(() => {
+            inputElement.value = originalValue;
+        }, 100);
+    }
+
+    // Show datalist dropdown on focus
+    promptInput.addEventListener('focus', () => {
+        const datalist = document.getElementById('prompt-history');
+        
+        // Try native trigger first, then fallback to custom dropdown
+        if (datalist && datalist.children.length > 0) {
+            setTimeout(() => {
+                triggerDatalistDropdown(promptInput);
+            }, 50);
+            
+            // Also show custom dropdown as reliable fallback
+            showPromptDropdown();
+        }
+    });
+
+    // Show datalist dropdown on click  
+    promptInput.addEventListener('click', () => {
+        const datalist = document.getElementById('prompt-history');
+        
+        if (datalist && datalist.children.length > 0) {
+            triggerDatalistDropdown(promptInput);
+            // Also show custom dropdown as reliable fallback
+            showPromptDropdown();
+        }
+    });
+
+    promptInput.addEventListener('input', (e) => {
+        
+        // Filter custom dropdown based on input
+        const value = e.target.value.toLowerCase();
+        const dropdown = document.getElementById('prompt-dropdown');
+        if (dropdown && !dropdown.classList.contains('hidden')) {
+            const items = dropdown.children;
+            let visibleCount = 0;
+            Array.from(items).forEach(item => {
+                if (item.textContent.toLowerCase().includes(value) || value === '') {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            if (visibleCount === 0 && value !== '') {
+                hidePromptDropdown();
+            }
+        }
+    });
+
+    let dropdownHideTimeout;
+    let isDropdownInteraction = false;
+    
+    // Prevent dropdown hide when interacting with dropdown
+    const dropdown = document.getElementById('prompt-dropdown');
+    if (dropdown) {
+        dropdown.addEventListener('mouseenter', () => {
+            isDropdownInteraction = true;
+            console.log('Mouse entered dropdown, preventing hide');
+            if (dropdownHideTimeout) {
+                clearTimeout(dropdownHideTimeout);
+            }
+        });
+        
+        dropdown.addEventListener('mouseleave', () => {
+            isDropdownInteraction = false;
+            console.log('Mouse left dropdown, allowing hide');
+        });
+    }
+    
+    promptInput.addEventListener('blur', (e) => {
+        console.log('Input blurred, isDropdownInteraction:', isDropdownInteraction);
+        
+        // Only hide if not interacting with dropdown
+        if (!isDropdownInteraction) {
+            dropdownHideTimeout = setTimeout(() => {
+                if (!isDropdownInteraction) {
+                    console.log('Hiding dropdown after blur delay');
+                    hidePromptDropdown();
+                } else {
+                    console.log('Cancelling hide - dropdown interaction detected');
+                }
+            }, 150);
+        }
+    });
+
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('prompt-dropdown');
+        const input = document.getElementById('prompt-input');
+        
+        if (dropdown && !dropdown.contains(e.target) && !input.contains(e.target)) {
+            console.log('Clicked outside, hiding dropdown');
+            isDropdownInteraction = false;
+            if (dropdownHideTimeout) {
+                clearTimeout(dropdownHideTimeout);
+            }
+            hidePromptDropdown();
+        }
+    });
+
     // Cancellation controller
     let currentAbortController = null;
 
     // Clipboard and fullscreen functionality
-        modelsContainer.addEventListener('click', (event) => {
+        document.getElementById('models-container').addEventListener('click', (event) => {
             const copyBtn = event.target.closest('.copy-btn');
             const fullscreenBtn = event.target.closest('.fullscreen-btn');
+            
+            // Handle matrix mode buttons
+            if (currentMode === 'matrix') {
+                if (copyBtn) {
+                    const matrixIndex = copyBtn.getAttribute('data-matrix-index');
+                    const matrixOutput = document.getElementById(`matrix-${matrixIndex}`);
+                    
+                    const tempTextArea = document.createElement('textarea');
+                    tempTextArea.value = matrixOutput.textContent;
+                    document.body.appendChild(tempTextArea);
+                    tempTextArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempTextArea);
+
+                    copyBtn.innerHTML = '✓';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                        `;
+                    }, 1000);
+                    return;
+                }
+
+                if (fullscreenBtn) {
+                    const matrixIndex = fullscreenBtn.getAttribute('data-matrix-index');
+                    const matrixOutput = document.getElementById(`matrix-${matrixIndex}`);
+                    const matrixStats = document.getElementById(`matrix-stats-${matrixIndex}`);
+                    
+                    fullscreenContent.innerHTML = matrixOutput.innerHTML;
+                    
+                    const fullscreenModelName = document.getElementById('fullscreen-model-name');
+                    const fullscreenModelStats = document.getElementById('fullscreen-model-stats');
+                    const combinations = generateParameterMatrix(selectedModel);
+                    
+                    fullscreenModelName.textContent = `${selectedModel} - ${combinations[matrixIndex].displayLabel}`;
+                    fullscreenModelStats.innerHTML = matrixStats.innerHTML;
+                    
+                    const fullscreenCopyBtn = fullscreenModal.querySelector('.copy-btn');
+                    if (fullscreenCopyBtn) {
+                        fullscreenCopyBtn.setAttribute('data-matrix-index', matrixIndex);
+                    }
+                    
+                    fullscreenModal.classList.remove('hidden');
+                    fullscreenModal.classList.add('opacity-100');
+                    return;
+                }
+            }
 
                 if (copyBtn) {
                     const modelName = copyBtn.getAttribute('data-model');
@@ -859,7 +1393,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             fullscreenModal.querySelector('.copy-btn').addEventListener('click', (event) => {
                 console.log('Fullscreen copy button clicked');
                 const modelName = event.target.closest('.copy-btn').getAttribute('data-model');
-                console.log('Copying content for model:', modelName);
+                const matrixIndex = event.target.closest('.copy-btn').getAttribute('data-matrix-index');
+                console.log('Copying content for:', currentMode === 'matrix' ? `matrix-${matrixIndex}` : `model-${modelName}`);
                 
                 // Create a temporary textarea to copy text
                 const tempTextArea = document.createElement('textarea');
@@ -896,14 +1431,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     cancelBtn.classList.add('hidden');
 
                     // Update model statuses
-                    models.forEach(model => {
+                    allModels.forEach(model => {
                         const textarea = document.getElementById(`model-${model.name}`);
                         const statsElement = document.getElementById(`model-stats-${model.name}`);
                         
-                        if (textarea.innerHTML === 'Loading...') {
+                        if (textarea && textarea.innerHTML === 'Loading...') {
                             textarea.innerHTML = 'Cancelled';
                             textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
-                            statsElement.textContent = 'Cancelled';
+                            if (statsElement) statsElement.textContent = 'Cancelled';
                         }
                     });
                 }
@@ -921,6 +1456,125 @@ document.addEventListener('DOMContentLoaded', async () => {
                 savePrompt(prompt);
                 // Reload prompt history to update autocomplete
                 loadPromptHistory();
+                
+                if (currentMode === 'matrix') {
+                    await handleMatrixSubmission(prompt);
+                } else {
+                    await handleMultiModelSubmission(prompt);
+                }
+            }
+
+            // Matrix mode submission
+            async function handleMatrixSubmission(prompt) {
+                // Disable submit button, show cancel button
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Processing...';
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                cancelBtn.classList.remove('hidden');
+
+                const combinations = generateParameterMatrix(selectedModel);
+                const matrixResults = [];
+                const selectedModelObj = allModels.find(m => m.name === selectedModel);
+
+                // Clear previous results and set initial states
+                combinations.forEach((combo, idx) => {
+                    const textarea = document.getElementById(`matrix-${idx}`);
+                    const statsElement = document.getElementById(`matrix-stats-${idx}`);
+                    const matrixContainer = textarea.closest('.matrix-card');
+                    
+                    matrixContainer.classList.remove('fastest-model');
+                    textarea.innerHTML = 'Queued';
+                    textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
+                    statsElement.textContent = '';
+                });
+
+                const processMatrixCellWithUI = async (combo, idx) => {
+                    const textarea = document.getElementById(`matrix-${idx}`);
+                    const statsElement = document.getElementById(`matrix-stats-${idx}`);
+                    
+                    textarea.innerHTML = 'Loading...';
+                    textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-loading';
+
+                    try {
+                        const result = await queryModel(selectedModelObj, prompt, 0, currentAbortController?.signal, combo);
+                        
+                        if (currentAbortController?.signal?.aborted) {
+                            textarea.innerHTML = 'Cancelled';
+                            textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
+                            return null;
+                        }
+
+                        const markdownContent = marked.parse(result.text);
+                        
+                        if (result.text.startsWith('Error') || result.text === 'Request cancelled') {
+                            textarea.innerHTML = result.text;
+                            textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-error';
+                            textarea.closest('.matrix-card').classList.add('opacity-50', 'grayscale');
+                            statsElement.textContent = 'Error';
+                            matrixResults.push({ index: idx, duration: Infinity });
+                            textarea.closest('.matrix-card').querySelector('.copy-btn').classList.add('hidden');
+                            textarea.closest('.matrix-card').querySelector('.fullscreen-btn').classList.add('hidden');
+                        } else {
+                            textarea.innerHTML = markdownContent;
+                            textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-completed';
+                            textarea.closest('.matrix-card').classList.remove('opacity-50', 'grayscale');
+                            
+                            // Show copy and fullscreen buttons
+                            const copyBtn = textarea.closest('.matrix-card').querySelector('.copy-btn');
+                            const fullscreenBtn = textarea.closest('.matrix-card').querySelector('.fullscreen-btn');
+                            copyBtn.classList.remove('hidden');
+                            fullscreenBtn.classList.remove('hidden');
+                            
+                            // Calculate and display text statistics
+                            const stats = calculateTextStatistics(result.text);
+                            
+                            statsElement.innerHTML = `
+                                ${result.duration}ms | ${stats.characters}chr | ${stats.words}w
+                                <br><span class="text-xs text-gray-400">
+                                ${result.usage.prompt_tokens || 0} + ${result.usage.completion_tokens || 0} = ${result.usage.total_tokens || 0} tks
+                                </span>
+                            `;
+                            
+                            matrixResults.push({ index: idx, duration: result.duration });
+                        }
+                    } catch (error) {
+                        textarea.innerHTML = `Error: ${error.message}`;
+                        textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-error';
+                        statsElement.textContent = 'Error retrieving stats';
+                        matrixResults.push({ index: idx, duration: Infinity });
+                    }
+                };
+
+                // Concurrent processing with max 2 simultaneous requests
+                const processBatches = async () => {
+                    for (let i = 0; i < combinations.length; i += 2) {
+                        const batch = combinations.slice(i, i + 2);
+                        await Promise.all(batch.map((combo, batchIdx) => processMatrixCellWithUI(combo, i + batchIdx)));
+                    }
+                };
+
+                await processBatches();
+
+                // Highlight 3 fastest matrix cells
+                const sortedResults = matrixResults
+                    .filter(result => result.duration !== Infinity)
+                    .sort((a, b) => a.duration - b.duration)
+                    .slice(0, 3);
+
+                sortedResults.forEach(result => {
+                    const matrixContainer = document.querySelector(`[id="matrix-${result.index}"]`).closest('.matrix-card');
+                    matrixContainer.classList.add('fastest-model');
+                });
+
+                // Re-enable submit button and hide cancel button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                cancelBtn.classList.add('hidden');
+            }
+
+            // Multi-model mode submission (original logic)
+            async function handleMultiModelSubmission(prompt) {
 
                 // Disable submit button, show cancel button
                 submitBtn.disabled = true;
@@ -930,7 +1584,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // Clear previous results and set initial states
                 const modelResults = [];
-                models.forEach(model => {
+                allModels.forEach(model => {
                     const textarea = document.getElementById(`model-${model.name}`);
                     const statsElement = document.getElementById(`model-stats-${model.name}`);
                     const modelContainer = textarea.closest('.border');
@@ -984,21 +1638,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     copyBtn.classList.remove('hidden');
                     fullscreenBtn.classList.remove('hidden');
                     
-                    // Calculate and display text statistics with model parameters
+                    // Calculate and display text statistics (no parameters in multi-model view)
                     const stats = calculateTextStatistics(result.text);
-                    const temperature = parseFloat(temperatureSlider.value);
-                    const topP = parseFloat(topPSlider.value);
-                    const maxTokens = parseInt(maxTokensSlider.value);
-                    const seedVal = parseInt(seedSlider.value);
-                    const seed = seedVal === 0 ? 'rand' : seedVal;
                     
                     statsElement.innerHTML = `
                         ${result.duration}ms | ${stats.characters}chr | ${stats.words}w
                         <br><span class="text-xs text-gray-400">
                         ${result.usage.prompt_tokens || 0} + ${result.usage.completion_tokens || 0} = ${result.usage.total_tokens || 0} tks
-                        </span>
-                        <br><span class="text-xs text-gray-500 dark:text-gray-400">
-                        T:${temperature} P:${topP} Max:${maxTokens} S:${seed}
                         </span>
                     `;
                     
@@ -1014,8 +1660,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // Concurrent processing with max 2 simultaneous requests
                 const processBatches = async () => {
-                    for (let i = 0; i < models.length; i += 2) {
-                        const batch = models.slice(i, i + 2);
+                    for (let i = 0; i < allModels.length; i += 2) {
+                        const batch = allModels.slice(i, i + 2);
                         await Promise.all(batch.map(processModelWithUI));
                     }
                 };
