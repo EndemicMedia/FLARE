@@ -135,5 +135,14 @@ dist
 test*.html
 serve.py
 
+# Test and output files (temporary/generated)
+test-*.json
+test-*.sh
+*-test.json
+*-test.sh
+output.md
+demo-*.sh
+simple-*.sh
+
 # Third-party presets and downloads
 lm-studio-presets-main/

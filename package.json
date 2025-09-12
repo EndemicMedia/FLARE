@@ -1,0 +1,30 @@
+{
+  "name": "flare-backend",
+  "version": "2.0.0",
+  "description": "FLARE: Fractal Language for Autonomous Recursive Expansion - Atomic Architecture Implementation",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "serve": "node src/server.js",
+    "dev": "node src/server.js",
+    "test": "mocha src/test/**/*.js",
+    "test:e2e": "mocha --timeout 15000 src/test/e2e/**/*.js",
+    "test:unit": "c8 mocha src/test/unit/**/*.js",
+    "test:parser": "mocha src/test/unit/parser/**/*.js",
+    "test:services": "mocha src/test/unit/services/**/*.js",
+    "test:integration": "mocha --timeout 20000 src/test/integration/**/*.js"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "express": "^4.18.2",
+    "http-server": "^14.1.1"
+  },
+  "devDependencies": {
+    "c8": "^10.1.3",
+    "chai": "^5.2.1",
+    "esm": "^3.2.25",
+    "mocha": "^11.7.1",
+    "sinon": "^21.0.0"
+  }
+}
