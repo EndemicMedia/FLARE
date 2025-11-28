@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { parseFlareCommand, validateParsedCommand } from '../../../parser/syntax.js';
+import { parseFlareCommand, validateParsedCommand } from '../../../parser/exports.js';
 
 describe('FLARE Parser - Syntax Tests', () => {
   

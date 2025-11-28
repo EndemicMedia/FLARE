@@ -2,6 +2,10 @@ import { expect } from 'chai';
 import axios from 'axios';
 
 describe('FLARE API Integration Tests', () => {
+  beforeEach(function(done) {
+    this.timeout(3000);
+    setTimeout(done, 2000);
+  });
   const baseUrl = 'http://localhost:8080';
   
   before(function() {
@@ -188,7 +192,8 @@ describe('FLARE API Integration Tests', () => {
       }
     });
 
-    it('should support all post-processing commands', async () => {
+    it('should support all post-processing commands', async function() {
+      this.timeout(60000);
       const commands = [
         { name: 'sum', cmd: "{ flare model:openai sum `Test summarization` }" },
         { name: 'vote', cmd: "{ flare model:openai,mistral vote `Test voting` }" },

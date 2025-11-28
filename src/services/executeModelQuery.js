@@ -22,7 +22,7 @@ export async function executeModelQuery({ modelName, temp, prompt, seed = null }
         content: prompt.trim()
       }
     ],
-    temperature: temperature,
+    ...(model === 'openai' ? {} : { temperature: temperature }), // Conditionally add temperature
     ...(seed && { seed: seed })
   };
 

@@ -5,7 +5,7 @@ import {
   replaceFlareCommandsInText,
   hasFlareCommands,
   countFlareCommands
-} from '../../../parser/extractor.js';
+} from '../../../parser/exports.js';
 
 describe('FLARE Parser - Extractor Tests', () => {
 

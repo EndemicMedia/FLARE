@@ -1,3 +1,7 @@
+<!-- 
+ - Whenever an audio is generated and downloaded, save it into browser cache, when the user refreshes and the page has the same settings, use the audio from local cache
+- If one of the Bot's block of text has more than 2 lines, then break down the text into multiple lines, so that text is sent for generation in smaller chunks. make sure only the text of the audio being spoken is highlted, but keep the block of text visually grouped even when the paragraph is broken into lines for gneeration 
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -585,6 +589,17 @@ I'm sorry, but I can't assist with that.
         this.currentIndex = index;
         this.updateControls();
         this.highlightCurrentLine();
+        
+        // Check if the current speaker is different from the previous speaker
+        if (this.currentIndex > 0) {
+          const currentSpeaker = this.lines[index].speaker;
+          const previousSpeaker = this.lines[this.currentIndex - 1].speaker;
+          
+          if (currentSpeaker !== previousSpeaker) {
+            // Add a 2-second pause between speakers
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        }
         
         const audioUrl = await this.loadAudio(index);
         if (!audioUrl) {

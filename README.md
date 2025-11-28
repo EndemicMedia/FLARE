@@ -56,8 +56,6 @@ POLLINATIONS_API_KEY=your_api_key_here     # Optional - fallback provided
 PORT=8080                                  # Server port
 ```
 
-Get your API key at [auth.pollinations.ai](https://auth.pollinations.ai)
-
 ## 🎯 FLARE Command Syntax
 
 FLARE uses an intuitive curly-brace syntax to define AI orchestration commands:
@@ -95,7 +93,7 @@ FLARE uses an intuitive curly-brace syntax to define AI orchestration commands:
 
 - **`model`**: Specify one or more models (see available models below)
 - **`temp`**: Control randomness (0.0-2.0, default: 1.0)
-- **Post-processing**: Apply intelligent response processing
+- **Post-processing**: Apply intelligent response processing. If a specific model is not provided for a post-processing command (e.g., `sum:openai`), it will default to the first model specified in the main `model:` parameter. If no models are specified in the main `model:` parameter, it will fall back to `'openai'`.
 
 ### 🤖 Available Models
 
@@ -106,13 +104,13 @@ FLARE integrates with Pollinations.ai and supports these anonymous-tier models:
 | `mistral` | Mistral Small 3.1 24B | General-purpose, creative writing |
 | `gemini` | Gemini 2.5 Flash Lite | Fast responses, analysis |
 | `nova-fast` | Amazon Nova Micro | Quick processing |
-| `openai` | OpenAI GPT-5 Nano | General-purpose |
+| `openai` | OpenAI GPT-5 Nano | General-purpose (Note: Does not support `temp` parameter) |
 | `openai-fast` | OpenAI GPT-4.1 Nano | Faster responses |
 | `qwen-coder` | Qwen 2.5 Coder 32B | **Code generation & debugging** |
 | `bidara` | NASA's BIDARA | **Biomimetic design & research** |
 | `midijourney` | MIDIjourney | **Music composition** |
 
-**Note**: Some models require API keys for full access. The system gracefully handles failures and continues processing with available models.
+
 
 ## 🔗 API Integration
 
@@ -434,5 +432,7 @@ Lists all available features and supported commands.
 5. **🏗️ Scalable Architecture** - Built to grow with your needs
 6. **🧪 Well Tested** - 94.2% test coverage ensures reliability
 7. **📚 Fully Documented** - Comprehensive guides and examples
+
+**Start orchestrating AI models today with FLARE v2.0!** 🎉** - Comprehensive guides and examples
 
 **Start orchestrating AI models today with FLARE v2.0!** 🎉

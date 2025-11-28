@@ -9,14 +9,20 @@ import { setupMiddleware } from './server/setupMiddleware.js';
 import { setupRoutes } from './server/setupRoutes.js';
 import { serverConfig } from './server/globals.js';
 
+console.log('🔧 Starting FLARE server...');
+
 // Create Express app
 const app = express();
 const PORT = process.env.PORT || serverConfig.port;
 
+console.log(`📡 Configuring server for port ${PORT}`);
+
 // Setup middleware
+console.log('🔧 Setting up middleware...');
 setupMiddleware(app, serverConfig);
 
 // Setup routes
+console.log('🔧 Setting up routes...');
 setupRoutes(app, serverConfig);
 
 // Add detailed API info endpoint

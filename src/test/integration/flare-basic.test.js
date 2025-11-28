@@ -2,6 +2,10 @@ import { expect } from 'chai';
 import { processFlareCommand } from '../../services/exports.js';
 
 describe('FLARE Integration Tests - Basic Flow', () => {
+  beforeEach(function(done) {
+    this.timeout(3000);
+    setTimeout(done, 2000);
+  });
 
   // Note: These tests require network access and valid API configuration
   // They may be skipped in environments without internet or API keys

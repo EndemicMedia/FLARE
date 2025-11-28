@@ -144,5 +144,12 @@ output.md
 demo-*.sh
 simple-*.sh
 
+# Personal/development files that shouldn't be committed
+LATEST.md
+TODO.md
+"llm-comparison-tool/is reality reall.md"
+llm-comparison-tool/pollinations-monitor.sh
+llm-comparison-tool/deepthinking.md
+
 # Third-party presets and downloads
 lm-studio-presets-main/
