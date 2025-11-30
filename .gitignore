@@ -153,3 +153,5 @@ llm-comparison-tool/deepthinking.md
 
 # Third-party presets and downloads
 lm-studio-presets-main/
+/flare-visual-ui/playwright-report
+flare-visual-ui/test-results/.last-run.json
