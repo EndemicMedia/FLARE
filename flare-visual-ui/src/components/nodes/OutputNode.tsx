@@ -8,6 +8,8 @@ import '../../styles/nodes.css';
 export function OutputNode({ data, id, selected }: NodeProps<OutputNodeData>) {
   const updateNode = useFlareWorkflowStore((state) => state.updateNode);
 
+  console.log(`OutputNode rendering - id: ${id}, selected: ${selected}`, data);
+
   const handleCopy = () => {
     if (data.content) {
       navigator.clipboard.writeText(data.content);

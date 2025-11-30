@@ -9,6 +9,8 @@ import '../../styles/nodes.css';
 export function TextInputNode({ data, id, selected }: NodeProps<TextInputNodeData>) {
   const updateNode = useFlareWorkflowStore((state) => state.updateNode);
 
+  console.log(`TextInputNode rendering - id: ${id}, selected: ${selected}`, data);
+
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateNode(id, { text: e.target.value });
   };

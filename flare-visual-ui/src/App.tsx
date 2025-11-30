@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -68,6 +68,19 @@ function App() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const { setExecutionState } = useFlareWorkflowStore();
 
+  useEffect(() => {
+    console.log('App mounted with nodes:', nodes);
+    console.log('App mounted with edges:', edges);
+  }, []);
+
+  useEffect(() => {
+    console.log('Nodes updated:', nodes.length, nodes);
+  }, [nodes]);
+
+  useEffect(() => {
+    console.log('Edges updated:', edges.length, edges);
+  }, [edges]);
+
   const onConnect = useCallback(
     (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
@@ -80,6 +93,7 @@ function App() {
       position: { x: Math.random() * 200 + 50, y: Math.random() * 200 + 100 },
       data: { text: '', placeholder: 'Enter your prompt...' },
     };
+    console.log('Adding TextInput node:', newNode);
     setNodes((nds) => [...nds, newNode]);
   };
 
@@ -90,6 +104,7 @@ function App() {
       position: { x: Math.random() * 200 + 400, y: Math.random() * 200 + 100 },
       data: { models: ['mistral'], temperature: 1.0, postProcessing: '' },
     };
+    console.log('Adding ModelQuery node:', newNode);
     setNodes((nds) => [...nds, newNode]);
   };
 
@@ -100,6 +115,7 @@ function App() {
       position: { x: Math.random() * 200 + 850, y: Math.random() * 200 + 100 },
       data: { displayMode: 'text' as const, content: null },
     };
+    console.log('Adding Output node:', newNode);
     setNodes((nds) => [...nds, newNode]);
   };
 

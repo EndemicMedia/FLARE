@@ -19,6 +19,8 @@ const POST_PROCESSING_OPTIONS = [
 export function ModelQueryNode({ data, id, selected }: NodeProps<ModelQueryNodeData>) {
   const updateNode = useFlareWorkflowStore((state) => state.updateNode);
 
+  console.log(`ModelQueryNode rendering - id: ${id}, selected: ${selected}`, data);
+
   const toggleModel = (modelId: string) => {
     const newSelection = data.models.includes(modelId)
       ? data.models.filter(m => m !== modelId)
