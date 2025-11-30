@@ -2,7 +2,7 @@ import type { Node, Edge } from 'reactflow';
 import axios from 'axios';
 import { useFlareWorkflowStore } from '../store/flareWorkflowStore';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 interface FlareCommandParams {
   models: string[];
