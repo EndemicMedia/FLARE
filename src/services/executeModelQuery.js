@@ -13,7 +13,7 @@ export async function executeModelQuery({ modelName, temp, prompt, seed = null }
 
   const model = modelName || apiConfig.pollinations.defaultModel;
   const temperature = typeof temp === 'number' ? temp : modelDefaults.temperature;
-  
+
   const requestBody = {
     model: model,
     messages: [
@@ -32,15 +32,15 @@ export async function executeModelQuery({ modelName, temp, prompt, seed = null }
   };
 
   // Use the OpenAI-compatible endpoint
-  const url = `${apiConfig.pollinations.baseUrl}${apiConfig.pollinations.openaiEndpoint}`;
+  const url = `${apiConfig.pollinations.baseUrl}${apiConfig.pollinations.chatEndpoint}`;
 
   let lastError;
-  
+
   for (let attempt = 1; attempt <= apiConfig.retry.maxAttempts; attempt++) {
     try {
       console.log(`Querying ${model} (attempt ${attempt}/${apiConfig.retry.maxAttempts})`);
-      
-      const response = await axios.post(url, requestBody, { 
+
+      const response = await axios.post(url, requestBody, {
         headers,
         timeout: apiConfig.pollinations.timeout,
         validateStatus: (status) => status < 500 // Don't throw on 4xx errors
@@ -64,7 +64,7 @@ export async function executeModelQuery({ modelName, temp, prompt, seed = null }
       }
 
       const result = response.data.choices[0].message.content.trim();
-      
+
       if (!result) {
         throw new Error('Model returned empty response');
       }
@@ -74,7 +74,7 @@ export async function executeModelQuery({ modelName, temp, prompt, seed = null }
 
     } catch (error) {
       lastError = error;
-      
+
       // Log the specific error
       if (error.code === 'ECONNABORTED') {
         console.error(`⚠️ Timeout querying ${model} (attempt ${attempt}):`, errorMessages.timeoutError);

@@ -6,24 +6,50 @@
 
 export const apiConfig = {
   pollinations: {
-    baseUrl: 'https://text.pollinations.ai',
-    openaiEndpoint: '/openai',
+    baseUrl: 'https://gen.pollinations.ai',
+    chatEndpoint: '/v1/chat/completions',
+    modelsEndpoint: '/v1/models',
     defaultModel: 'openai',
     referrer: 'endemicmedia.github.io',
     apiKey: process.env.POLLINATIONS_API_KEY || 'Ak59D5TL82X6feti',
-    timeout: 30000, // 30 seconds
+    timeout: 60000, // 60 seconds
+  },
+  
+  openRouter: {
+    baseUrl: 'https://openrouter.ai/api/v1',
+    apiKey: process.env.OPENROUTER_API_KEY,
+    timeout: 60000,
+  },
+  
+  gemini: {
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+    apiKey: process.env.GOOGLE_GEMINI_API_KEY,
+    defaultModel: 'models/gemini-2.5-flash',
+    timeout: 60000,
+  },
+  
+  fallback: {
+    enabled: process.env.AI_PROVIDER_FALLBACK !== 'false',
+    priority: (process.env.AI_PROVIDER_PRIORITY || 'pollinations').split(',').map(p => p.trim()),
   },
   
   retry: {
-    maxAttempts: 3,
-    baseDelay: 1000, // 1 second
-    maxDelay: 10000, // 10 seconds
+    maxAttempts: 4,
+    baseDelay: 10000, // 10 seconds
+    maxDelay: 60000, // 60 seconds
     backoffFactor: 2
+  },
+  
+  // Error detection patterns
+  errors: {
+    rateLimitCodes: [429],
+    quotaCodes: [403],
+    retryableCodes: [500, 502, 503, 504],
   },
   
   headers: {
     'Content-Type': 'application/json',
-    'User-Agent': 'FLARE/2.0.0 (github.com/your-org/FLARE)',
+    'User-Agent': 'FLARE/2.0.0 (github.com/EndemicMedia/FLARE)',
   }
 };
 
