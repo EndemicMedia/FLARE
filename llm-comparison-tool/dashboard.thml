@@ -117,8 +117,8 @@
     </footer>
 
     <script>
-        const MODELS_URL = 'https://text.pollinations.ai/models';
-        const CHAT_URL = 'https://text.pollinations.ai/openai';
+        const MODELS_URL = 'https://gen.pollinations.ai/v1/models';
+        const CHAT_URL = 'https://gen.pollinations.ai/v1/chat/completions';
         
         // Generate random math questions to prevent caching
         function generateMathQuestion() {

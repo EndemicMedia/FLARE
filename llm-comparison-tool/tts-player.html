@@ -4,6 +4,7 @@
 -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,25 +13,27 @@
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="bg-white dark:bg-gray-900 min-h-screen transition-colors duration-200">
   <div class="container mx-auto px-4 h-screen flex flex-col">
     <div class="flex items-center justify-between py-4">
       <h1 class="text-3xl font-bold text-gray-800 dark:text-white">AI Conversation Player</h1>
-      
+
       <!-- Dark Mode Toggle -->
       <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
         <i id="moonIcon" class="fas fa-moon text-gray-700"></i> <!-- Light mode icon -->
         <i id="sunIcon" class="fas fa-sun text-yellow-500 hidden"></i> <!-- Dark mode icon -->
       </button>
     </div>
-    
+
     <!-- Voice Selection Controls -->
     <div class="mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md shadow">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- User Voice Selection -->
         <div class="flex flex-col">
           <label class="text-gray-700 dark:text-gray-300 mb-1 font-medium">User Voice</label>
-          <select id="userVoiceSelect" class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 text-sm border border-gray-300 dark:border-gray-600">
+          <select id="userVoiceSelect"
+            class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 text-sm border border-gray-300 dark:border-gray-600">
             <option value="alloy">Alloy</option>
             <option value="echo">Echo</option>
             <option value="fable">Fable</option>
@@ -39,11 +42,12 @@
             <option value="shimmer">Shimmer</option>
           </select>
         </div>
-        
+
         <!-- Bot 1 Voice Selection -->
         <div class="flex flex-col">
           <label class="text-gray-700 dark:text-gray-300 mb-1 font-medium">Bot 1 Voice</label>
-          <select id="bot1VoiceSelect" class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 text-sm border border-gray-300 dark:border-gray-600">
+          <select id="bot1VoiceSelect"
+            class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 text-sm border border-gray-300 dark:border-gray-600">
             <option value="alloy">Alloy</option>
             <option value="echo">Echo</option>
             <option value="fable">Fable</option>
@@ -52,11 +56,12 @@
             <option value="shimmer">Shimmer</option>
           </select>
         </div>
-        
+
         <!-- Bot 2 Voice Selection -->
         <div class="flex flex-col">
           <label class="text-gray-700 dark:text-gray-300 mb-1 font-medium">Bot 2 Voice</label>
-          <select id="bot2VoiceSelect" class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 text-sm border border-gray-300 dark:border-gray-600">
+          <select id="bot2VoiceSelect"
+            class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 text-sm border border-gray-300 dark:border-gray-600">
             <option value="alloy">Alloy</option>
             <option value="echo">Echo</option>
             <option value="fable">Fable</option>
@@ -67,10 +72,11 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Player Controls -->
     <div class="flex items-center justify-between mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md shadow">
-      <button id="prevBtn" class="p-3 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300">
+      <button id="prevBtn"
+        class="p-3 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300">
         <i class="fas fa-step-backward"></i>
       </button>
       <div class="flex items-center space-x-4">
@@ -80,17 +86,21 @@
         </button>
         <span id="currentLine" class="text-lg font-medium text-gray-800 dark:text-white">1/0</span>
       </div>
-      <button id="nextBtn" class="p-3 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300">
+      <button id="nextBtn"
+        class="p-3 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300">
         <i class="fas fa-step-forward"></i>
       </button>
     </div>
-    
+
     <!-- Text Display Area -->
-    <div id="conversationContainer" class="flex-grow overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-4"></div>
-    
+    <div id="conversationContainer"
+      class="flex-grow overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-4"></div>
+
     <!-- Loading Indicator -->
     <div id="loadingIndicator" class="hidden text-center p-4">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500 dark:border-green-400"></div> <!-- Changed color to green -->
+      <div
+        class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500 dark:border-green-400">
+      </div> <!-- Changed color to green -->
       <p class="mt-2 text-gray-600 dark:text-gray-300">Loading audio...</p>
     </div>
   </div>
@@ -192,12 +202,12 @@ I'm sorry, but I can't assist with that.
         this.darkModeToggle = document.getElementById('darkModeToggle');
         this.moonIcon = document.getElementById('moonIcon');
         this.sunIcon = document.getElementById('sunIcon');
-        
+
         // Voice selection elements
         this.userVoiceSelect = document.getElementById('userVoiceSelect');
         this.bot1VoiceSelect = document.getElementById('bot1VoiceSelect');
         this.bot2VoiceSelect = document.getElementById('bot2VoiceSelect');
-        
+
         // State
         this.isPlaying = false;
         this.currentIndex = 0;
@@ -205,31 +215,31 @@ I'm sorry, but I can't assist with that.
         this.audioQueue = [];
         this.currentAudio = null;
         this.speakers = {};
-        
+
         // Initialize
         this.init();
       }
-      
+
       init() {
         this.parseConversation(conversationData);
         this.assignRandomVoices();
         this.renderConversation();
         this.updateControls();
-        
+
         // Event listeners
         this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
         this.prevBtn.addEventListener('click', () => this.playPrevious());
         this.nextBtn.addEventListener('click', () => this.playNext());
         this.darkModeToggle.addEventListener('click', () => this.toggleDarkMode());
-        
+
         // Voice selection event listeners
         this.userVoiceSelect.addEventListener('change', () => this.handleVoiceChange());
         this.bot1VoiceSelect.addEventListener('change', () => this.handleVoiceChange());
         this.bot2VoiceSelect.addEventListener('change', () => this.handleVoiceChange());
-        
+
         // Init dark mode from user preference
-        if (localStorage.getItem('darkMode') === 'true' || 
-            (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && 
+        if (localStorage.getItem('darkMode') === 'true' ||
+          (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches &&
             localStorage.getItem('darkMode') === null)) {
           document.documentElement.classList.add('dark');
           this.moonIcon.classList.add('hidden');
@@ -238,7 +248,7 @@ I'm sorry, but I can't assist with that.
           this.moonIcon.classList.remove('hidden');
           this.sunIcon.classList.add('hidden');
         }
-        
+
         // Set initial index
         if (this.lines.length > 0) {
           this.currentIndex = 0;
@@ -256,24 +266,24 @@ I'm sorry, but I can't assist with that.
         }
         return array;
       }
-      
+
       assignRandomVoices() {
         // Get all available voices
         const availableVoices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
-        
+
         // Shuffle the voices
         const shuffledVoices = this.shuffleArray([...availableVoices]);
-        
+
         // Assign first three voices
         this.userVoiceSelect.value = shuffledVoices[0];
         this.bot1VoiceSelect.value = shuffledVoices[1];
         this.bot2VoiceSelect.value = shuffledVoices[2];
       }
-      
+
       toggleDarkMode() {
         document.documentElement.classList.toggle('dark');
         localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
-        
+
         // Update icons
         if (document.documentElement.classList.contains('dark')) {
           this.moonIcon.classList.add('hidden');
@@ -283,7 +293,7 @@ I'm sorry, but I can't assist with that.
           this.sunIcon.classList.add('hidden');
         }
       }
-      
+
       handleVoiceChange() {
         // Reset all audio to force regeneration with new voice
         this.lines.forEach(line => {
@@ -293,7 +303,7 @@ I'm sorry, but I can't assist with that.
             this.updateAudioStatus(this.lines.indexOf(line));
           }
         });
-        
+
         // If we're currently playing, reload the current audio
         if (this.isPlaying && this.currentAudio) {
           this.currentAudio.pause();
@@ -301,37 +311,37 @@ I'm sorry, but I can't assist with that.
           this.playLine(this.currentIndex);
         }
       }
-      
+
       parseConversation(text) {
         this.lines = [];
-        
+
         // First, clean up the text and ensure we're working with consistent line breaks
         const cleanedText = text.trim().replace(/\r\n/g, '\n');
-        
+
         // Split the text by the '## ' marker which indicates the start of a message
         const sections = cleanedText.split('## ');
-        
+
         // Skip the first section which is typically just the conversation title
         for (let i = 1; i < sections.length; i++) {
           const section = sections[i].trim();
-          
+
           // Extract the speaker, timestamp, and content
           const firstLineEnd = section.indexOf('\n');
           if (firstLineEnd === -1) continue;
-          
+
           const headerLine = section.substring(0, firstLineEnd);
           const content = section.substring(firstLineEnd + 1).trim();
-          
+
           // Parse header to get speaker and timestamp
           const headerParts = headerLine.split(' - ');
           if (headerParts.length !== 2) continue;
-          
+
           const speaker = headerParts[0].trim();
           const timestamp = headerParts[1].trim();
-          
+
           // Skip empty content
           if (!content) continue;
-          
+
           this.lines.push({
             speaker,
             timestamp,
@@ -343,10 +353,10 @@ I'm sorry, but I can't assist with that.
             statusElement: null
           });
         }
-        
+
         this.currentLineDisplay.textContent = this.lines.length > 0 ? `1/${this.lines.length}` : '0/0';
       }
-      
+
       getVoiceForSpeaker(speaker) {
         // Get voice based on the selected dropdowns
         if (speaker.includes('User')) {
@@ -360,10 +370,10 @@ I'm sorry, but I can't assist with that.
           return 'echo';
         }
       }
-      
+
       renderConversation() {
         this.conversationContainer.innerHTML = '';
-        
+
         this.lines.forEach((line, index) => {
           let speakerClass;
           if (line.speaker.includes('User')) {
@@ -375,17 +385,17 @@ I'm sorry, but I can't assist with that.
           } else {
             speakerClass = 'bg-yellow-50 dark:bg-yellow-900/30';
           }
-          
+
           const lineElement = document.createElement('div');
           lineElement.className = `mb-6 p-4 rounded-lg ${speakerClass} border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100`;
-          
+
           const statusIndicator = document.createElement('div');
           statusIndicator.className = 'audio-status inline-block ml-2';
           statusIndicator.innerHTML = `<i class="fa-solid fa-circle-question text-gray-400" title="Audio not generated"></i>`;
-          
+
           // Preserve line breaks in content
           const formattedContent = line.content.replace(/\n/g, '<br>');
-          
+
           lineElement.innerHTML = `
             <div class="flex justify-between mb-2">
               <div class="flex items-center">
@@ -396,25 +406,25 @@ I'm sorry, but I can't assist with that.
             </div>
             <div class="line-content text-lg whitespace-pre-line">${formattedContent}</div>
           `;
-          
+
           const statusContainer = lineElement.querySelector('.audio-status-container');
           statusContainer.appendChild(statusIndicator);
-          
+
           lineElement.addEventListener('click', () => this.playLine(index));
           this.conversationContainer.appendChild(lineElement);
           line.element = lineElement;
           line.statusElement = statusIndicator;
-          
+
           this.updateAudioStatus(index);
         });
       }
-      
+
       updateAudioStatus(index) {
         const line = this.lines[index];
         if (!line || !line.statusElement) return;
-        
+
         let iconHTML;
-        
+
         if (line.isLoading) {
           // Yellow spinner during loading
           iconHTML = `<i class="fa-solid fa-spinner fa-spin text-yellow-500 dark:text-yellow-400" title="Generating audio..."></i>`;
@@ -425,27 +435,27 @@ I'm sorry, but I can't assist with that.
           // Question mark when audio not generated
           iconHTML = `<i class="fa-solid fa-circle-question text-gray-400 dark:text-gray-500" title="Audio not generated"></i>`;
         }
-        
+
         line.statusElement.innerHTML = iconHTML;
       }
-      
+
       showLoadingIndicator() {
         this.loadingIndicator.classList.remove('hidden');
       }
-      
+
       hideLoadingIndicator() {
         // Don't hide the indicator, but change it to green success state
         const spinnerElement = this.loadingIndicator.querySelector('div');
         spinnerElement.classList.remove('animate-spin', 'border-t-2', 'border-b-2');
         spinnerElement.classList.add('border-4');
         spinnerElement.innerHTML = '<i class="fas fa-check text-green-500 text-2xl"></i>';
-        
+
         // Update the text
         const textElement = this.loadingIndicator.querySelector('p');
         if (textElement) {
           textElement.textContent = 'Audio generated!';
         }
-        
+
         // Hide the indicator after 2 seconds
         setTimeout(() => {
           this.loadingIndicator.classList.add('hidden');
@@ -453,13 +463,13 @@ I'm sorry, but I can't assist with that.
           spinnerElement.classList.add('animate-spin', 'border-t-2', 'border-b-2');
           spinnerElement.classList.remove('border-4');
           spinnerElement.innerHTML = '';
-          
+
           if (textElement) {
             textElement.textContent = 'Loading audio...';
           }
         }, 2000);
       }
-      
+
       updateControls() {
         // Update play/pause icons
         if (this.isPlaying) {
@@ -469,26 +479,26 @@ I'm sorry, but I can't assist with that.
           this.playIcon.classList.remove('hidden');
           this.pauseIcon.classList.add('hidden');
         }
-        
+
         this.prevBtn.disabled = this.currentIndex <= 0;
         this.nextBtn.disabled = this.currentIndex >= this.lines.length - 1;
-        
+
         // Update button styles based on disabled state
         if (this.prevBtn.disabled) {
           this.prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
         } else {
           this.prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         }
-        
+
         if (this.nextBtn.disabled) {
           this.nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
         } else {
           this.nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         }
-        
+
         this.currentLineDisplay.textContent = `${this.currentIndex + 1}/${this.lines.length}`;
       }
-      
+
       highlightCurrentLine() {
         // Remove highlight from all lines
         this.lines.forEach(line => {
@@ -496,26 +506,26 @@ I'm sorry, but I can't assist with that.
             line.element.classList.remove('ring-2', 'ring-blue-500', 'shadow-lg');
           }
         });
-        
+
         // Add highlight to current line
         if (this.currentIndex >= 0 && this.currentIndex < this.lines.length) {
           const currentLine = this.lines[this.currentIndex];
           if (currentLine.element) {
             currentLine.element.classList.add('ring-2', 'ring-blue-500', 'shadow-lg');
-            
+
             // Scroll to current line
             currentLine.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
         }
       }
-      
+
       async loadAudio(index) {
         const line = this.lines[index];
-        
+
         if (line.audioUrl) {
           return line.audioUrl;
         }
-        
+
         if (line.isLoading) {
           // Wait for loading to complete
           return new Promise(resolve => {
@@ -527,105 +537,105 @@ I'm sorry, but I can't assist with that.
             }, 100);
           });
         }
-        
+
         // Get voice for this speaker
         const voice = this.getVoiceForSpeaker(line.speaker);
         line.audioUrl = await this.generateAudio(line.content, voice, index);
         return line.audioUrl;
       }
-      
+
       async preloadNextAudio() {
         const nextIndex = this.currentIndex + 1;
         if (nextIndex < this.lines.length) {
           return this.loadAudio(nextIndex);
         }
       }
-      
+
       async generateAudio(text, voice, index) {
         try {
           const line = this.lines[index];
           line.isLoading = true;
           this.updateAudioStatus(index);
-          
+
           text = "Say this in a fluid conversational way, don't switch words, say exactly what it writes: " + text;
-          const url = `https://text.pollinations.ai/${encodeURIComponent(text)}?model=openai-audio&voice=${voice}`;
-          
+          const url = `https://gen.pollinations.ai/text/${encodeURIComponent(text)}?model=openai-audio&voice=${voice}`;
+
           this.showLoadingIndicator();
           const response = await fetch(url);
-          
+
           if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
-          
+
           const blob = await response.blob();
           const audioUrl = URL.createObjectURL(blob);
-          
+
           line.isLoading = false;
           line.audioUrl = audioUrl; // Make sure audioUrl is set before updating status
           this.updateAudioStatus(index);
           this.hideLoadingIndicator();
-          
+
           return audioUrl;
         } catch (error) {
           console.error('Error generating audio:', error);
-          
+
           const line = this.lines[index];
           if (line) {
             line.isLoading = false;
             this.updateAudioStatus(index);
           }
-          
+
           this.hideLoadingIndicator();
           return null;
         }
       }
-      
+
       async playLine(index) {
         if (this.currentAudio) {
           this.currentAudio.pause();
           this.currentAudio = null;
         }
-        
+
         this.currentIndex = index;
         this.updateControls();
         this.highlightCurrentLine();
-        
+
         // Check if the current speaker is different from the previous speaker
         if (this.currentIndex > 0) {
           const currentSpeaker = this.lines[index].speaker;
           const previousSpeaker = this.lines[this.currentIndex - 1].speaker;
-          
+
           if (currentSpeaker !== previousSpeaker) {
             // Add a 2-second pause between speakers
             await new Promise(resolve => setTimeout(resolve, 2000));
           }
         }
-        
+
         const audioUrl = await this.loadAudio(index);
         if (!audioUrl) {
           console.error('Failed to load audio for line:', index);
           return;
         }
-        
+
         this.currentAudio = new Audio(audioUrl);
         this.currentAudio.addEventListener('ended', () => {
           if (this.isPlaying) {
             this.playNext();
           }
         });
-        
+
         try {
           await this.currentAudio.play();
           this.isPlaying = true;
           this.updateControls();
-          
+
           // Preload next audio
           this.preloadNextAudio();
         } catch (error) {
           console.error('Error playing audio:', error);
         }
       }
-      
+
       togglePlayPause() {
         if (this.isPlaying) {
           if (this.currentAudio) {
@@ -640,25 +650,26 @@ I'm sorry, but I can't assist with that.
           }
           this.isPlaying = true;
         }
-        
+
         this.updateControls();
       }
-      
+
       async playNext() {
         if (this.currentIndex < this.lines.length - 1) {
           await this.playLine(this.currentIndex + 1);
         }
       }
-      
+
       async playPrevious() {
         if (this.currentIndex > 0) {
           await this.playLine(this.currentIndex - 1);
         }
       }
     }
-    
+
     // Initialize the player immediately
     const player = new TTSPlayer();
   </script>
 </body>
+
 </html>

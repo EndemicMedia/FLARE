@@ -39,7 +39,7 @@ python serve.py
 - Copy model response functionality
 
 ## Model Sources
-Models are dynamically fetched from: `https://text.pollinations.ai/models`
+Models are dynamically fetched from: `https://gen.pollinations.ai/v1/models`
 
 ### Supported Interactions
 - **Prompt Input**: Enter a prompt to query multiple models
@@ -89,8 +89,8 @@ The application uses a responsive grid layout:
 - ✅ **HTTPS APIs** - All API calls use secure HTTPS endpoints
 
 ## API Endpoints
-- Model List: `GET https://text.pollinations.ai/models`
-- Model Queries: `POST https://text.pollinations.ai/openai`
+- Model List: `GET https://gen.pollinations.ai/v1/models`
+- Model Queries: `POST https://gen.pollinations.ai/v1/chat/completions`
 
 ### API Request Headers
 ```javascript
