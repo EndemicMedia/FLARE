@@ -46,15 +46,39 @@ curl -X POST http://localhost:8080/process-flare \
 # Or use the web interface at http://localhost:8080
 ```
 
-## 🔑 API Configuration (Optional)
+## 🔑 API Configuration
 
-FLARE works out-of-the-box with fallback API access. For production use:
+FLARE now supports **multi-provider fallback** for enhanced reliability:
 
+### Basic Configuration (Single Provider)
 ```bash
 # .env file
-POLLINATIONS_API_KEY=your_api_key_here     # Optional - fallback provided
+POLLINATIONS_API_KEY=your_api_key_here     # Primary provider
 PORT=8080                                  # Server port
 ```
+
+### Advanced Configuration (Multi-Provider Fallback)
+```bash
+# AI Provider Configuration
+AI_PROVIDER=pollinations                   # Primary provider
+AI_PROVIDER_FALLBACK=true                  # Enable automatic fallback
+AI_PROVIDER_PRIORITY=pollinations,openrouter,gemini  # Fallback order
+
+# Provider API Keys
+POLLINATIONS_API_KEY=your_key              # Primary (required)
+OPENROUTER_API_KEY=your_key                # Fallback #1 (optional)
+GOOGLE_GEMINI_API_KEY=your_key             # Fallback #2 (optional)
+
+# Model Configuration
+DEFAULT_MODEL=openai
+```
+
+### 🔄 Fallback System Features
+- **Automatic Provider Rotation** - Seamlessly switches providers on failures
+- **Rate Limit Handling** - Immediately rotates on 429 errors
+- **Quota Management** - Handles 403 quota errors gracefully
+- **Exponential Backoff** - Intelligent retry delays (10s → 60s)
+- **Benchmark-Based Selection** - Uses quality metrics for model selection
 
 ## 🎯 FLARE Command Syntax
 
@@ -239,6 +263,12 @@ src/
 │   ├── processFlareResponse.js   # Process complete response
 │   └── replaceFlareCommands.js   # Replace commands with results
 ├── services/                  # Business logic (atomic functions)
+│   ├── providers/                # Multi-provider fallback system
+│   │   ├── pollinationsClient.js     # Primary Pollinations API client
+│   │   ├── openRouterClient.js       # OpenRouter fallback client
+│   │   ├── geminiClient.js           # Gemini fallback client
+│   │   ├── modelPriorityManager.js   # Benchmark-based selection
+│   │   └── aiProviderManager.js      # Orchestration & fallback logic
 │   ├── executeModelQuery.js      # Single model query execution
 │   ├── queryMultipleModels.js    # Multi-model coordination
 │   ├── applyPostProcessing.js    # Post-processing operations
