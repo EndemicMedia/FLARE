@@ -788,6 +788,12 @@
         </div>
     </div>
 
+    <!-- Model Info Tooltip -->
+    <div 
+        id="model-tooltip" 
+        class="fixed hidden p-3 bg-gray-800 dark:bg-gray-900 text-white text-xs rounded-lg shadow-xl border border-gray-600 text-left w-64 pointer-events-none z-[9999]"
+    ></div>
+
     <!-- Fullscreen Modal -->
     <div 
         id="fullscreen-modal" 
@@ -960,12 +966,6 @@
             // Fall back to default key
             return DEFAULT_API_KEY;
         }
-
-        // Set default referer: use "endemicmedia.github.io" unless running on that domain
-        const DEFAULT_REFERRER = "endemicmedia.github.io";
-        const referrer = (window.location.hostname === "endemicmedia.github.io")
-            ? "endemicmedia.github.io"
-            : DEFAULT_REFERRER;
 
         // Matrix mode state
         let currentMode = 'multi'; // 'multi' or 'matrix'
@@ -1626,25 +1626,19 @@
             console.log('Fetching models...');
             try {
                 const apiKey = getApiKey();
-                // Add referrer param and Authorization header
                 const response = await axios.get(
-                    MODELS_URL,
+                    'https://gen.pollinations.ai/text/models',
                     { 
-                        params: { referrer: referrer },
                         headers: { 'Authorization': `Bearer ${apiKey}` }
                     }
                 );
                 console.log('Models API response:', response);
                 
-                // Handle new API structure: {object: "list", data: [...]}
+                // /text/models returns array directly with full model details including pricing
                 let models = [];
-                if (response.data && response.data.object === 'list' && Array.isArray(response.data.data)) {
-                    models = response.data.data.map(model => ({ name: model.id, ...model }));
-                    console.log('Fetched models count:', models.length);
-                } else if (Array.isArray(response.data)) {
-                    // Fallback for old format
+                if (Array.isArray(response.data)) {
                     models = response.data;
-                    console.log('Fetched models count (legacy format):', models.length);
+                    console.log('Fetched models count:', models.length);
                 } else {
                     console.warn('Models API returned unexpected data:', response.data);
                 }
@@ -1669,7 +1663,110 @@
             };
         }
 
+        function calculatePollenCost(usage, pricing) {
+            if (!usage || !pricing || !pricing.promptTextTokens) return null;
+            
+            const promptTokens = usage.prompt_tokens || 0;
+            const cachedTokens = usage.prompt_tokens_details?.cached_tokens || 0;
+            const completionTokens = usage.completion_tokens || 0;
+            
+            const uncachedPromptTokens = promptTokens - cachedTokens;
+            
+            let cost = 0;
+            
+            // Calculate uncached prompt token cost
+            cost += uncachedPromptTokens * pricing.promptTextTokens;
+            
+            // Calculate cached prompt token cost if available
+            if (pricing.promptCachedTokens && cachedTokens > 0) {
+                cost += cachedTokens * pricing.promptCachedTokens;
+            }
+            
+            // Calculate completion token cost
+            if (pricing.completionTextTokens) {
+                cost += completionTokens * pricing.completionTextTokens;
+            }
+            
+            return cost;
+        }
+
+        function formatPollenCost(cost) {
+            if (cost === null || cost === undefined) return '';
+            if (cost === 0) return '0 🌸';
+            
+            // For very small numbers, use exponential notation or many decimals
+            if (cost < 0.0000000001) return cost.toExponential(2) + ' 🌸';
+            if (cost < 0.000001) return cost.toFixed(10) + ' 🌸';
+            if (cost < 0.001) return cost.toFixed(8) + ' 🌸';
+            if (cost < 1) return cost.toFixed(6) + ' 🌸';
+            return cost.toFixed(4) + ' 🌸';
+        }
+
+        function getModelInfoTooltip(model) {
+            const capabilities = [];
+            
+            // Input modalities
+            if (model.input_modalities?.includes('image')) capabilities.push('👁️ Vision');
+            if (model.input_modalities?.includes('audio')) capabilities.push('🎙️ Audio In');
+            
+            // Output modalities  
+            if (model.output_modalities?.includes('audio')) capabilities.push('🔊 Audio Out');
+            
+            // Features
+            if (model.tools) capabilities.push('🔧 Tools');
+            if (model.reasoning) capabilities.push('🧠 Reasoning');
+            
+            // Context window
+            const contextWindow = model.context_window ? `${(model.context_window / 1000).toFixed(0)}K tokens` : 'Unknown';
+            
+            // Pricing
+            const pricing = model.pricing || {};
+            const promptCost = pricing.promptTextTokens ? (pricing.promptTextTokens * 1000000).toFixed(2) : 'N/A';
+            const completionCost = pricing.completionTextTokens ? (pricing.completionTextTokens * 1000000).toFixed(2) : 'N/A';
+            
+            let tooltip = `<div class="font-semibold mb-1">${model.name}</div>`;
+            
+            if (model.description) {
+                tooltip += `<div class="text-xs mb-2">${model.description}</div>`;
+            }
+            
+            if (capabilities.length > 0) {
+                tooltip += `<div class="text-xs mb-1">${capabilities.join(' • ')}</div>`;
+            }
+            
+            tooltip += `<div class="text-xs">📏 Context: ${contextWindow}</div>`;
+            tooltip += `<div class="text-xs">💰 Input: ${promptCost}/M • Output: ${completionCost}/M</div>`;
+            
+            if (model.paid_only) {
+                tooltip += `<div class="text-xs text-purple-400 mt-1">💎 Paid Only</div>`;
+            }
+            
+            return tooltip;
+        }
+
         function getSystemPrompt(context) { return SYSTEM_PROMPTS[context] }
+
+        // Model tooltip functions
+        let modelDataCache = new Map();
+        
+        function showModelTooltip(event, modelId) {
+            const model = modelDataCache.get(modelId);
+            if (!model) return;
+            
+            const tooltip = document.getElementById('model-tooltip');
+            const button = event.currentTarget;
+            const rect = button.getBoundingClientRect();
+            
+            tooltip.innerHTML = getModelInfoTooltip(model);
+            tooltip.style.left = (rect.right + 8) + 'px';
+            tooltip.style.top = rect.top + 'px';
+            tooltip.classList.remove('hidden');
+        }
+
+        function hideModelTooltip() {
+            const tooltip = document.getElementById('model-tooltip');
+            tooltip.classList.add('hidden');
+        }
 
         // Matrix view rendering
         function renderMatrixView() {
@@ -1731,43 +1828,51 @@
         async function queryModel(model, prompt, retryCount = 0, abortSignal = null, parameterOverride = null) {
             const MAX_RETRIES = 3;
             const RETRY_DELAY = 1000; // 1 second initial delay
-            const systemContext = systemContextSelect.value;
-
-            const startTime = performance.now();
-            const timeoutDropdown = document.getElementById('timeout-dropdown');
-            const timeoutValue = parseInt(timeoutDropdown.value, 10);
-
-            // Get model parameters from UI controls or override
-            let temperature, topP, maxTokens, seed, presencePenalty, frequencyPenalty, repetitionPenalty, topK, minP;
             
-            // For models that only support defaults, don't override parameters
-            if (parameterOverride?.useDefaults) {
-                temperature = parseFloat(temperatureSlider.value);
-                topP = parseFloat(topPSlider.value);
-                maxTokens = parseInt(maxTokensSlider.value);
-                const seedVal = parseInt(seedSlider.value);
-                seed = seedVal === 0 ? undefined : seedVal;
-                presencePenalty = parseFloat(presencePenaltySlider.value);
-                frequencyPenalty = parseFloat(frequencyPenaltySlider.value);
-                repetitionPenalty = parseFloat(repetitionPenaltySlider.value);
-                const topKVal = parseInt(topKSlider.value);
-                topK = topKVal === 0 ? undefined : topKVal;
-                minP = parseFloat(minPSlider.value);
-            } else {
-                temperature = parameterOverride?.temperature ?? parseFloat(temperatureSlider.value);
-                topP = parameterOverride?.top_p ?? parseFloat(topPSlider.value);
-                maxTokens = parameterOverride?.max_tokens ?? parseInt(maxTokensSlider.value);
-                const seedVal = parameterOverride?.seed ?? parseInt(seedSlider.value);
-                seed = seedVal === 0 ? undefined : seedVal;
-                presencePenalty = parameterOverride?.presence_penalty ?? parseFloat(presencePenaltySlider.value);
-                frequencyPenalty = parameterOverride?.frequency_penalty ?? parseFloat(frequencyPenaltySlider.value);
-                repetitionPenalty = parameterOverride?.repetition_penalty ?? parseFloat(repetitionPenaltySlider.value);
-                const topKVal = parameterOverride?.top_k ?? parseInt(topKSlider.value);
-                topK = topKVal === 0 ? undefined : topKVal;
-                minP = parameterOverride?.min_p ?? parseFloat(minPSlider.value);
-            }
-
             try {
+                const systemContextSelect = document.getElementById('system-context');
+                if (!systemContextSelect) {
+                    throw new Error('System context select not found');
+                }
+                const systemContext = systemContextSelect.value;
+
+                const startTime = performance.now();
+                const timeoutDropdown = document.getElementById('timeout-dropdown');
+                if (!timeoutDropdown) {
+                    throw new Error('Timeout dropdown not found');
+                }
+                const timeoutValue = parseInt(timeoutDropdown.value, 10);
+
+                // Get model parameters from UI controls or override
+                let temperature, topP, maxTokens, seed, presencePenalty, frequencyPenalty, repetitionPenalty, topK, minP;
+                
+                // For models that only support defaults, don't override parameters
+                if (parameterOverride?.useDefaults) {
+                    temperature = parseFloat(temperatureSlider.value);
+                    topP = parseFloat(topPSlider.value);
+                    maxTokens = parseInt(maxTokensSlider.value);
+                    const seedVal = parseInt(seedSlider.value);
+                    seed = seedVal === 0 ? undefined : seedVal;
+                    presencePenalty = parseFloat(presencePenaltySlider.value);
+                    frequencyPenalty = parseFloat(frequencyPenaltySlider.value);
+                    repetitionPenalty = parseFloat(repetitionPenaltySlider.value);
+                    const topKVal = parseInt(topKSlider.value);
+                    topK = topKVal === 0 ? undefined : topKVal;
+                    minP = parseFloat(minPSlider.value);
+                } else {
+                    temperature = parameterOverride?.temperature ?? parseFloat(temperatureSlider.value);
+                    topP = parameterOverride?.top_p ?? parseFloat(topPSlider.value);
+                    maxTokens = parameterOverride?.max_tokens ?? parseInt(maxTokensSlider.value);
+                    const seedVal = parameterOverride?.seed ?? parseInt(seedSlider.value);
+                    seed = seedVal === 0 ? undefined : seedVal;
+                    presencePenalty = parameterOverride?.presence_penalty ?? parseFloat(presencePenaltySlider.value);
+                    frequencyPenalty = parameterOverride?.frequency_penalty ?? parseFloat(frequencyPenaltySlider.value);
+                    repetitionPenalty = parameterOverride?.repetition_penalty ?? parseFloat(repetitionPenaltySlider.value);
+                    const topKVal = parameterOverride?.top_k ?? parseInt(topKSlider.value);
+                    topK = topKVal === 0 ? undefined : topKVal;
+                    minP = parameterOverride?.min_p ?? parseFloat(minPSlider.value);
+                }
+
                 // Prepare the request body with model parameters
                 const requestBody = {
                     model: model.name,
@@ -1777,8 +1882,7 @@
                             content: getSystemPrompt(systemContext)
                         },
                         { role: 'user', content: prompt }
-                    ],
-                    referrer: referrer
+                    ]
                 };
 
                 // Check if this model has parameter restrictions
@@ -1818,8 +1922,9 @@
                     console.log(`${model.name}: Using default parameters only (no temp/top_p sent)`);
                 }
 
-                // Add referrer field for Pollinations API best practice
+                // Send request
                 const apiKey = getApiKey();
+                
                 const response = await axios.post(CHAT_URL, requestBody, {
                     timeout: timeoutValue, // Use selected timeout value
                     signal: abortSignal, // Add abort signal support
@@ -1847,7 +1952,8 @@
                 return {
                     text: response.data.choices[0].message.content,
                     duration: duration,
-                    usage: response.data.usage || {}
+                    usage: response.data.usage || {},
+                    pricing: model.pricing || {}
                 };
             } catch (error) {
                 // Check if the error is due to cancellation
@@ -1923,13 +2029,28 @@
                     return;
                 }
                 console.log(`Rendering model card for: ${model.name}`);
+                
+                // Cache model data for tooltip
+                modelDataCache.set(model.name, model);
+                
                 const modelDiv = document.createElement('div');
-                modelDiv.classList.add('border', 'rounded-lg', 'p-3', 'bg-white', 'dark:bg-gray-800', 'shadow-sm', 'model-card', 'relative');
+                modelDiv.classList.add('border', 'rounded-lg', 'p-3', 'bg-white', 'dark:bg-gray-800', 'shadow-sm', 'model-card', 'relative', 'overflow-visible');
                 modelDiv.setAttribute('data-model-name', model.name);
                 modelDiv.innerHTML = `
                     <div class="flex justify-between mb-2">
                         <div class="flex items-start space-x-2">
                             <label class="text-gray-700 dark:text-gray-300 font-semibold text-sm cursor-pointer" onclick="event.stopPropagation(); enterMatrixMode('${model.name}')">${model.name}</label>
+                            <button 
+                                class="model-info-btn text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 relative group"
+                                onclick="event.stopPropagation()"
+                                onmouseenter="showModelTooltip(event, '${model.name}')"
+                                onmouseleave="hideModelTooltip()"
+                                title="Model details"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </button>
                         </div>
                         <div class="flex items-start">
                             <div id="model-stats-${model.name}" class="text-xs text-gray-500 dark:text-gray-400"></div>
@@ -2446,12 +2567,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                             
                             // Calculate and display text statistics
                             const stats = calculateTextStatistics(result.text);
+                            const pollenCost = calculatePollenCost(result.usage, result.pricing);
+                            const costDisplay = pollenCost !== null ? `<br><span class="text-xs text-green-500">${formatPollenCost(pollenCost)}</span>` : '';
                             
                             statsElement.innerHTML = `
                                 ${result.duration}ms | ${stats.characters}chr | ${stats.words}w
                                 <br><span class="text-xs text-gray-400">
                                 ${result.usage.prompt_tokens || 0} + ${result.usage.completion_tokens || 0} = ${result.usage.total_tokens || 0} tks
-                                </span>
+                                </span>${costDisplay}
                             `;
                             
                             matrixResults.push({ index: idx, duration: result.duration });
@@ -2577,12 +2700,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     // Calculate and display text statistics (no parameters in multi-model view)
                     const stats = calculateTextStatistics(result.text);
+                    const pollenCost = calculatePollenCost(result.usage, result.pricing);
+                    const costDisplay = pollenCost !== null ? `<br><span class="text-xs text-green-500">${formatPollenCost(pollenCost)}</span>` : '';
                     
                     statsElement.innerHTML = `
                         ${result.duration}ms | ${stats.characters}chr | ${stats.words}w
                         <br><span class="text-xs text-gray-400">
                         ${result.usage.prompt_tokens || 0} + ${result.usage.completion_tokens || 0} = ${result.usage.total_tokens || 0} tks
-                        </span>
+                        </span>${costDisplay}
                     `;
                     
                     modelResults.push({ model: model.name, duration: result.duration });
