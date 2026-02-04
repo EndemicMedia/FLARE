@@ -1,165 +1,180 @@
-# LLM Model Comparison Web Application
+# FLARE LLM Comparison Tool
+
+A powerful web-based tool for comparing multiple Large Language Models (LLMs) side-by-side, powered by [Pollinations.ai](https://pollinations.ai). Built on the FLARE (Fractal Language for Autonomous Recursive Expansion) framework, this tool enables you to test and compare different models with fine-grained control over generation parameters.
 
 ## Overview
-This web application provides a comprehensive tool for comparing responses from multiple Large Language Models (LLMs) in real-time. Users can input prompts and receive simultaneous responses from various AI models, with detailed performance metrics.
+
+The FLARE language provides a powerful framework for recursive AI prompting. By leveraging multiple models simultaneously, you can:
+- **Ensure diverse responses** - Similar to "wisdom of the crowd" but for LLMs
+- **Compare model behaviors** - See how different models handle the same prompt
+- **Control generation** - Fine-tune temperature, top-p, penalties, and more
+- **Evaluate performance** - Track response time, token usage, and quality
+
+This flexibility makes FLARE a versatile and valuable tool for AI development, research, and practical applications.
+
+## Features
+
+### ✨ Core Capabilities
+- 🤖 **Multi-Model Comparison** - Query multiple LLMs simultaneously
+- ⚙️ **9 Generation Parameters** - Full control over model behavior
+- 📊 **Real-time Results** - See responses as they generate
+- 🎯 **Performance Metrics** - Response time and token usage tracking
+- 💾 **Prompt History** - Save and reuse previous prompts
+- 🎨 **System Contexts** - Pre-configured prompt templates
+
+### 🔧 Advanced Controls
+
+#### Model Parameters (with tooltips & examples)
+1. **Temperature** (0-2, default: 0.7) - Controls randomness and creativity
+2. **Top-P** (0-1, default: 1.0) - Nucleus sampling for token selection
+3. **Max Tokens** (50-4000, default: 500) - Maximum response length
+4. **Seed** (0-9999, default: random) - For reproducible outputs
+5. **Frequency Penalty** (0-2, default: 0) - Reduces word repetition
+6. **Presence Penalty** (0-2, default: 0) - Encourages new topics
+7. **Repetition Penalty** (0-2, default: 0) - Alternative repetition control
+8. **Top-K** (0-100, default: off) - Limits token selection pool
+9. **Min-P** (0-1, default: 0) - Minimum probability threshold
+
+Each parameter includes:
+- 📖 Clear explanations with examples
+- 🎯 Min/max value demonstrations
+- 💡 Default value indicators
+- ℹ️ Hover tooltips with detailed guidance
+
+### 🌸 BYOP (Bring Your Own Pollen)
+
+Users can use their own Pollinations API keys in two ways:
+
+#### Option 1: OAuth Flow (Recommended)
+1. Click the "🌸 BYOP" button
+2. Click "Connect with Pollinations"
+3. Sign in and authorize
+4. API key automatically saved
+
+#### Option 2: Manual Entry
+1. Click "🌸 BYOP"
+2. Enter your API key (pk_... or sk_...)
+3. Click "Save"
+
+**Benefits:**
+- 💰 Pay for what you use
+- 🔒 Secure (keys never leave your browser)
+- ⚡ No rate limits with secret keys
+- 💵 $0 API costs for developers
 
 ## Quick Start
 
-### Option 1: Standalone Frontend
+### Option 1: Direct File Access (No Server Required)
 ```bash
-cd llm-comparison-tool
-npm install
-npm start
-# Access at http://localhost:8080
+# Clone the repository
+git clone <repository-url>
+cd FLARE/llm-comparison-tool
+
+# Open directly in browser
+open index.html
 ```
 
-### Option 2: Via Backend Server
+### Option 2: Local Server
 ```bash
-# From project root
-npm start
-# Access at http://localhost:8080 (serves both backend API and frontend)
-```
-
-### Option 3: Simple HTTP Server
-```bash
-cd llm-comparison-tool
+# Using Python
 python -m http.server 8080
-# or
-python serve.py
+
+# Using Node.js
+npx http-server -p 8080
+
+# Then visit http://localhost:8080
 ```
 
-## Features
-- Dynamic grid layout responsive across multiple screen sizes
-- Real-time model response comparison
-- **Model parameter controls** - Temperature, Top-P, Max Tokens, Seed
-- Performance metrics for each model
-- Token usage statistics with parameter display
-- Dark/Light mode toggle
-- Fullscreen model response view
-- Copy model response functionality
-
-## Model Sources
-Models are dynamically fetched from: `https://gen.pollinations.ai/v1/models`
-
-### Supported Interactions
-- **Prompt Input**: Enter a prompt to query multiple models
-- **System Context Selection**: Choose response style (Concise, Educational, Deep Thinking, Coder)
-- **Model Parameter Controls**:
-  - **Temperature** (0.0-2.0): Controls randomness/creativity of responses
-  - **Top-P** (0.0-1.0): Nucleus sampling for response diversity
-  - **Max Tokens** (1-4000): Maximum response length
-  - **Seed**: Optional seed for reproducible results (leave empty for random)
-- **Font Size Adjustment**: Increase/decrease response text size
-- **Theme Toggle**: Switch between dark and light modes
-
-## Performance Metrics
-For each model response, the application displays:
-- **Response time** (ms)
-- **Character count** and **word count**
-- **Token usage breakdown**:
-  - Prompt Tokens + Completion Tokens = Total Tokens
-- **Model parameters used**:
-  - T: Temperature, P: Top-P, Max: Max Tokens, S: Seed
-
-## Responsive Design
-The application uses a responsive grid layout:
-- Mobile: 1 column
-- Tablet: 2-3 columns
-- Desktop: 4-6 columns
-
-## Technologies
-- HTML5
-- Tailwind CSS
-- JavaScript
-- Axios for API requests
-- Marked.js for Markdown rendering
-
-## Security & Authentication
-
-### Referrer-Based Authentication
-- The application uses **referrer-based authentication** for Pollinations.ai API
-- No API keys are exposed in the frontend code (secure by design)
-- Referrer is automatically set to `endemicmedia.github.io` for proper attribution
-- Local development uses the same referrer for consistent behavior
-
-### Security Features
-- ✅ **No hardcoded API keys** - All authentication handled via referrer headers
-- ✅ **Client-side only** - No sensitive data stored or transmitted
-- ✅ **Local storage only** - Prompt history saved locally in browser
-- ✅ **HTTPS APIs** - All API calls use secure HTTPS endpoints
-
-## API Endpoints
-- Model List: `GET https://gen.pollinations.ai/v1/models`
-- Model Queries: `POST https://gen.pollinations.ai/v1/chat/completions`
-
-### API Request Headers
-```javascript
-// Automatically included in requests:
-{
-  "referrer": "endemicmedia.github.io",
-  "Content-Type": "application/json"
-}
-```
+### Option 3: GitHub Pages
+Visit the live deployment: [Your GitHub Pages URL]
 
 ## Usage
-1. Enter a prompt in the input field
-2. Select a system context (optional)
-3. Click "Submit"
-4. View responses from multiple models simultaneously
 
-## Customization
-- Adjust font size using +/- buttons
-- Toggle between dark and light themes
-- View full model responses in fullscreen mode with copy functionality
-- Save prompt history for quick reuse
-- Track fastest responding models with visual indicators
+### Basic Workflow
+1. **Enter a prompt** in the text input
+2. **Select models** to compare (click to enable/disable)
+3. **Adjust parameters** (optional) - click ⚙️ icon to expand controls
+4. **Click Submit** to query all enabled models
+5. **Compare results** side-by-side
 
-## Interaction Features
-### Fullscreen Mode
-- Click the expand icon to view any model response in fullscreen
-- Copy text directly from fullscreen view
-- View complete model statistics in fullscreen header
-- Close by clicking outside or using the close button
+### Parameter Optimization Tips
 
-### Response Management
-- Copy responses to clipboard with visual feedback
-- Track the three fastest responding models (highlighted in green)
-- Cancel ongoing requests with the cancel button
-- View response status (queued, loading, completed, error)
+**For Consistent Output** (factual tasks):
+- Temperature: 0.0-0.3
+- Top-P: 0.1-0.5
+- Set a specific seed
 
-### History and Context
-- Previous prompts are saved automatically in browser localStorage
-- Access prompt history through input field autocomplete (max 20 prompts)
-- Select different system contexts to guide model responses:
-  - **Concise** - Short, direct answers (3-4 sentences)
-  - **Educational** - Comprehensive, structured explanations
-  - **Coder** - Code-focused responses with minimal explanation
-  - **Deep Thinking** - Structured analytical framework with thinking process
-- System contexts are loaded from `system.json` configuration
+**For Creative Output** (writing, brainstorming):
+- Temperature: 0.7-1.5
+- Top-P: 0.9-1.0
+- Seed: 0 (random)
 
-## Configuration
+**To Reduce Repetition**:
+- Frequency Penalty: 0.5-1.0
+- Presence Penalty: 0.5-1.0
+- Or use Repetition Penalty: 0.5-1.0
 
-### System Prompts (`system.json`)
-The application loads system context prompts from `system.json`. You can customize these contexts:
+## API Integration
 
-```json
-{
-  "systemPrompts": {
-    "concise": "Your concise prompt here...",
-    "educational": "Your educational prompt here...",
-    "custom": "Your custom context here..."
-  }
-}
+### Endpoints Used
+```
+GET  https://gen.pollinations.ai/v1/models              # Fetch models
+POST https://gen.pollinations.ai/v1/chat/completions    # Generate
+GET  https://gen.pollinations.ai/account/balance        # Check balance
 ```
 
-### Browser Compatibility
-- Modern browsers with ES6+ support
-- Chrome, Firefox, Safari, Edge (latest versions)
-- JavaScript must be enabled
-- LocalStorage support required for prompt history
+### Authentication
+All requests include:
+```javascript
+headers: { 'Authorization': `Bearer ${apiKey}` }
+```
 
-### Development Notes
-- The tool is **client-side only** - no backend database required
-- All data stays in the browser (localStorage for settings/history)
-- Can be deployed as static files to any web server
-- CORS is handled by the Pollinations.ai API
+### Model-Specific Parameter Support
+The tool automatically filters parameters based on model capabilities:
+- **OpenAI/Claude**: All parameters except repetition_penalty, top_k
+- **Gemini**: Temperature, top_p, max_tokens only
+- **DeepSeek/Qwen**: Full support including top_k, repetition_penalty
+
+## Security & Privacy
+
+### Local Storage Only
+- User API keys stored in browser `localStorage`
+- Keys never sent to any server except Pollinations.ai
+- OAuth uses URL hash fragments (not logged)
+
+### Key Types
+- **Publishable keys** (pk_): Safe for client-side, IP rate-limited
+- **Secret keys** (sk_): Higher limits, keep secure
+
+⚠️ **Never commit API keys to version control!**
+
+## Browser Compatibility
+
+- ✅ Chrome/Edge (recommended)
+- ✅ Firefox
+- ✅ Safari
+- ✅ Mobile browsers
+
+Requires JavaScript enabled.
+
+## Documentation
+
+- [Pollinations API Documentation](../POLLINATIONS-API.md)
+- [BYOP Implementation Guide](../BRING_YOUR_OWN_POLLEN.md)
+- [Parameter Guide](https://platform.openai.com/docs/api-reference/chat)
+
+## Contributing
+
+Contributions welcome! Areas for improvement:
+- Additional model support
+- More system prompt templates
+- Export/import functionality
+- Advanced comparison visualizations
+
+## License
+
+See root LICENSE file for details.
+
+---
+
+**Built with ❤️ using [Pollinations.ai](https://pollinations.ai)**

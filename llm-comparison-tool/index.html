@@ -112,23 +112,45 @@
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #3b82f6;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            cursor: grab;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.15);
         }
         
         input[type="range"]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #3b82f6;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            cursor: grab;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        input[type="range"]::-moz-range-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.15);
         }
         
         .dark input[type="range"]::-webkit-slider-thumb {
@@ -141,9 +163,113 @@
             border-color: #1f2937;
         }
         
+        /* Parameter info tooltip styles */
+        .param-info {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            margin-left: 4px;
+            border-radius: 50%;
+            background: #9ca3af;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: help;
+            flex-shrink: 0;
+        }
+        
+        .dark .param-info {
+            background: #6b7280;
+        }
+        
+        .param-info:hover {
+            background: #3b82f6;
+        }
+        
+        .dark .param-info:hover {
+            background: #60a5fa;
+        }
+        
+        .param-info .tooltip {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            margin-left: 12px;
+            padding: 10px 14px;
+            background: #1f2937;
+            color: white;
+            font-size: 12px;
+            font-weight: normal;
+            line-height: 1.6;
+            border-radius: 6px;
+            white-space: normal;
+            width: 320px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .param-info:hover .tooltip {
+            opacity: 1;
+        }
+        
+        .param-info .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 100%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-right-color: #1f2937;
+        }
+        
+        .tooltip-default {
+            display: block;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-style: italic;
+            opacity: 0.9;
+            font-size: 11px;
+        }
+        
+        .tooltip-example {
+            display: block;
+            margin-top: 6px;
+            padding: 6px 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: monospace;
+        }
+        
+        .tooltip-example strong {
+            color: #60a5fa;
+        }
+        
         /* Matrix mode styles */
         .matrix-mode .model-parameters-section {
             display: none;
+        }
+        
+        /* Parameters positioning */
+        .model-parameters-section {
+            position: relative;
+        }
+        
+        #parameters-expanded {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            margin-top: 4px;
+            min-width: 400px;
         }
         
         .matrix-card {
@@ -179,6 +305,49 @@
         .dark #prompt-dropdown .cursor-pointer:hover {
             color: #ffffff !important; /* white for dark mode */
         }
+        
+        /* Model disabled state */
+        .model-disabled {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+        }
+        
+        .model-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .model-card:hover:not(.model-disabled-container) {
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .model-disabled-container {
+            cursor: pointer;
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+        
+        .model-disabled-container::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            opacity: 1;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ef4444' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        .dark .model-disabled-container::after {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23dc2626' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'/%3E%3C/svg%3E");
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
@@ -186,7 +355,7 @@
         <div class="max-w-6xl mx-auto p-4">
             <div class="grid grid-cols-12 gap-4 items-center mb-4">
                 <!-- Title and Credit -->
-                <div class="col-span-12 md:col-span-4 lg:col-span-5">
+                <div class="col-span-12 md:col-span-7 lg:col-span-8">
                     <h1 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">
                         Pollinations.ai Model Comparison 
                         <a href="https://github.com/EndemicMedia/FLARE" class="block md:inline text-sm text-orange-400 dark:text-orange-400">
@@ -195,85 +364,30 @@
                     </h1>
                 </div>
                 
-                <!-- Model Parameters -->
-                <div class="col-span-12 md:col-span-5 lg:col-span-4 model-parameters-section">
-                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
-                        <!-- <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 text-center">Model Parameters</div> -->
-                        <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-                            <!-- Temperature -->
-                            <div class="flex items-center space-x-2">
-                                <label for="temperature-slider" class="text-xs text-gray-700 dark:text-gray-300 w-10 flex-shrink-0">
-                                    Temp:
-                                </label>
-                                <input
-                                    type="range"
-                                    id="temperature-slider"
-                                    min="0"
-                                    max="2"
-                                    step="0.1"
-                                    value="0.7"
-                                    class="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                />
-                                <span id="temperature-value" class="text-xs text-gray-700 dark:text-gray-300 w-8 flex-shrink-0 text-right">0.7</span>
-                            </div>
-
-                            <!-- Top P -->
-                            <div class="flex items-center space-x-2">
-                                <label for="top-p-slider" class="text-xs text-gray-700 dark:text-gray-300 w-10 flex-shrink-0">
-                                    Top-P:
-                                </label>
-                                <input
-                                    type="range"
-                                    id="top-p-slider"
-                                    min="0"
-                                    max="1"
-                                    step="0.05"
-                                    value="1"
-                                    class="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                />
-                                <span id="top-p-value" class="text-xs text-gray-700 dark:text-gray-300 w-8 flex-shrink-0 text-right">1.0</span>
-                            </div>
-
-                            <!-- Max Tokens -->
-                            <div class="flex items-center space-x-2">
-                                <label for="max-tokens-slider" class="text-xs text-gray-700 dark:text-gray-300 w-10 flex-shrink-0">
-                                    Max:
-                                </label>
-                                <input
-                                    type="range"
-                                    id="max-tokens-slider"
-                                    min="50"
-                                    max="4000"
-                                    step="50"
-                                    value="500"
-                                    class="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                />
-                                <span id="max-tokens-value" class="text-xs text-gray-700 dark:text-gray-300 w-8 flex-shrink-0 text-right">500</span>
-                            </div>
-
-                            <!-- Seed -->
-                            <div class="flex items-center space-x-2">
-                                <label for="seed-slider" class="text-xs text-gray-700 dark:text-gray-300 w-10 flex-shrink-0">
-                                    Seed:
-                                </label>
-                                <input
-                                    type="range"
-                                    id="seed-slider"
-                                    min="0"
-                                    max="9999"
-                                    step="1"
-                                    value="0"
-                                    class="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                />
-                                <span id="seed-value" class="text-xs text-gray-700 dark:text-gray-300 w-8 flex-shrink-0 text-right">rand</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
                 <!-- Control Buttons -->
-                <div class="col-span-12 md:col-span-3 lg:col-span-3">
+                <div class="col-span-12 md:col-span-5 lg:col-span-4">
                     <div class="flex items-center justify-end space-x-2">
+                        <!-- Toggle All Models Button -->
+                        <button 
+                            id="toggle-all-btn" 
+                            class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-2 py-1 rounded text-xs flex items-center space-x-1"
+                            title="Enable/Disable all models"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>All</span>
+                        </button>
+                        
+                        <!-- BYOP Button -->
+                        <button 
+                            id="byop-btn" 
+                            class="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-2 py-1 rounded text-xs"
+                            title="Bring Your Own Pollen - Use your API key"
+                        >
+                            🌸 BYOP
+                        </button>
+                        
                         <!-- Timeout Dropdown -->
                         <div class="flex items-center space-x-1">
                             <label for="timeout-dropdown" class="text-xs text-gray-700 dark:text-gray-300">
@@ -288,7 +402,7 @@
                                 <option value="5000">5s</option>
                                 <option value="10000">10s</option>
                                 <option value="15000">15s</option>
-                                <option value="30000">30s</option>
+                                <option value="30000" selected>30s</option>
                                 <option value="60000">60s</option>
                             </select>
                         </div>
@@ -307,13 +421,329 @@
             <div>
                 <!-- <label for="prompt-input" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Enter Prompt</label> -->
                 <div class="flex space-x-2">
+                    <!-- Model Parameters Toggle Button -->
+                    <div class="model-parameters-section">
+                        <!-- Collapsible Parameters -->
+                        <button 
+                            id="parameters-toggle-btn"
+                            class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-50 dark:hover:bg-gray-600 h-[42px] flex items-center justify-center"
+                            title="Show/Hide model parameters"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                            </svg>
+                        </button>
+                        
+                        <!-- Expanded Parameters -->
+                        <div id="parameters-expanded" class="hidden bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-lg">
+                            <button 
+                                id="parameters-collapse-btn"
+                                class="w-full flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white mb-3"
+                                title="Hide model parameters"
+                            >
+                                <span class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                    </svg>
+                                    Parameters
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                            <div class="grid grid-cols-1 gap-y-3">
+                                <!-- Temperature -->
+                                <div class="flex items-center space-x-3">
+                                    <label for="temperature-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                        Temp:
+                                        <span class="param-info">
+                                            i
+                                            <span class="tooltip">
+                                                Controls randomness in word selection.<br><br>
+                                                Lower values make output more focused and predictable.<br>
+                                                Higher values make it more creative and varied.
+                                                <span class="tooltip-example">
+                                                    <strong>0.0:</strong> "The sunset painted the sky orange."<br>
+                                                    <strong>2.0:</strong> "Blazing amber hues danced wildly!"
+                                                </span>
+                                                <span class="tooltip-default">Default: 0.7</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        id="temperature-slider"
+                                        min="0"
+                                        max="2"
+                                        step="0.1"
+                                        value="0.7"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    />
+                                    <span id="temperature-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.7</span>
+                                </div>
+
+                                <!-- Top P -->
+                                <div class="flex items-center space-x-3">
+                                    <label for="top-p-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                        Top-P:
+                                        <span class="param-info">
+                                            i
+                                            <span class="tooltip">
+                                                Limits token selection to top cumulative probability.<br><br>
+                                                Lower values = only most likely words.<br>
+                                                Higher values = more word choices available.
+                                                <span class="tooltip-example">
+                                                    <strong>0.1:</strong> "The sky turned orange and red."<br>
+                                                    <strong>1.0:</strong> "The heavens blazed crimson magnificently."
+                                                </span>
+                                                <span class="tooltip-default">Default: 1.0</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        id="top-p-slider"
+                                        min="0"
+                                        max="1"
+                                        step="0.05"
+                                        value="1"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    />
+                                    <span id="top-p-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">1.0</span>
+                                </div>
+
+                                <!-- Max Tokens -->
+                                <div class="flex items-center space-x-3">
+                                    <label for="max-tokens-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                        Max:
+                                        <span class="param-info">
+                                            i
+                                            <span class="tooltip">
+                                                Maximum response length in tokens.<br><br>
+                                                (~4 characters = 1 token)<br>
+                                                Controls how long the response can be.
+                                                <span class="tooltip-example">
+                                                    <strong>50:</strong> "The sky was orange."<br>
+                                                    <strong>500:</strong> "The sky transformed into..."
+                                                </span>
+                                                <span class="tooltip-default">Default: 500 tokens</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        id="max-tokens-slider"
+                                        min="50"
+                                        max="4000"
+                                        step="50"
+                                        value="500"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    />
+                                    <span id="max-tokens-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">500</span>
+                                </div>
+
+                                <!-- Seed -->
+                                <div class="flex items-center space-x-3">
+                                    <label for="seed-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                        Seed:
+                                        <span class="param-info">
+                                            i
+                                            <span class="tooltip">
+                                                Controls randomness seed for reproducibility.<br><br>
+                                                Same seed + parameters = same response.<br>
+                                                Set to 0 for random output each time.
+                                                <span class="tooltip-example">
+                                                    <strong>0:</strong> Different response each time<br>
+                                                    <strong>1234:</strong> Always same response
+                                                </span>
+                                                <span class="tooltip-default">Default: random (0)</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        id="seed-slider"
+                                        min="0"
+                                        max="9999"
+                                        step="1"
+                                        value="0"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    />
+                                    <span id="seed-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">rand</span>
+                                </div>
+
+                                <!-- Frequency Penalty -->
+                                <div class="flex items-center space-x-3">
+                                    <label for="frequency-penalty-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                        Freq:
+                                        <span class="param-info">
+                                            i
+                                            <span class="tooltip">
+                                                Reduces word repetition based on frequency.<br><br>
+                                                Higher values discourage using same words.<br>
+                                                Useful to avoid repetitive writing.
+                                                <span class="tooltip-example">
+                                                    <strong>0.0:</strong> "The blue blue sky was very blue."<br>
+                                                    <strong>2.0:</strong> "The azure sky was quite cerulean."
+                                                </span>
+                                                <span class="tooltip-default">Default: 0.0 (off)</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        id="frequency-penalty-slider"
+                                        min="0"
+                                        max="2"
+                                        step="0.1"
+                                        value="0"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    />
+                                    <span id="frequency-penalty-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.0</span>
+                                </div>
+
+                                <!-- Presence Penalty -->
+                                <div class="flex items-center space-x-3">
+                                    <label for="presence-penalty-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                        Pres:
+                                        <span class="param-info">
+                                            i
+                                            <span class="tooltip">
+                                                Encourages discussing new topics.<br><br>
+                                                Penalizes already-mentioned words.<br>
+                                                Pushes model toward fresh ideas.
+                                                <span class="tooltip-example">
+                                                    <strong>0.0:</strong> "The sunset was beautiful, beautiful..."<br>
+                                                    <strong>2.0:</strong> "The sunset was beautiful, then gorgeous..."
+                                                </span>
+                                                <span class="tooltip-default">Default: 0.0 (off)</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        id="presence-penalty-slider"
+                                        min="0"
+                                        max="2"
+                                        step="0.1"
+                                        value="0"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    />
+                                    <span id="presence-penalty-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.0</span>
+                                </div>
+
+                                <!-- Repetition Penalty -->
+                                <div class="flex items-center space-x-3">
+                                    <label for="repetition-penalty-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                        Rep:
+                                        <span class="param-info">
+                                            i
+                                            <span class="tooltip">
+                                                Alternative repetition control (open models).<br><br>
+                                                Penalizes repeated tokens differently.<br>
+                                                Similar to frequency penalty, different math.
+                                                <span class="tooltip-example">
+                                                    <strong>0.0:</strong> "So beautiful, so very beautiful."<br>
+                                                    <strong>2.0:</strong> "Beautiful, stunning, magnificent."
+                                                </span>
+                                                <span class="tooltip-default">Default: 0.0 (off)</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        id="repetition-penalty-slider"
+                                        min="0"
+                                        max="2"
+                                        step="0.1"
+                                        value="0"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    />
+                                    <span id="repetition-penalty-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.0</span>
+                                </div>
+
+                                <!-- Top K -->
+                                <div class="flex items-center space-x-3">
+                                    <label for="top-k-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                        Top-K:
+                                        <span class="param-info">
+                                            i
+                                            <span class="tooltip">
+                                                Limits selection to K most likely tokens.<br><br>
+                                                Lower values = more focused output.<br>
+                                                Set to 0 to disable filtering.
+                                                <span class="tooltip-example">
+                                                    <strong>10:</strong> "The sun sets beautifully daily."<br>
+                                                    <strong>100:</strong> "The sun descends magnificently."
+                                                </span>
+                                                <span class="tooltip-default">Default: off (0)</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        id="top-k-slider"
+                                        min="0"
+                                        max="100"
+                                        step="1"
+                                        value="0"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    />
+                                    <span id="top-k-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">off</span>
+                                </div>
+
+                                <!-- Min P -->
+                                <div class="flex items-center space-x-3">
+                                    <label for="min-p-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                        Min-P:
+                                        <span class="param-info">
+                                            i
+                                            <span class="tooltip">
+                                                Minimum probability threshold for tokens.<br><br>
+                                                Higher values = more confident choices.<br>
+                                                Filters out unlikely words.
+                                                <span class="tooltip-example">
+                                                    <strong>0.0:</strong> "Perhaps maybe possibly uncertain."<br>
+                                                    <strong>0.2:</strong> "Clearly definitely certain."
+                                                </span>
+                                                <span class="tooltip-default">Default: 0.0 (off)</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        id="min-p-slider"
+                                        min="0"
+                                        max="1"
+                                        step="0.05"
+                                        value="0"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    />
+                                    <span id="min-p-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.00</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Reset Button -->
+                            <button 
+                                id="parameters-reset-btn"
+                                class="mt-3 w-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 py-2 rounded text-sm font-medium transition-colors"
+                                title="Reset to default values"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Reset to Defaults
+                            </button>
+                        </div>
+                    </div>
+                    
                     <select 
                         id="system-context" 
                         class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <!-- dynamically populated from system.json -->
                     </select>
-                    <div class="relative flex-grow">
+                    <div id="prompt-input-container" class="relative flex-grow">
                         <input 
                             type="text" 
                             id="prompt-input" 
@@ -401,11 +831,135 @@
         </div>
     </div>
 
+    <!-- BYOP Modal -->
+    <div 
+        id="byop-modal" 
+        class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden flex items-center justify-center p-4"
+    >
+        <div class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full p-6 relative">
+            <button 
+                id="close-byop-btn" 
+                class="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">🌸 Bring Your Own Pollen</h2>
+            
+            <div class="mb-4">
+                <p class="text-gray-700 dark:text-gray-300 mb-2">Current API Key Status:</p>
+                <div id="api-key-status" class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <span id="key-display" class="font-mono text-sm text-gray-600 dark:text-gray-400">Loading...</span>
+                        <span id="key-type-badge" class="text-xs px-2 py-1 rounded"></span>
+                    </div>
+                    <div id="balance-display" class="text-sm text-gray-500 dark:text-gray-400 mt-2"></div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-800 dark:text-white mb-2">Option 1: Use Pollinations OAuth (Recommended)</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        Connect your Pollinations account to use your own pollen balance. This creates a temporary API key for this app.
+                    </p>
+                    <button 
+                        id="oauth-connect-btn" 
+                        class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition duration-300 w-full"
+                    >
+                        Connect with Pollinations
+                    </button>
+                </div>
+                
+                <div class="border-t border-gray-300 dark:border-gray-600 pt-4">
+                    <h3 class="font-semibold text-gray-800 dark:text-white mb-2">Option 2: Enter Your API Key</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        Already have an API key? Enter it below. Get one at <a href="https://enter.pollinations.ai" target="_blank" class="text-blue-500 hover:underline">enter.pollinations.ai</a>
+                    </p>
+                    <div class="flex space-x-2 mb-3">
+                        <input 
+                            type="text" 
+                            id="manual-api-key" 
+                            placeholder="pk_... or sk_..." 
+                            class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                        <button 
+                            id="save-api-key-btn" 
+                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition duration-300"
+                        >
+                            Save
+                        </button>
+                    </div>
+                    <button 
+                        id="clear-api-key-btn" 
+                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-300 w-full"
+                    >
+                        🗑️ Clear My API Key from Browser
+                    </button>
+                </div>
+                
+                <div class="border-t border-gray-300 dark:border-gray-600 pt-4">
+                    <button 
+                        id="reset-api-key-btn" 
+                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-300 w-full"
+                    >
+                        Reset to Default Key
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                <p class="text-xs text-blue-800 dark:text-blue-200">
+                    <strong>Why BYOP?</strong> With your own API key, you pay for your usage directly. No API costs for the app developer, and you control your spending.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <script>
         const MODELS_URL = 'https://gen.pollinations.ai/v1/models';
         const CHAT_URL = 'https://gen.pollinations.ai/v1/chat/completions';
         const MAX_PROMPT_HISTORY = 20; // Maximum number of prompts to store
         var SYSTEM_PROMPTS
+
+        // Encoded default API key (obfuscated for basic protection)
+        const _k = 'R3FOWmUzWU1ZT1dUNTZOZl9rcA==';
+        
+        // Decode the API key
+        function _d(e) {
+            try {
+                return atob(e).split('').reverse().join('');
+            } catch(err) {
+                console.error('Key decode error');
+                return '';
+            }
+        }
+        
+        const DEFAULT_API_KEY = _d(_k);
+        
+        // Get API key from URL hash (BYOP) or localStorage or use default
+        function getApiKey() {
+            // Check URL hash first (from BYOP redirect)
+            const urlParams = new URLSearchParams(window.location.hash.slice(1));
+            const hashApiKey = urlParams.get('api_key');
+            if (hashApiKey) {
+                // Store in localStorage and clear from URL
+                localStorage.setItem('userApiKey', hashApiKey);
+                window.location.hash = '';
+                return hashApiKey;
+            }
+            
+            // Check localStorage for user's API key
+            const storedKey = localStorage.getItem('userApiKey');
+            if (storedKey) {
+                return storedKey;
+            }
+            
+            // Fall back to default key
+            return DEFAULT_API_KEY;
+        }
 
         // Set default referer: use "endemicmedia.github.io" unless running on that domain
         const DEFAULT_REFERRER = "endemicmedia.github.io";
@@ -417,9 +971,146 @@
         let currentMode = 'multi'; // 'multi' or 'matrix'
         let selectedModel = null;
         let allModels = [];
+        
+        // Model enabled/disabled state (track by model name)
+        const disabledModels = new Set();
+        
+        // Load disabled models from localStorage
+        function loadDisabledModels() {
+            try {
+                const saved = localStorage.getItem('disabledModels');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    parsed.forEach(name => disabledModels.add(name));
+                }
+            } catch (error) {
+                console.error('Error loading disabled models:', error);
+            }
+        }
+        
+        // Save disabled models to localStorage
+        function saveDisabledModels() {
+            try {
+                localStorage.setItem('disabledModels', JSON.stringify([...disabledModels]));
+            } catch (error) {
+                console.error('Error saving disabled models:', error);
+            }
+        }
+        
+        // Toggle model enabled/disabled state
+        function toggleModelState(modelName) {
+            if (disabledModels.has(modelName)) {
+                disabledModels.delete(modelName);
+            } else {
+                disabledModels.add(modelName);
+            }
+            saveDisabledModels();
+            updateModelCardState(modelName);
+        }
+        
+        // Update model card visual state
+        function updateModelCardState(modelName) {
+            const modelCard = document.querySelector(`[data-model-name="${modelName}"]`);
+            if (!modelCard) return;
+            
+            const isDisabled = disabledModels.has(modelName);
+            const contentDiv = modelCard.querySelector('.markdown-content');
+            
+            if (isDisabled) {
+                modelCard.classList.add('model-disabled-container');
+                contentDiv.classList.add('model-disabled');
+            } else {
+                modelCard.classList.remove('model-disabled-container');
+                contentDiv.classList.remove('model-disabled');
+            }
+        }
+        
+        // Get list of enabled models only
+        function getEnabledModels() {
+            return allModels.filter(model => !disabledModels.has(model.name));
+        }
 
         // Parameter validation cache
         const modelParameterLimits = new Map();
+
+        // Parameter support mapping - defines which parameters each model supports
+        function getModelSupportedParameters(modelName) {
+            // Default support for most OpenAI-compatible models
+            const defaultSupport = {
+                temperature: true,
+                top_p: true,
+                max_tokens: true,
+                seed: true,
+                frequency_penalty: true,
+                presence_penalty: true,
+                repetition_penalty: false,
+                top_k: false,
+                min_p: false
+            };
+
+            // Model-specific overrides
+            const modelSupport = {
+                // OpenAI models support standard parameters
+                'openai': defaultSupport,
+                'openai-fast': defaultSupport,
+                'openai-large': defaultSupport,
+                'claude': defaultSupport,
+                'claude-fast': defaultSupport,
+                'claude-large': defaultSupport,
+                
+                // Gemini models - limited support
+                'gemini': {
+                    ...defaultSupport,
+                    frequency_penalty: false,
+                    presence_penalty: false,
+                    seed: false
+                },
+                'gemini-fast': {
+                    ...defaultSupport,
+                    frequency_penalty: false,
+                    presence_penalty: false,
+                    seed: false
+                },
+                'gemini-large': {
+                    ...defaultSupport,
+                    frequency_penalty: false,
+                    presence_penalty: false,
+                    seed: false
+                },
+                
+                // DeepSeek and open models often support top_k and repetition_penalty
+                'deepseek': {
+                    ...defaultSupport,
+                    repetition_penalty: true,
+                    top_k: true
+                },
+                'qwen-coder': {
+                    ...defaultSupport,
+                    repetition_penalty: true,
+                    top_k: true
+                },
+                'mistral': {
+                    ...defaultSupport,
+                    top_k: true
+                },
+                
+                // Perplexity models
+                'perplexity-fast': defaultSupport,
+                'perplexity-reasoning': defaultSupport,
+                
+                // Other models
+                'grok': defaultSupport,
+                'kimi': defaultSupport,
+                'nova-fast': defaultSupport,
+                'glm': {
+                    ...defaultSupport,
+                    repetition_penalty: true,
+                    top_k: true
+                }
+            };
+
+            return modelSupport[modelName] || defaultSupport;
+        }
 
         // Parameter matrix generation
         function generateParameterMatrix(modelName) {
@@ -665,6 +1356,38 @@
         // Initialize theme when page loads
         initTheme();
 
+        // Parameters toggle functionality
+        const parametersToggleBtn = document.getElementById('parameters-toggle-btn');
+        const parametersCollapseBtn = document.getElementById('parameters-collapse-btn');
+        const parametersExpanded = document.getElementById('parameters-expanded');
+
+        function toggleParameters() {
+            const isExpanded = !parametersExpanded.classList.contains('hidden');
+            
+            if (isExpanded) {
+                // Collapse
+                parametersExpanded.classList.add('hidden');
+                localStorage.setItem('parametersExpanded', 'false');
+            } else {
+                // Expand
+                parametersExpanded.classList.remove('hidden');
+                localStorage.setItem('parametersExpanded', 'true');
+            }
+        }
+
+        parametersToggleBtn.addEventListener('click', toggleParameters);
+        parametersCollapseBtn.addEventListener('click', toggleParameters);
+
+        // Initialize parameters state from localStorage
+        function initParametersState() {
+            const savedState = localStorage.getItem('parametersExpanded');
+            if (savedState === 'true') {
+                parametersExpanded.classList.remove('hidden');
+            }
+        }
+
+        initParametersState();
+
         // Model parameter controls
         const temperatureSlider = document.getElementById('temperature-slider');
         const temperatureValue = document.getElementById('temperature-value');
@@ -674,6 +1397,16 @@
         const maxTokensValue = document.getElementById('max-tokens-value');
         const seedSlider = document.getElementById('seed-slider');
         const seedValue = document.getElementById('seed-value');
+        const frequencyPenaltySlider = document.getElementById('frequency-penalty-slider');
+        const frequencyPenaltyValue = document.getElementById('frequency-penalty-value');
+        const presencePenaltySlider = document.getElementById('presence-penalty-slider');
+        const presencePenaltyValue = document.getElementById('presence-penalty-value');
+        const repetitionPenaltySlider = document.getElementById('repetition-penalty-slider');
+        const repetitionPenaltyValue = document.getElementById('repetition-penalty-value');
+        const topKSlider = document.getElementById('top-k-slider');
+        const topKValue = document.getElementById('top-k-value');
+        const minPSlider = document.getElementById('min-p-slider');
+        const minPValue = document.getElementById('min-p-value');
 
         // Update temperature display
         temperatureSlider.addEventListener('input', () => {
@@ -700,12 +1433,48 @@
             localStorage.setItem('modelSeed', seedSlider.value);
         });
 
+        // Update frequency penalty display
+        frequencyPenaltySlider.addEventListener('input', () => {
+            frequencyPenaltyValue.textContent = parseFloat(frequencyPenaltySlider.value).toFixed(1);
+            localStorage.setItem('modelFrequencyPenalty', frequencyPenaltySlider.value);
+        });
+
+        // Update presence penalty display
+        presencePenaltySlider.addEventListener('input', () => {
+            presencePenaltyValue.textContent = parseFloat(presencePenaltySlider.value).toFixed(1);
+            localStorage.setItem('modelPresencePenalty', presencePenaltySlider.value);
+        });
+
+        // Update repetition penalty display
+        repetitionPenaltySlider.addEventListener('input', () => {
+            repetitionPenaltyValue.textContent = parseFloat(repetitionPenaltySlider.value).toFixed(1);
+            localStorage.setItem('modelRepetitionPenalty', repetitionPenaltySlider.value);
+        });
+
+        // Update top-k display
+        topKSlider.addEventListener('input', () => {
+            const topKVal = parseInt(topKSlider.value);
+            topKValue.textContent = topKVal === 0 ? 'off' : topKVal;
+            localStorage.setItem('modelTopK', topKSlider.value);
+        });
+
+        // Update min-p display
+        minPSlider.addEventListener('input', () => {
+            minPValue.textContent = parseFloat(minPSlider.value).toFixed(2);
+            localStorage.setItem('modelMinP', minPSlider.value);
+        });
+
         // Load saved parameter values
         function loadSavedParameters() {
             const savedTemp = localStorage.getItem('modelTemperature');
             const savedTopP = localStorage.getItem('modelTopP');
             const savedMaxTokens = localStorage.getItem('modelMaxTokens');
             const savedSeed = localStorage.getItem('modelSeed');
+            const savedFreqPenalty = localStorage.getItem('modelFrequencyPenalty');
+            const savedPresPenalty = localStorage.getItem('modelPresencePenalty');
+            const savedRepPenalty = localStorage.getItem('modelRepetitionPenalty');
+            const savedTopK = localStorage.getItem('modelTopK');
+            const savedMinP = localStorage.getItem('modelMinP');
 
             if (savedTemp) {
                 temperatureSlider.value = savedTemp;
@@ -724,10 +1493,90 @@
                 const seedVal = parseInt(savedSeed);
                 seedValue.textContent = seedVal === 0 ? 'rand' : seedVal;
             }
+            if (savedFreqPenalty) {
+                frequencyPenaltySlider.value = savedFreqPenalty;
+                frequencyPenaltyValue.textContent = parseFloat(savedFreqPenalty).toFixed(1);
+            }
+            if (savedPresPenalty) {
+                presencePenaltySlider.value = savedPresPenalty;
+                presencePenaltyValue.textContent = parseFloat(savedPresPenalty).toFixed(1);
+            }
+            if (savedRepPenalty) {
+                repetitionPenaltySlider.value = savedRepPenalty;
+                repetitionPenaltyValue.textContent = parseFloat(savedRepPenalty).toFixed(1);
+            }
+            if (savedTopK) {
+                topKSlider.value = savedTopK;
+                const topKVal = parseInt(savedTopK);
+                topKValue.textContent = topKVal === 0 ? 'off' : topKVal;
+            }
+            if (savedMinP) {
+                minPSlider.value = savedMinP;
+                minPValue.textContent = parseFloat(savedMinP).toFixed(2);
+            }
         }
 
         // Load saved parameters on page load
         loadSavedParameters();
+
+        // Reset parameters to defaults
+        const parametersResetBtn = document.getElementById('parameters-reset-btn');
+        
+        function resetParametersToDefaults() {
+            // Default values
+            const defaults = {
+                temperature: 0.7,
+                topP: 1.0,
+                maxTokens: 500,
+                seed: 0,
+                frequencyPenalty: 0,
+                presencePenalty: 0,
+                repetitionPenalty: 0,
+                topK: 0,
+                minP: 0
+            };
+            
+            // Update sliders
+            temperatureSlider.value = defaults.temperature;
+            temperatureValue.textContent = defaults.temperature.toFixed(1);
+            
+            topPSlider.value = defaults.topP;
+            topPValue.textContent = defaults.topP.toFixed(2);
+            
+            maxTokensSlider.value = defaults.maxTokens;
+            maxTokensValue.textContent = defaults.maxTokens;
+            
+            seedSlider.value = defaults.seed;
+            seedValue.textContent = 'rand';
+            
+            frequencyPenaltySlider.value = defaults.frequencyPenalty;
+            frequencyPenaltyValue.textContent = defaults.frequencyPenalty.toFixed(1);
+            
+            presencePenaltySlider.value = defaults.presencePenalty;
+            presencePenaltyValue.textContent = defaults.presencePenalty.toFixed(1);
+            
+            repetitionPenaltySlider.value = defaults.repetitionPenalty;
+            repetitionPenaltyValue.textContent = defaults.repetitionPenalty.toFixed(1);
+            
+            topKSlider.value = defaults.topK;
+            topKValue.textContent = 'off';
+            
+            minPSlider.value = defaults.minP;
+            minPValue.textContent = defaults.minP.toFixed(2);
+            
+            // Update localStorage
+            localStorage.setItem('modelTemperature', defaults.temperature);
+            localStorage.setItem('modelTopP', defaults.topP);
+            localStorage.setItem('modelMaxTokens', defaults.maxTokens);
+            localStorage.setItem('modelSeed', defaults.seed);
+            localStorage.setItem('modelFrequencyPenalty', defaults.frequencyPenalty);
+            localStorage.setItem('modelPresencePenalty', defaults.presencePenalty);
+            localStorage.setItem('modelRepetitionPenalty', defaults.repetitionPenalty);
+            localStorage.setItem('modelTopK', defaults.topK);
+            localStorage.setItem('modelMinP', defaults.minP);
+        }
+        
+        parametersResetBtn.addEventListener('click', resetParametersToDefaults);
 
         // Font size controls
         const fontDecreaseBtn = document.getElementById('font-decrease-btn');
@@ -776,21 +1625,35 @@
         async function fetchModels() {
             console.log('Fetching models...');
             try {
-                // Add referrer param for Pollinations API best practice
+                const apiKey = getApiKey();
+                // Add referrer param and Authorization header
                 const response = await axios.get(
                     MODELS_URL,
-                    { params: { referrer: referrer } }
+                    { 
+                        params: { referrer: referrer },
+                        headers: { 'Authorization': `Bearer ${apiKey}` }
+                    }
                 );
                 console.log('Models API response:', response);
-                if (!response.data || !Array.isArray(response.data)) {
-                    console.warn('Models API returned unexpected data:', response.data);
+                
+                // Handle new API structure: {object: "list", data: [...]}
+                let models = [];
+                if (response.data && response.data.object === 'list' && Array.isArray(response.data.data)) {
+                    models = response.data.data.map(model => ({ name: model.id, ...model }));
+                    console.log('Fetched models count:', models.length);
+                } else if (Array.isArray(response.data)) {
+                    // Fallback for old format
+                    models = response.data;
+                    console.log('Fetched models count (legacy format):', models.length);
                 } else {
-                    console.log('Fetched models count:', response.data.length);
-                    response.data.forEach((model, idx) => {
-                        console.log(`Model[${idx}]:`, model);
-                    });
+                    console.warn('Models API returned unexpected data:', response.data);
                 }
-                return response.data;
+                
+                models.forEach((model, idx) => {
+                    console.log(`Model[${idx}]:`, model);
+                });
+                
+                return models;
             } catch (error) {
                 console.error('Error fetching models:', error);
                 return [];
@@ -875,7 +1738,7 @@
             const timeoutValue = parseInt(timeoutDropdown.value, 10);
 
             // Get model parameters from UI controls or override
-            let temperature, topP, maxTokens, seed, presencePenalty, frequencyPenalty;
+            let temperature, topP, maxTokens, seed, presencePenalty, frequencyPenalty, repetitionPenalty, topK, minP;
             
             // For models that only support defaults, don't override parameters
             if (parameterOverride?.useDefaults) {
@@ -884,16 +1747,24 @@
                 maxTokens = parseInt(maxTokensSlider.value);
                 const seedVal = parseInt(seedSlider.value);
                 seed = seedVal === 0 ? undefined : seedVal;
-                presencePenalty = 0;
-                frequencyPenalty = 0;
+                presencePenalty = parseFloat(presencePenaltySlider.value);
+                frequencyPenalty = parseFloat(frequencyPenaltySlider.value);
+                repetitionPenalty = parseFloat(repetitionPenaltySlider.value);
+                const topKVal = parseInt(topKSlider.value);
+                topK = topKVal === 0 ? undefined : topKVal;
+                minP = parseFloat(minPSlider.value);
             } else {
                 temperature = parameterOverride?.temperature ?? parseFloat(temperatureSlider.value);
                 topP = parameterOverride?.top_p ?? parseFloat(topPSlider.value);
                 maxTokens = parameterOverride?.max_tokens ?? parseInt(maxTokensSlider.value);
                 const seedVal = parameterOverride?.seed ?? parseInt(seedSlider.value);
                 seed = seedVal === 0 ? undefined : seedVal;
-                presencePenalty = parameterOverride?.presence_penalty ?? 0;
-                frequencyPenalty = parameterOverride?.frequency_penalty ?? 0;
+                presencePenalty = parameterOverride?.presence_penalty ?? parseFloat(presencePenaltySlider.value);
+                frequencyPenalty = parameterOverride?.frequency_penalty ?? parseFloat(frequencyPenaltySlider.value);
+                repetitionPenalty = parameterOverride?.repetition_penalty ?? parseFloat(repetitionPenaltySlider.value);
+                const topKVal = parameterOverride?.top_k ?? parseInt(topKSlider.value);
+                topK = topKVal === 0 ? undefined : topKVal;
+                minP = parameterOverride?.min_p ?? parseFloat(minPSlider.value);
             }
 
             try {
@@ -913,36 +1784,65 @@
                 // Check if this model has parameter restrictions
                 const limits = modelParameterLimits.get(model.name);
                 
+                // Get supported parameters for this model
+                const supportedParams = getModelSupportedParameters(model.name);
+                
                 // Only add parameters if model supports them
                 if (!limits?.useDefaults) {
-                    requestBody.temperature = temperature;
-                    requestBody.top_p = topP;
-                    requestBody.max_tokens = maxTokens;
+                    if (supportedParams.temperature) requestBody.temperature = temperature;
+                    if (supportedParams.top_p) requestBody.top_p = topP;
+                    if (supportedParams.max_tokens) requestBody.max_tokens = maxTokens;
                     
-                    // Add penalty parameters if non-zero
-                    if (presencePenalty !== 0) {
+                    // Add penalty parameters if supported and non-default
+                    if (supportedParams.presence_penalty && presencePenalty !== 0) {
                         requestBody.presence_penalty = presencePenalty;
                     }
-                    if (frequencyPenalty !== 0) {
+                    if (supportedParams.frequency_penalty && frequencyPenalty !== 0) {
                         requestBody.frequency_penalty = frequencyPenalty;
                     }
+                    if (supportedParams.repetition_penalty && repetitionPenalty !== 0) {
+                        requestBody.repetition_penalty = repetitionPenalty;
+                    }
                     
-                    // Add seed if specified
-                    if (seed !== undefined) {
+                    // Add sampling parameters if supported and specified
+                    if (supportedParams.seed && seed !== undefined) {
                         requestBody.seed = seed;
+                    }
+                    if (supportedParams.top_k && topK !== undefined) {
+                        requestBody.top_k = topK;
+                    }
+                    if (supportedParams.min_p && minP !== 0) {
+                        requestBody.min_p = minP;
                     }
                 } else {
                     console.log(`${model.name}: Using default parameters only (no temp/top_p sent)`);
                 }
 
                 // Add referrer field for Pollinations API best practice
+                const apiKey = getApiKey();
                 const response = await axios.post(CHAT_URL, requestBody, {
                     timeout: timeoutValue, // Use selected timeout value
-                    signal: abortSignal // Add abort signal support
+                    signal: abortSignal, // Add abort signal support
+                    headers: { 'Authorization': `Bearer ${apiKey}` }
                 });
                 
                 const endTime = performance.now();
                 const duration = Math.round(endTime - startTime);
+                
+                // Validate response structure
+                if (!response.data) {
+                    throw new Error('No response data received');
+                }
+                
+                if (!response.data.choices || !Array.isArray(response.data.choices) || response.data.choices.length === 0) {
+                    console.error('Invalid response structure:', response.data);
+                    throw new Error('Invalid response: missing choices array');
+                }
+                
+                if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+                    console.error('Invalid message structure:', response.data.choices[0]);
+                    throw new Error('Invalid response: missing message content');
+                }
                 
                 return {
                     text: response.data.choices[0].message.content,
@@ -1024,11 +1924,12 @@
                 }
                 console.log(`Rendering model card for: ${model.name}`);
                 const modelDiv = document.createElement('div');
-                modelDiv.classList.add('border', 'rounded-lg', 'p-3', 'bg-white', 'dark:bg-gray-800', 'shadow-sm');
+                modelDiv.classList.add('border', 'rounded-lg', 'p-3', 'bg-white', 'dark:bg-gray-800', 'shadow-sm', 'model-card', 'relative');
+                modelDiv.setAttribute('data-model-name', model.name);
                 modelDiv.innerHTML = `
                     <div class="flex justify-between mb-2">
                         <div class="flex items-start space-x-2">
-                            <label class="text-gray-700 dark:text-gray-300 font-semibold text-sm cursor-pointer" onclick="enterMatrixMode('${model.name}')">${model.name}</label>
+                            <label class="text-gray-700 dark:text-gray-300 font-semibold text-sm cursor-pointer" onclick="event.stopPropagation(); enterMatrixMode('${model.name}')">${model.name}</label>
                         </div>
                         <div class="flex items-start">
                             <div id="model-stats-${model.name}" class="text-xs text-gray-500 dark:text-gray-400"></div>
@@ -1037,6 +1938,7 @@
                                     class="fullscreen-btn hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                                     data-model="${model.name}"
                                     title="View fullscreen"
+                                    onclick="event.stopPropagation()"
                                     >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
@@ -1046,6 +1948,7 @@
                                     class="copy-btn hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                                     data-model="${model.name}"
                                     title="Copy model output"
+                                    onclick="event.stopPropagation()"
                                     >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
@@ -1060,7 +1963,20 @@
                         placeholder="Model response will appear here..."
                     ></div>
                 `;
+                
+                // Add click handler to toggle model state
+                modelDiv.addEventListener('click', (e) => {
+                    // Don't toggle if clicking on buttons or labels
+                    if (e.target.closest('button') || e.target.closest('label')) {
+                        return;
+                    }
+                    toggleModelState(model.name);
+                });
+                
                 modelsContainer.appendChild(modelDiv);
+                
+                // Apply saved disabled state
+                updateModelCardState(model.name);
             });
 
             console.log('Model cards rendered. modelsContainer child count:', modelsContainer.childElementCount);
@@ -1129,6 +2045,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     console.log('System prompts loaded');
+
+    // Load disabled models from localStorage
+    loadDisabledModels();
 
     const models = await initializeModelFields();
     const submitBtn = document.getElementById('submit-btn');
@@ -1581,8 +2500,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 submitBtn.textContent = 'Processing...';
                 submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 cancelBtn.classList.remove('hidden');
+                
+                // Get only enabled models
+                const enabledModels = getEnabledModels();
+                
+                if (enabledModels.length === 0) {
+                    alert('No models enabled! Please enable at least one model by clicking on a disabled model card.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    cancelBtn.classList.add('hidden');
+                    return;
+                }
 
-                // Clear previous results and set initial states
+                // Clear previous results and set initial states for ALL models
                 const modelResults = [];
                 allModels.forEach(model => {
                     const textarea = document.getElementById(`model-${model.name}`);
@@ -1592,10 +2523,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // Remove any previous fastest model highlights
                     modelContainer.classList.remove('fastest-model');
                     
-                    // Set initial state to queued
-                    textarea.innerHTML = 'Queued';
-                    textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
-                    statsElement.textContent = '';
+                    // Set initial state based on enabled/disabled
+                    if (disabledModels.has(model.name)) {
+                        textarea.innerHTML = 'Disabled - Click card to enable';
+                        textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
+                        statsElement.textContent = '';
+                    } else {
+                        textarea.innerHTML = 'Queued';
+                        textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
+                        statsElement.textContent = '';
+                    }
                 });
 
         const processModelWithUI = async (model) => {
@@ -1658,17 +2595,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 };
 
-                // Concurrent processing with max 2 simultaneous requests
+                // Concurrent processing with max 2 simultaneous requests (only enabled models)
                 const processBatches = async () => {
-                    for (let i = 0; i < allModels.length; i += 2) {
-                        const batch = allModels.slice(i, i + 2);
+                    for (let i = 0; i < enabledModels.length; i += 2) {
+                        const batch = enabledModels.slice(i, i + 2);
                         await Promise.all(batch.map(processModelWithUI));
                     }
                 };
 
                 await processBatches();
 
-                // Highlight 3 fastest models
+                // Highlight 3 fastest models (only from enabled models)
                 const sortedResults = modelResults
                     .filter(result => result.duration !== Infinity)
                     .sort((a, b) => a.duration - b.duration)
@@ -1694,6 +2631,164 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (event.key === 'Enter') {
                     event.preventDefault(); // Prevent default form submission
                     handleSubmission();
+                }
+            });
+
+            // BYOP Modal functionality
+            const byopBtn = document.getElementById('byop-btn');
+            const byopModal = document.getElementById('byop-modal');
+            const closeBYOPBtn = document.getElementById('close-byop-btn');
+            const oauthConnectBtn = document.getElementById('oauth-connect-btn');
+            const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+            const clearApiKeyBtn = document.getElementById('clear-api-key-btn');
+            const resetApiKeyBtn = document.getElementById('reset-api-key-btn');
+            const manualApiKeyInput = document.getElementById('manual-api-key');
+
+            // Update API key display
+            async function updateApiKeyStatus() {
+                const apiKey = getApiKey();
+                const keyDisplay = document.getElementById('key-display');
+                const keyTypeBadge = document.getElementById('key-type-badge');
+                const balanceDisplay = document.getElementById('balance-display');
+                
+                // Mask the key
+                const maskedKey = apiKey.substring(0, 8) + '...' + apiKey.substring(apiKey.length - 4);
+                keyDisplay.textContent = maskedKey;
+                
+                // Determine key type
+                const isDefault = apiKey === DEFAULT_API_KEY;
+                const isSecret = apiKey.startsWith('sk_');
+                const isPublishable = apiKey.startsWith('pk_');
+                
+                if (isDefault) {
+                    keyTypeBadge.textContent = 'Default Key';
+                    keyTypeBadge.className = 'text-xs px-2 py-1 rounded bg-blue-500 text-white';
+                } else if (isSecret) {
+                    keyTypeBadge.textContent = 'Secret Key';
+                    keyTypeBadge.className = 'text-xs px-2 py-1 rounded bg-green-500 text-white';
+                } else if (isPublishable) {
+                    keyTypeBadge.textContent = 'Publishable Key';
+                    keyTypeBadge.className = 'text-xs px-2 py-1 rounded bg-purple-500 text-white';
+                } else {
+                    keyTypeBadge.textContent = 'Custom Key';
+                    keyTypeBadge.className = 'text-xs px-2 py-1 rounded bg-gray-500 text-white';
+                }
+                
+                // Try to fetch balance
+                try {
+                    const balanceResponse = await axios.get('https://gen.pollinations.ai/account/balance', {
+                        headers: { 'Authorization': `Bearer ${apiKey}` }
+                    });
+                    balanceDisplay.textContent = `Balance: ${balanceResponse.data.balance} pollen`;
+                } catch (error) {
+                    balanceDisplay.textContent = 'Balance: Unable to fetch (may require account:balance permission)';
+                }
+            }
+
+            // Show BYOP modal
+            byopBtn.addEventListener('click', async () => {
+                byopModal.classList.remove('hidden');
+                await updateApiKeyStatus();
+            });
+
+            // Close BYOP modal
+            closeBYOPBtn.addEventListener('click', () => {
+                byopModal.classList.add('hidden');
+            });
+
+            // Close modal when clicking outside
+            byopModal.addEventListener('click', (event) => {
+                if (event.target === byopModal) {
+                    byopModal.classList.add('hidden');
+                }
+            });
+
+            // OAuth connect
+            oauthConnectBtn.addEventListener('click', () => {
+                const redirectUrl = encodeURIComponent(window.location.href);
+                const authUrl = `https://enter.pollinations.ai/authorize?redirect_url=${redirectUrl}`;
+                window.location.href = authUrl;
+            });
+
+            // Manual API key save
+            saveApiKeyBtn.addEventListener('click', () => {
+                const newKey = manualApiKeyInput.value.trim();
+                if (newKey && (newKey.startsWith('pk_') || newKey.startsWith('sk_'))) {
+                    localStorage.setItem('userApiKey', newKey);
+                    manualApiKeyInput.value = '';
+                    updateApiKeyStatus();
+                    alert('API key saved successfully! Your key is now stored in browser storage and will be used for all requests.');
+                    updateBYOPButton();
+                } else {
+                    alert('Invalid API key format. Keys should start with pk_ or sk_');
+                }
+            });
+
+            // Clear API key from browser storage
+            clearApiKeyBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear your API key from browser storage? This will revert to the default key.')) {
+                    localStorage.removeItem('userApiKey');
+                    updateApiKeyStatus();
+                    updateBYOPButton();
+                    alert('Your API key has been cleared from browser storage. Now using default key.');
+                }
+            });
+
+            // Reset to default key
+            resetApiKeyBtn.addEventListener('click', () => {
+                if (confirm('Reset to default key? This will clear your stored API key.')) {
+                    localStorage.removeItem('userApiKey');
+                    updateApiKeyStatus();
+                    updateBYOPButton();
+                    alert('Reset to default key.');
+                }
+            });
+
+            // Update BYOP button appearance based on key status
+            function updateBYOPButton() {
+                const apiKey = getApiKey();
+                const isCustomKey = apiKey !== DEFAULT_API_KEY;
+                if (isCustomKey) {
+                    byopBtn.classList.add('ring-2', 'ring-green-400');
+                    byopBtn.title = 'Using your API key ✓';
+                } else {
+                    byopBtn.classList.remove('ring-2', 'ring-green-400');
+                    byopBtn.title = 'Bring Your Own Pollen - Use your API key';
+                }
+            }
+            updateBYOPButton();
+
+            // Toggle all models button
+            const toggleAllBtn = document.getElementById('toggle-all-btn');
+            toggleAllBtn.addEventListener('click', () => {
+                if (disabledModels.size === 0) {
+                    // Disable all models
+                    allModels.forEach(model => {
+                        disabledModels.add(model.name);
+                        updateModelCardState(model.name);
+                    });
+                    // Update to unchecked circle icon
+                    toggleAllBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>All</span>
+                    `;
+                    saveDisabledModels();
+                } else {
+                    // Enable all models
+                    disabledModels.clear();
+                    allModels.forEach(model => {
+                        updateModelCardState(model.name);
+                    });
+                    // Update to checked circle icon
+                    toggleAllBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>All</span>
+                    `;
+                    saveDisabledModels();
                 }
             });
         });
