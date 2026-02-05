@@ -221,7 +221,7 @@ npm run dev
 npm start &
 
 # Run comprehensive test suite
-./test-all-features.sh
+./scripts/test-all-features.sh
 ```
 This comprehensive script tests:
 - ✅ All 6 post-processing functions (`vote`, `sum`, `comb`, `diff`, `filter`, `exp`)  
@@ -233,8 +233,8 @@ This comprehensive script tests:
 
 **Model Testing** - Quick verification of available models:
 ```bash 
-./test-models.sh           # Test mistral, gemini, openai models
-./demo-flare.sh           # Interactive demo with debug information
+./scripts/test-models.sh           # Test mistral, gemini, openai models
+./scripts/demo-flare.sh           # Interactive demo with debug information
 ```
 
 **Test Results**: All scripts generate detailed markdown reports:
@@ -424,7 +424,7 @@ Lists all available features and supported commands.
 - 🔍 Review server logs for detailed error information
 - 📊 Use the health endpoint to diagnose system status
 - 🧪 Run the test suite to verify functionality: `npm test`
-- 🚀 Run feature tests to see real examples: `./test-all-features.sh`
+- 🚀 Run feature tests to see real examples: `./scripts/test-all-features.sh`
 - 📋 Check generated reports: `test-results.md` and `output.md`
 
 ## 📈 Performance
