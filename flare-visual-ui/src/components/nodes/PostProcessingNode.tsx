@@ -9,6 +9,11 @@ import '../../styles/nodes.css';
 export function PostProcessingNode({ data, id }: NodeProps<PostProcessingNodeData>) {
   const [selectedOperation, setSelectedOperation] = React.useState(data.operation);
 
+  // Sync with data.operation changes (for programmatic updates and independent state)
+  React.useEffect(() => {
+    setSelectedOperation(data.operation);
+  }, [data.operation]);
+
   const handleOperationChange = (operation: PostProcessingNodeData['operation']) => {
     setSelectedOperation(operation);
     data.operation = operation;

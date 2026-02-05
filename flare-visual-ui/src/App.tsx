@@ -15,6 +15,8 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { TextInputNode } from './components/nodes/TextInputNode';
 import { ModelQueryNode } from './components/nodes/ModelQueryNode';
+import { ParameterNode } from './components/nodes/ParameterNode';
+import { PostProcessingNode } from './components/nodes/PostProcessingNode';
 import { OutputNode } from './components/nodes/OutputNode';
 import { useFlareWorkflowStore } from './store/flareWorkflowStore';
 import { executeWorkflow } from './utils/workflowExecutor';
@@ -23,6 +25,8 @@ import { executeWorkflow } from './utils/workflowExecutor';
 const nodeTypes: NodeTypes = {
   textInput: TextInputNode,
   modelQuery: ModelQueryNode,
+  parameter: ParameterNode,
+  postProcessing: PostProcessingNode,
   output: OutputNode,
 };
 
@@ -32,7 +36,7 @@ const initialNodes: Node[] = [
     id: 'input-1',
     type: 'textInput',
     position: { x: 50, y: 200 },
-    data: { 
+    data: {
       text: 'Explain quantum computing in simple terms',
       placeholder: 'Enter your prompt...'
     },
@@ -119,6 +123,28 @@ function App() {
     setNodes((nds) => [...nds, newNode]);
   };
 
+  const addParameterNode = () => {
+    const newNode: Node = {
+      id: `param-${Date.now()}`,
+      type: 'parameter',
+      position: { x: Math.random() * 200 + 250, y: Math.random() * 200 + 100 },
+      data: { paramType: 'temperature', value: 0.7, min: 0.0, max: 2.0 },
+    };
+    console.log('Adding Parameter node:', newNode);
+    setNodes((nds) => [...nds, newNode]);
+  };
+
+  const addPostProcessingNode = () => {
+    const newNode: Node = {
+      id: `postproc-${Date.now()}`,
+      type: 'postProcessing',
+      position: { x: Math.random() * 200 + 650, y: Math.random() * 200 + 100 },
+      data: { operation: 'vote' },
+    };
+    console.log('Adding PostProcessing node:', newNode);
+    setNodes((nds) => [...nds, newNode]);
+  };
+
   const handleRunWorkflow = async () => {
     setExecutionState('running');
     try {
@@ -162,6 +188,18 @@ function App() {
           + Model Query
         </button>
         <button
+          onClick={addParameterNode}
+          className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors text-sm font-medium"
+        >
+          + Parameter
+        </button>
+        <button
+          onClick={addPostProcessingNode}
+          className="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition-colors text-sm font-medium"
+        >
+          + Post-Processing
+        </button>
+        <button
           onClick={addOutputNode}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-sm font-medium"
         >
@@ -173,15 +211,14 @@ function App() {
         <button
           onClick={handleRunWorkflow}
           disabled={isRunning}
-          className={`px-6 py-2 rounded font-medium text-sm transition-colors ${
-            isRunning
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-orange-500 text-white hover:bg-orange-600'
-          }`}
+          className={`px-6 py-2 rounded font-medium text-sm transition-colors ${isRunning
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-orange-500 text-white hover:bg-orange-600'
+            }`}
         >
           {isRunning ? '⏳ Running...' : '▶ Run Workflow'}
         </button>
-        
+
         <div className="text-sm text-gray-500 flex items-center">
           <span className="mr-2">Nodes: {nodes.length}</span>
           <span>Connections: {edges.length}</span>

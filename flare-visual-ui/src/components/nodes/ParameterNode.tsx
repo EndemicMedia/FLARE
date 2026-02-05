@@ -8,8 +8,20 @@ import '../../styles/nodes.css';
 export function ParameterNode({ data, id }: NodeProps<ParameterNodeData>) {
   const [value, setValue] = React.useState(data.value);
 
+  // Sync with data.value changes (for programmatic updates)
+  React.useEffect(() => {
+    setValue(data.value);
+  }, [data.value]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(e.target.value);
+    setValue(newValue);
+    data.value = newValue;
+  };
+
+  // Handle both input and change events for better test compatibility
+  const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const newValue = parseFloat((e.target as HTMLInputElement).value);
     setValue(newValue);
     data.value = newValue;
   };
@@ -60,6 +72,7 @@ export function ParameterNode({ data, id }: NodeProps<ParameterNodeData>) {
             step={0.1}
             value={value}
             onChange={handleChange}
+            onInput={handleInput}
           />
 
           <div className="parameter-range">

@@ -5,6 +5,7 @@
  */
 import { processFlareCommand } from '../services/processFlareCommand.js';
 import { processFlareResponse } from '../services/processFlareResponse.js';
+import { generateImage } from './routes/generateImage.js';
 import { httpStatus } from './globals.js';
 
 export function setupApiRoutes(app) {
@@ -12,25 +13,25 @@ export function setupApiRoutes(app) {
   app.post('/process-flare', async (req, res) => {
     try {
       const { command } = req.body;
-      
+
       if (!command || typeof command !== 'string' || command.trim() === '') {
-        return res.status(httpStatus.BAD_REQUEST).json({ 
-          error: "Missing or invalid FLARE command. Please provide a valid command string." 
+        return res.status(httpStatus.BAD_REQUEST).json({
+          error: "Missing or invalid FLARE command. Please provide a valid command string."
         });
       }
-      
+
       const result = await processFlareCommand(command.trim());
-      
-      res.status(httpStatus.OK).json({ 
-        success: true, 
+
+      res.status(httpStatus.OK).json({
+        success: true,
         result,
         command: command.trim()
       });
-      
+
     } catch (error) {
       console.error("Error processing FLARE command:", error);
-      
-      res.status(httpStatus.INTERNAL_ERROR).json({ 
+
+      res.status(httpStatus.INTERNAL_ERROR).json({
         error: error.message || "Internal server error processing FLARE command.",
         success: false
       });
@@ -41,31 +42,34 @@ export function setupApiRoutes(app) {
   app.post('/process-text', async (req, res) => {
     try {
       const { text } = req.body;
-      
+
       if (!text || typeof text !== 'string' || text.trim() === '') {
-        return res.status(httpStatus.BAD_REQUEST).json({ 
-          error: "Missing or invalid text. Please provide text containing FLARE commands." 
+        return res.status(httpStatus.BAD_REQUEST).json({
+          error: "Missing or invalid text. Please provide text containing FLARE commands."
         });
       }
-      
+
       const processedText = await processFlareResponse(text.trim());
-      
-      res.status(httpStatus.OK).json({ 
-        success: true, 
+
+      res.status(httpStatus.OK).json({
+        success: true,
         originalText: text.trim(),
         processedText,
         timestamp: new Date().toISOString()
       });
-      
+
     } catch (error) {
       console.error("Error processing text with FLARE commands:", error);
-      
-      res.status(httpStatus.INTERNAL_ERROR).json({ 
+
+      res.status(httpStatus.INTERNAL_ERROR).json({
         error: error.message || "Internal server error processing text.",
         success: false
       });
     }
   });
+
+  // Image generation endpoint
+  app.post('/generate-image', generateImage);
 
   // Health check endpoint
   app.get('/health', (req, res) => {
