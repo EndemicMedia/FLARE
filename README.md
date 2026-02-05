@@ -463,6 +463,18 @@ Lists all available features and supported commands.
 6. **🧪 Well Tested** - 94.2% test coverage ensures reliability
 7. **📚 Fully Documented** - Comprehensive guides and examples
 
-**Start orchestrating AI models today with FLARE v2.0!** 🎉** - Comprehensive guides and examples
-
 **Start orchestrating AI models today with FLARE v2.0!** 🎉
+
+---
+
+## 🌸 Powered by Pollinations.ai
+
+FLARE is built with [Pollinations.ai](https://pollinations.ai) - providing seamless access to multiple AI models through a unified API.
+
+[![Built with Pollinations](https://img.shields.io/badge/Built%20with-Pollinations-8a2be2?style=for-the-badge&logo=data:image/svg+xml,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20viewBox%3D%220%200%20124%20124%22%3E%3Ccircle%20cx%3D%2262%22%20cy%3D%2262%22%20r%3D%2262%22%20fill%3D%22%23ffffff%22/%3E%3C/svg%3E&logoColor=white&labelColor=6a0dad)](https://pollinations.ai)
+
+<p align="center">
+  <a href="https://pollinations.ai">
+    <img src="https://raw.githubusercontent.com/pollinations/pollinations/main/assets/logo-text.svg" alt="Pollinations.ai" height="60">
+  </a>
+</p>
