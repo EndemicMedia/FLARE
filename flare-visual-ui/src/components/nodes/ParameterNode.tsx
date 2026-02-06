@@ -1,29 +1,28 @@
-import React from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import type { NodeProps } from 'reactflow';
 import type { ParameterNodeData } from '../../types/nodes';
-import { FiSliders } from 'react-icons/fi';
+import { FiSliders, FiX } from 'react-icons/fi';
+import { useFlareWorkflowStore } from '../../store/flareWorkflowStore';
 import '../../styles/nodes.css';
 
-export function ParameterNode({ data, id }: NodeProps<ParameterNodeData>) {
-  const [value, setValue] = React.useState(data.value);
+// Prevent drag from blocking slider interactions
+const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
+
+export const ParameterNode = memo(function ParameterNode({ data, id }: NodeProps<ParameterNodeData>) {
+  const updateNode = useFlareWorkflowStore((state) => state.updateNode);
+  const removeNode = useFlareWorkflowStore((state) => state.removeNode);
+  const [value, setValue] = useState(data.value);
 
   // Sync with data.value changes (for programmatic updates)
-  React.useEffect(() => {
+  useEffect(() => {
     setValue(data.value);
   }, [data.value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(e.target.value);
     setValue(newValue);
-    data.value = newValue;
-  };
-
-  // Handle both input and change events for better test compatibility
-  const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const newValue = parseFloat((e.target as HTMLInputElement).value);
-    setValue(newValue);
-    data.value = newValue;
+    updateNode(id, { value: newValue });
   };
 
   const getParameterLabel = () => {
@@ -35,10 +34,16 @@ export function ParameterNode({ data, id }: NodeProps<ParameterNodeData>) {
     }
   };
 
+  const getTemperatureLabel = () => {
+    if (value < 0.3) return 'Deterministic';
+    if (value > 1.5) return 'Very Creative';
+    return 'Balanced';
+  };
+
   const getParameterDescription = () => {
     switch (data.paramType) {
       case 'temperature':
-        return 'Controls randomness (0.0 = deterministic, 2.0 = creative)';
+        return `${getTemperatureLabel()} (${value.toFixed(1)})`;
       default:
         return '';
     }
@@ -46,6 +51,9 @@ export function ParameterNode({ data, id }: NodeProps<ParameterNodeData>) {
 
   return (
     <div className={`flare-node parameter-node ${data.status || 'idle'}`}>
+      <button className="node-close-btn" onClick={(e) => { e.stopPropagation(); removeNode(id); }} title="Remove node">
+        <FiX size={14} />
+      </button>
       <Handle
         type="target"
         position={Position.Left}
@@ -72,7 +80,7 @@ export function ParameterNode({ data, id }: NodeProps<ParameterNodeData>) {
             step={0.1}
             value={value}
             onChange={handleChange}
-            onInput={handleInput}
+            onMouseDown={stopPropagation}
           />
 
           <div className="parameter-range">
@@ -100,4 +108,4 @@ export function ParameterNode({ data, id }: NodeProps<ParameterNodeData>) {
       />
     </div>
   );
-}
+});

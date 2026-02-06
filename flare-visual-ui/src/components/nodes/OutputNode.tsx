@@ -1,14 +1,19 @@
+import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import type { NodeProps } from 'reactflow';
 import type { OutputNodeData } from '../../types/nodes';
-import { FiEye, FiCopy, FiCode } from 'react-icons/fi';
+import { FiEye, FiCopy, FiCode, FiX } from 'react-icons/fi';
 import { useFlareWorkflowStore } from '../../store/flareWorkflowStore';
+import { useHandleContextMenu } from '../../contexts/HandleContextMenuContext';
 import '../../styles/nodes.css';
 
-export function OutputNode({ data, id, selected }: NodeProps<OutputNodeData>) {
-  const updateNode = useFlareWorkflowStore((state) => state.updateNode);
+// Prevent drag from blocking button clicks
+const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
-  console.log(`OutputNode rendering - id: ${id}, selected: ${selected}`, data);
+export const OutputNode = memo(function OutputNode({ data, id, selected }: NodeProps<OutputNodeData>) {
+  const updateNode = useFlareWorkflowStore((state) => state.updateNode);
+  const removeNode = useFlareWorkflowStore((state) => state.removeNode);
+  const { openHandleContextMenu } = useHandleContextMenu();
 
   const handleCopy = () => {
     if (data.content) {
@@ -43,11 +48,19 @@ export function OutputNode({ data, id, selected }: NodeProps<OutputNodeData>) {
 
   return (
     <div className={`flare-node output-node ${data.status || 'idle'} ${selected ? 'selected' : ''}`}>
+      <button className="node-close-btn" onClick={(e) => { e.stopPropagation(); removeNode(id); }} title="Remove node">
+        <FiX size={14} />
+      </button>
       <Handle
         type="target"
         position={Position.Left}
-        id={`${id}-input`}
+        id="input"
         className="node-handle"
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openHandleContextMenu(id, 'input', 'target', { x: e.clientX, y: e.clientY });
+        }}
       />
 
       <div className="node-header">
@@ -61,6 +74,7 @@ export function OutputNode({ data, id, selected }: NodeProps<OutputNodeData>) {
             <button
               className={`mode-button ${data.displayMode === 'text' ? 'active' : ''}`}
               onClick={() => handleDisplayModeChange('text')}
+              onMouseDown={stopPropagation}
               title="Text mode"
             >
               Text
@@ -68,6 +82,7 @@ export function OutputNode({ data, id, selected }: NodeProps<OutputNodeData>) {
             <button
               className={`mode-button ${data.displayMode === 'json' ? 'active' : ''}`}
               onClick={() => handleDisplayModeChange('json')}
+              onMouseDown={stopPropagation}
               title="JSON mode"
             >
               <FiCode size={14} /> JSON
@@ -75,6 +90,7 @@ export function OutputNode({ data, id, selected }: NodeProps<OutputNodeData>) {
             <button
               className={`mode-button ${data.displayMode === 'markdown' ? 'active' : ''}`}
               onClick={() => handleDisplayModeChange('markdown')}
+              onMouseDown={stopPropagation}
               title="Markdown mode"
             >
               MD
@@ -85,6 +101,7 @@ export function OutputNode({ data, id, selected }: NodeProps<OutputNodeData>) {
             <button
               className="copy-button"
               onClick={handleCopy}
+              onMouseDown={stopPropagation}
               title="Copy to clipboard"
             >
               <FiCopy size={14} /> Copy
@@ -102,4 +119,4 @@ export function OutputNode({ data, id, selected }: NodeProps<OutputNodeData>) {
       )}
     </div>
   );
-}
+});

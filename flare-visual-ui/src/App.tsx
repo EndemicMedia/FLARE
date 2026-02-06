@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -13,13 +13,25 @@ import ReactFlow, {
   type NodeTypes,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { FiCode } from 'react-icons/fi';
 import { TextInputNode } from './components/nodes/TextInputNode';
 import { ModelQueryNode } from './components/nodes/ModelQueryNode';
 import { ParameterNode } from './components/nodes/ParameterNode';
 import { PostProcessingNode } from './components/nodes/PostProcessingNode';
 import { OutputNode } from './components/nodes/OutputNode';
+import { ImageGenerationNode } from './components/nodes/ImageGenerationNode';
+import { FlareCommandNode } from './components/nodes/FlareCommandNode';
+import { CustomEdge } from './components/edges/CustomEdge';
+import { SyntaxView } from './components/SyntaxView';
+import { ThemeToggle } from './components/ThemeToggle';
+import { HandleContextMenu } from './components/HandleContextMenu';
+import { HandleContextMenuContext } from './contexts/HandleContextMenuContext';
 import { useFlareWorkflowStore } from './store/flareWorkflowStore';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useWorkflowSync } from './hooks/useWorkflowSync';
 import { executeWorkflow } from './utils/workflowExecutor';
+import { getLayoutedElements } from './utils/autoLayout';
+import { validateConnection } from './utils/connectionValidator';
 
 // Register custom node types
 const nodeTypes: NodeTypes = {
@@ -28,6 +40,13 @@ const nodeTypes: NodeTypes = {
   parameter: ParameterNode,
   postProcessing: PostProcessingNode,
   output: OutputNode,
+  imageGeneration: ImageGenerationNode,
+  flareCommand: FlareCommandNode,
+};
+
+// Register custom edge types
+const edgeTypes = {
+  default: CustomEdge,
 };
 
 // Demo workflow: "Explain quantum computing" with vote
@@ -63,31 +82,42 @@ const initialNodes: Node[] = [
 ];
 
 const initialEdges: Edge[] = [
-  { id: 'e1-2', source: 'input-1', target: 'model-1', sourceHandle: 'input-1-output', targetHandle: 'model-1-input' },
-  { id: 'e2-3', source: 'model-1', target: 'output-1', sourceHandle: 'model-1-output', targetHandle: 'output-1-input' },
+  { id: 'e1-2', source: 'input-1', target: 'model-1', sourceHandle: 'output', targetHandle: 'input' },
+  { id: 'e2-3', source: 'model-1', target: 'output-1', sourceHandle: 'output', targetHandle: 'input' },
 ];
 
 function App() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { setExecutionState } = useFlareWorkflowStore();
+  const {
+    nodes, edges,
+    onNodesChange, onEdgesChange,
+    setNodes, setEdges,
+    addNode, addEdge: storeAddEdge,
+    executionState, setExecutionState,
+    saveWorkflowToFile, loadWorkflowFromFile
+  } = useFlareWorkflowStore();
 
+  // Auto-sync workflow to URL and localStorage
+  useWorkflowSync();
+
+  const [showSyntax, setShowSyntax] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{
+    sourceNodeId: string;
+    sourceHandle: string;
+    handleType: 'source' | 'target';
+    position: { x: number; y: number };
+  } | null>(null);
+
+  // Initialize with demo data if empty and no URL hash
   useEffect(() => {
-    console.log('App mounted with nodes:', nodes);
-    console.log('App mounted with edges:', edges);
+    if (nodes.length === 0 && !window.location.hash) {
+      setNodes(initialNodes);
+      setEdges(initialEdges);
+    }
   }, []);
 
-  useEffect(() => {
-    console.log('Nodes updated:', nodes.length, nodes);
-  }, [nodes]);
-
-  useEffect(() => {
-    console.log('Edges updated:', edges.length, edges);
-  }, [edges]);
-
   const onConnect = useCallback(
-    (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
+    (params: Connection | Edge) => storeAddEdge(params as Edge),
+    [storeAddEdge]
   );
 
   const addTextInputNode = () => {
@@ -98,7 +128,7 @@ function App() {
       data: { text: '', placeholder: 'Enter your prompt...' },
     };
     console.log('Adding TextInput node:', newNode);
-    setNodes((nds) => [...nds, newNode]);
+    addNode(newNode);
   };
 
   const addModelQueryNode = () => {
@@ -109,7 +139,7 @@ function App() {
       data: { models: ['mistral'], temperature: 1.0, postProcessing: '' },
     };
     console.log('Adding ModelQuery node:', newNode);
-    setNodes((nds) => [...nds, newNode]);
+    addNode(newNode);
   };
 
   const addOutputNode = () => {
@@ -120,7 +150,7 @@ function App() {
       data: { displayMode: 'text' as const, content: null },
     };
     console.log('Adding Output node:', newNode);
-    setNodes((nds) => [...nds, newNode]);
+    addNode(newNode);
   };
 
   const addParameterNode = () => {
@@ -131,7 +161,7 @@ function App() {
       data: { paramType: 'temperature', value: 0.7, min: 0.0, max: 2.0 },
     };
     console.log('Adding Parameter node:', newNode);
-    setNodes((nds) => [...nds, newNode]);
+    addNode(newNode);
   };
 
   const addPostProcessingNode = () => {
@@ -142,8 +172,43 @@ function App() {
       data: { operation: 'vote' },
     };
     console.log('Adding PostProcessing node:', newNode);
-    setNodes((nds) => [...nds, newNode]);
+    addNode(newNode);
   };
+
+  const addImageGenerationNode = () => {
+    const newNode: Node = {
+      id: `image-${Date.now()}`,
+      type: 'imageGeneration',
+      position: { x: Math.random() * 200 + 400, y: Math.random() * 200 + 300 },
+      data: {
+        model: 'flux',
+        width: 1024,
+        height: 1024,
+        enhance: true,
+        nologo: true
+      },
+    };
+    console.log('Adding ImageGeneration node:', newNode);
+    addNode(newNode);
+  };
+
+  const addFlareCommandNode = () => {
+    const newNode: Node = {
+      id: `flare-${Date.now()}`,
+      type: 'flareCommand',
+      position: { x: Math.random() * 200 + 500, y: Math.random() * 200 + 200 },
+      data: {
+        subGraph: {
+          nodes: [],
+          edges: []
+        },
+        compiled: '{ flare ... }',
+      },
+    };
+    console.log('Adding FlareCommand node:', newNode);
+    addNode(newNode);
+  };
+
 
   const handleRunWorkflow = async () => {
     setExecutionState('running');
@@ -157,7 +222,33 @@ function App() {
     }
   };
 
-  const executionState = useFlareWorkflowStore((state) => state.executionState);
+  // Keyboard shortcuts (after handleRunWorkflow is defined)
+  useKeyboardShortcuts({
+    onExecute: handleRunWorkflow,
+    onSave: () => console.log('Save workflow (TODO: implement)'),
+  });
+
+  const handleAutoLayout = () => {
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges, {
+      direction: 'LR',
+      nodeSpacing: 80,
+      rankSpacing: 200,
+    });
+    setNodes(layoutedNodes);
+    setEdges(layoutedEdges);
+  };
+
+  const isValidConnection = useCallback(
+    (connection: Connection | Edge) => {
+      const { isValid, message } = validateConnection(connection, nodes, edges);
+      if (!isValid && message) {
+        console.warn(message);
+      }
+      return isValid;
+    },
+    [nodes, edges]
+  );
+
   const isRunning = executionState === 'running';
 
   return (
@@ -188,12 +279,6 @@ function App() {
           + Model Query
         </button>
         <button
-          onClick={addParameterNode}
-          className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors text-sm font-medium"
-        >
-          + Parameter
-        </button>
-        <button
           onClick={addPostProcessingNode}
           className="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition-colors text-sm font-medium"
         >
@@ -205,8 +290,75 @@ function App() {
         >
           + Output
         </button>
+        <button
+          onClick={addImageGenerationNode}
+          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded hover:from-purple-600 hover:to-indigo-600 transition-colors text-sm font-medium"
+        >
+          + Image Gen
+        </button>
+        <button
+          onClick={addFlareCommandNode}
+          className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded hover:from-indigo-600 hover:to-purple-700 transition-colors text-sm font-medium"
+        >
+          🔄 Nested Workflow
+        </button>
 
         <div className="flex-1"></div>
+
+        <button
+          onClick={handleAutoLayout}
+          className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors text-sm font-medium"
+          title="Auto-arrange nodes (Dagre layout)"
+        >
+          ✨ Auto Layout
+        </button>
+
+        <input
+          type="file"
+          accept=".json"
+          style={{ display: 'none' }}
+          id="workflow-file-input"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              try {
+                await loadWorkflowFromFile(file);
+                console.log('Workflow loaded successfully');
+              } catch (error) {
+                console.error('Failed to load workflow:', error);
+                alert('Failed to load workflow. Please check the file format.');
+              }
+            }
+          }}
+        />
+
+        <button
+          onClick={() => saveWorkflowToFile()}
+          className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors text-sm font-medium"
+          title="Save workflow to file (Ctrl+S)"
+        >
+          💾 Save
+        </button>
+
+        <button
+          onClick={() => document.getElementById('workflow-file-input')?.click()}
+          className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors text-sm font-medium"
+          title="Load workflow from file"
+        >
+          📂 Load
+        </button>
+
+        <button
+          onClick={() => setShowSyntax(!showSyntax)}
+          className={`px-4 py-2 border rounded font-medium text-sm flex items-center gap-2 transition-colors ${showSyntax
+            ? 'bg-gray-200 text-gray-800 border-gray-300'
+            : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+            }`}
+          title="Toggle FLARE Syntax View"
+        >
+          <FiCode />
+          {showSyntax ? 'Hide Syntax' : 'Show Syntax'}
+        </button>
 
         <button
           onClick={handleRunWorkflow}
@@ -219,31 +371,73 @@ function App() {
           {isRunning ? '⏳ Running...' : '▶ Run Workflow'}
         </button>
 
-        <div className="text-sm text-gray-500 flex items-center">
+        <div className="text-sm text-gray-500 flex items-center gap-3">
           <span className="mr-2">Nodes: {nodes.length}</span>
           <span>Connections: {edges.length}</span>
+          <ThemeToggle />
         </div>
       </div>
 
       {/* Canvas */}
-      <main style={{ flex: 1, position: 'relative', width: '100%', height: '100%' }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          fitView
-          defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
-          style={{ width: '100%', height: '100%' }}
-        >
-          <Controls />
-          <MiniMap />
-          <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-        </ReactFlow>
+      <main style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <div style={{ flex: 1, position: 'relative' }}>
+          <HandleContextMenuContext.Provider
+            value={{
+              openHandleContextMenu: (nodeId, handleId, handleType, position) => {
+                setContextMenu({
+                  sourceNodeId: nodeId,
+                  sourceHandle: handleId,
+                  handleType,
+                  position
+                });
+              }
+            }}
+          >
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              isValidConnection={isValidConnection}
+              fitView
+              defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
+              style={{ width: '100%', height: '100%' }}
+            >
+              <Controls />
+              <MiniMap />
+              <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+            </ReactFlow>
+          </HandleContextMenuContext.Provider>
+        </div>
+        {showSyntax && <SyntaxView />}
+
+        {/* Context Menu */}
+        {contextMenu && (
+          <HandleContextMenu
+            sourceNodeId={contextMenu.sourceNodeId}
+            sourceHandle={contextMenu.sourceHandle}
+            handleType={contextMenu.handleType}
+            position={contextMenu.position}
+            nodes={nodes}
+            edges={edges}
+            onClose={() => setContextMenu(null)}
+            onConnect={(targetNodeId, targetHandle) => {
+              const newEdge: Edge = {
+                id: `edge-${contextMenu.sourceNodeId}-${targetNodeId}-${Date.now()}`,
+                source: contextMenu.handleType === 'source' ? contextMenu.sourceNodeId : targetNodeId,
+                sourceHandle: contextMenu.handleType === 'source' ? contextMenu.sourceHandle : targetHandle,
+                target: contextMenu.handleType === 'source' ? targetNodeId : contextMenu.sourceNodeId,
+                targetHandle: contextMenu.handleType === 'source' ? targetHandle : contextMenu.sourceHandle
+              };
+              storeAddEdge(newEdge);
+            }}
+          />
+        )}
       </main>
-    </div>
+    </div >
   );
 }
 

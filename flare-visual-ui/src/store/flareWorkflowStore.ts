@@ -7,9 +7,19 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { applyNodeChanges, applyEdgeChanges, type OnNodesChange, type OnEdgesChange, type NodeChange, type EdgeChange } from 'reactflow';
 import type { FlareNode, NodeData, NodeStatus } from '../types/nodes';
 import type { FlareEdge } from '../types/edges';
 import type { ExecutionState, NodeExecutionStatus } from '../types/workflow';
+import { saveToLocalStorage, loadFromLocalStorage, updateURLWithWorkflow, loadWorkflowFromURL, saveToFile, loadFromFile, type WorkflowData } from '../utils/workflowPersistence';
+
+/**
+ * History state for undo/redo
+ */
+interface HistoryState {
+  nodes: FlareNode[];
+  edges: FlareEdge[];
+}
 
 /**
  * Store state interface
@@ -23,11 +33,19 @@ interface FlareWorkflowState {
   executionProgress: Record<string, NodeExecutionStatus>;
   compiledFlare: string | null;
 
+  // ===== History =====
+  history: {
+    past: HistoryState[];
+    future: HistoryState[];
+  };
+
   // ===== Node CRUD Operations =====
+  onNodesChange: OnNodesChange;
+
   /**
    * Add a new node to the workflow
    */
-  addNode: (node: Omit<FlareNode, 'id'>) => void;
+  addNode: (node: Omit<FlareNode, 'id'> | FlareNode) => void;
 
   /**
    * Update an existing node's data
@@ -50,10 +68,12 @@ interface FlareWorkflowState {
   getNode: (nodeId: string) => FlareNode | undefined;
 
   // ===== Edge CRUD Operations =====
+  onEdgesChange: OnEdgesChange;
+
   /**
    * Add a new edge between nodes
    */
-  addEdge: (edge: Omit<FlareEdge, 'id'>) => void;
+  addEdge: (edge: Omit<FlareEdge, 'id'> | FlareEdge) => void;
 
   /**
    * Remove an edge
@@ -126,6 +146,48 @@ interface FlareWorkflowState {
     edgeCount: number;
     nodesByType: Record<string, number>;
   };
+
+  // ===== Save/Load =====
+  /**
+   * Save workflow to file
+   */
+  saveWorkflowToFile: (filename?: string) => void;
+
+  /**
+   * Load workflow from file
+   */
+  loadWorkflowFromFile: (file: File) => Promise<void>;
+
+  /**
+   * Load workflow from data
+   */
+  loadWorkflow: (data: WorkflowData) => void;
+
+  /**
+   * Sync workflow to URL hash
+   */
+  syncToURL: () => void;
+
+  // ===== History/Undo/Redo =====
+  /**
+   * Undo last change
+   */
+  undo: () => void;
+
+  /**
+   * Redo last undone change
+   */
+  redo: () => void;
+
+  /**
+   * Check if undo is available
+   */
+  canUndo: () => boolean;
+
+  /**
+   * Check if redo is available
+   */
+  canRedo: () => boolean;
 }
 
 /**
@@ -148,17 +210,35 @@ export const useFlareWorkflowStore = create<FlareWorkflowState>()(
       executionState: 'idle',
       executionProgress: {},
       compiledFlare: null,
+      history: {
+        past: [],
+        future: [],
+      },
 
       // ===== Node CRUD =====
+      onNodesChange: (changes: NodeChange[]) => {
+        set({
+          nodes: applyNodeChanges(changes, get().nodes) as FlareNode[],
+        }, false, 'onNodesChange');
+      },
+
       addNode: (node) => {
         const newNode: FlareNode = {
           ...node,
-          id: generateId('node'),
+          id: node.id || generateId('node'),
         };
+
+        // Record history
+        const { nodes, edges, history } = get();
+        const newPast = [...history.past, { nodes, edges }];
 
         set(
           (state) => ({
             nodes: [...state.nodes, newNode],
+            history: {
+              past: newPast,
+              future: [],
+            },
           }),
           false,
           'addNode'
@@ -178,6 +258,10 @@ export const useFlareWorkflowStore = create<FlareWorkflowState>()(
       },
 
       removeNode: (nodeId) => {
+        // Record history
+        const { nodes, edges, history } = get();
+        const newPast = [...history.past, { nodes, edges }];
+
         set(
           (state) => ({
             nodes: state.nodes.filter((n) => n.id !== nodeId),
@@ -191,6 +275,10 @@ export const useFlareWorkflowStore = create<FlareWorkflowState>()(
                 ([id]) => id !== nodeId
               )
             ),
+            history: {
+              past: newPast,
+              future: [],
+            },
           }),
           false,
           'removeNode'
@@ -206,15 +294,29 @@ export const useFlareWorkflowStore = create<FlareWorkflowState>()(
       },
 
       // ===== Edge CRUD =====
+      onEdgesChange: (changes: EdgeChange[]) => {
+        set({
+          edges: applyEdgeChanges(changes, get().edges) as FlareEdge[],
+        }, false, 'onEdgesChange');
+      },
+
       addEdge: (edge) => {
         const newEdge: FlareEdge = {
           ...edge,
-          id: generateId('edge'),
+          id: edge.id || generateId('edge'),
         };
+
+        // Record history
+        const { nodes, edges, history } = get();
+        const newPast = [...history.past, { nodes, edges }];
 
         set(
           (state) => ({
             edges: [...state.edges, newEdge],
+            history: {
+              past: newPast,
+              future: [],
+            },
           }),
           false,
           'addEdge'
@@ -222,9 +324,17 @@ export const useFlareWorkflowStore = create<FlareWorkflowState>()(
       },
 
       removeEdge: (edgeId) => {
+        // Record history
+        const { nodes, edges, history } = get();
+        const newPast = [...history.past, { nodes, edges }];
+
         set(
           (state) => ({
             edges: state.edges.filter((e) => e.id !== edgeId),
+            history: {
+              past: newPast,
+              future: [],
+            },
           }),
           false,
           'removeEdge'
@@ -336,6 +446,97 @@ export const useFlareWorkflowStore = create<FlareWorkflowState>()(
           edgeCount: edges.length,
           nodesByType,
         };
+      },
+
+      // ===== Save/Load =====
+      saveWorkflowToFile: (filename = 'workflow.json') => {
+        const { nodes, edges } = get();
+        saveToFile(nodes, edges, filename);
+      },
+
+      loadWorkflowFromFile: async (file: File) => {
+        try {
+          const data = await loadFromFile(file);
+          get().loadWorkflow(data);
+        } catch (error) {
+          console.error('Failed to load workflow:', error);
+          throw error;
+        }
+      },
+
+      loadWorkflow: (data: WorkflowData) => {
+        set(
+          {
+            nodes: data.nodes,
+            edges: data.edges,
+            selectedNodeId: null,
+            executionState: 'idle',
+            executionProgress: {},
+            history: { past: [], future: [] },
+          },
+          false,
+          'loadWorkflow'
+        );
+        // Sync to URL after loading
+        get().syncToURL();
+      },
+
+      syncToURL: () => {
+        const { nodes, edges } = get();
+        updateURLWithWorkflow(nodes, edges);
+      },
+
+      // ===== History/Undo/Redo =====
+      undo: () => {
+        const { history, nodes, edges } = get();
+        if (history.past.length === 0) return;
+
+        const previous = history.past[history.past.length - 1];
+        const newPast = history.past.slice(0, -1);
+
+        set(
+          {
+            nodes: previous.nodes,
+            edges: previous.edges,
+            history: {
+              past: newPast,
+              future: [{ nodes, edges }, ...history.future],
+            },
+          },
+          false,
+          'undo'
+        );
+        get().syncToURL();
+      },
+
+      redo: () => {
+        const { history, nodes, edges } = get();
+        if (history.future.length === 0) return;
+
+        const next = history.future[0];
+        const newFuture = history.future.slice(1);
+
+        set(
+          {
+            nodes: next.nodes,
+            edges: next.edges,
+            history: {
+              past: [...history.past, { nodes, edges }],
+              future: newFuture,
+            },
+          },
+          false,
+          'redo'
+        );
+        get().syncToURL();
+      },
+
+      canUndo: () => {
+        return get().history.past.length > 0;
+      },
+
+      canRedo: () => {
+        return get().history.future.length > 0;
       },
     }),
     { name: 'FlareWorkflowStore' }

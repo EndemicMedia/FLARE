@@ -3,7 +3,7 @@
  * Express route handler for image generation
  * POST /generate-image
  */
-import { PollinationsImageClient } from '../services/providers/pollinationsImageClient.js';
+import { PollinationsImageClient } from '../../services/providers/pollinationsImageClient.js';
 
 export async function generateImage(req, res) {
     try {

@@ -7,7 +7,8 @@
 import type { FlareNode } from '../types/nodes';
 import type { FlareEdge } from '../types/edges';
 import type { ParsedFlareCommand } from '../types/backend';
-import { computeLayout } from './layoutAlgorithm';
+import type { ParsedFlareCommand } from '../types/backend';
+import { getLayoutedElements } from './autoLayout';
 
 export interface ParseResult {
   success: boolean;
@@ -40,13 +41,13 @@ export async function parseFlareToGraph(
     // Convert parsed command to graph
     const { nodes, edges } = buildGraphFromParsed(parsed);
 
-    // Apply layout algorithm
-    const layoutedNodes = computeLayout(nodes, edges);
+    // Apply layout algorithm using Dagre
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges);
 
     return {
       success: true,
       nodes: layoutedNodes,
-      edges
+      edges: layoutedEdges
     };
   } catch (error) {
     return {
@@ -129,7 +130,7 @@ function buildGraphFromParsed(parsed: ParsedFlareCommand): {
   let nodeIdCounter = 1;
   const createNodeId = () => `node-${nodeIdCounter++}`;
 
-  // Create text input node
+  // 1. Create text input node
   const textInputId = createNodeId();
   nodes.push({
     id: textInputId,
@@ -141,78 +142,77 @@ function buildGraphFromParsed(parsed: ParsedFlareCommand): {
     }
   });
 
-  let lastNodeId = textInputId;
+  const promptSourceId = textInputId;
 
-  // Create parameter node for temperature (if not default)
-  if (parsed.temperature !== undefined && parsed.temperature !== 1.0) {
-    const tempNodeId = createNodeId();
+  // 2. Create model query nodes (one per model)
+  const modelNodeIds: string[] = [];
+  const models = parsed.model || ['mistral']; // Default to mistral if none
+
+  models.forEach((modelId) => {
+    const mId = createNodeId();
     nodes.push({
-      id: tempNodeId,
-      type: 'parameter',
+      id: mId,
+      type: 'modelQuery',
       position: { x: 0, y: 0 },
       data: {
-        paramType: 'temperature',
-        value: parsed.temperature,
-        min: 0.0,
-        max: 2.0
+        model: modelId,
+        models: [modelId],
+        temperature: parsed.temperature || 0.7
       }
     });
 
     edges.push({
-      id: `edge-${lastNodeId}-${tempNodeId}`,
-      source: lastNodeId,
-      target: tempNodeId,
-      type: 'default'
+      id: `edge-${promptSourceId}-${mId}`,
+      source: promptSourceId,
+      target: mId,
+      targetHandle: 'input'
     });
 
-    lastNodeId = tempNodeId;
-  }
-
-  // Create model query node
-  const modelNodeId = createNodeId();
-  nodes.push({
-    id: modelNodeId,
-    type: 'modelQuery',
-    position: { x: 0, y: 0 },
-    data: {
-      models: parsed.model || []
-    }
+    modelNodeIds.push(mId);
   });
 
-  edges.push({
-    id: `edge-${lastNodeId}-${modelNodeId}`,
-    source: lastNodeId,
-    target: modelNodeId,
-    type: 'default'
-  });
+  let lastNodeIds = modelNodeIds;
 
-  lastNodeId = modelNodeId;
-
-  // Create post-processing nodes
+  // 3. Create post-processing nodes
   if (parsed.postProcessing && parsed.postProcessing.length > 0) {
-    parsed.postProcessing.forEach((operation: string) => {
+    parsed.postProcessing.forEach((operation: string, idx: number) => {
       const ppNodeId = createNodeId();
       nodes.push({
         id: ppNodeId,
         type: 'postProcessing',
         position: { x: 0, y: 0 },
         data: {
-          operation: operation as 'sum' | 'vote' | 'comb' | 'diff' | 'exp' | 'filter'
+          operation: operation as 'sum' | 'vote' | 'comb' | 'diff' | 'exp' | 'filter',
+          inputCount: idx === 0 ? Math.max(2, modelNodeIds.length) : 1
         }
       });
 
-      edges.push({
-        id: `edge-${lastNodeId}-${ppNodeId}`,
-        source: lastNodeId,
-        target: ppNodeId,
-        type: 'default'
-      });
+      if (idx === 0) {
+        // Connect all models to the first post-processing node
+        modelNodeIds.forEach((mId, mIdx) => {
+          edges.push({
+            id: `edge-${mId}-${ppNodeId}-${mIdx}`,
+            source: mId,
+            target: ppNodeId,
+            targetHandle: `input-${mIdx}`
+          });
+        });
+      } else {
+        // Connect previous post-processing node to this one
+        const prevId = lastNodeIds[0];
+        edges.push({
+          id: `edge-${prevId}-${ppNodeId}`,
+          source: prevId,
+          target: ppNodeId,
+          targetHandle: 'input-0'
+        });
+      }
 
-      lastNodeId = ppNodeId;
+      lastNodeIds = [ppNodeId];
     });
   }
 
-  // Create output node
+  // 4. Create output node
   const outputNodeId = createNodeId();
   nodes.push({
     id: outputNodeId,
@@ -224,11 +224,14 @@ function buildGraphFromParsed(parsed: ParsedFlareCommand): {
     }
   });
 
-  edges.push({
-    id: `edge-${lastNodeId}-${outputNodeId}`,
-    source: lastNodeId,
-    target: outputNodeId,
-    type: 'default'
+  // Connect the last step(s) to the output
+  lastNodeIds.forEach((sourceId, idx) => {
+    edges.push({
+      id: `edge-${sourceId}-${outputNodeId}-${idx}`,
+      source: sourceId,
+      target: outputNodeId,
+      targetHandle: 'input'
+    });
   });
 
   return { nodes, edges };

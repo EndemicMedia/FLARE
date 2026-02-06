@@ -34,13 +34,17 @@ export interface TextInputNodeData extends BaseNodeData {
 
 /**
  * Model Query Node
- * Represents model selection and execution (model:openai,mistral)
+ * Represents single model selection and execution
  */
 export interface ModelQueryNodeData extends BaseNodeData {
-  models: string[];
+  model?: string;           // Single model (new architecture)
+  models: string[];         // Array for backwards compatibility
   temperature?: number;
-  postProcessing?: string;
-  results?: string[];
+  maxTokens?: number;
+  seed?: number | null;
+  topP?: number;
+  result?: string;          // Single result from the model
+  results?: string[];       // Array for backwards compatibility
 }
 
 /**
@@ -57,10 +61,13 @@ export interface ParameterNodeData extends BaseNodeData {
 /**
  * Post-Processing Node
  * Represents operations like sum, vote, comb, diff, exp, filter
+ * Supports multiple dynamic inputs
  */
 export interface PostProcessingNodeData extends BaseNodeData {
   operation: 'sum' | 'vote' | 'comb' | 'diff' | 'exp' | 'filter';
   model?: string; // Optional model for post-processing (e.g., vote_model)
+  inputCount?: number; // Number of input handles (default: 2)
+  inputs?: string[]; // Array of input values
   result?: string;
 }
 

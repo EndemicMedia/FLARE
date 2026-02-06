@@ -1,20 +1,23 @@
 import type { Node, Edge } from 'reactflow';
 import axios from 'axios';
 import { useFlareWorkflowStore } from '../store/flareWorkflowStore';
+import type { ImageGenerationNodeData } from '../components/nodes/ImageGenerationNode';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 interface FlareCommandParams {
   models: string[];
   temperature: number;
-  postProcessing?: string;
+  postProcessing?: string[];
   prompt: string;
 }
 
 export function buildFlareCommand(params: FlareCommandParams): string {
   const modelStr = params.models.join(',');
   const tempStr = params.temperature !== 1.0 ? ` temp:${params.temperature}` : '';
-  const postProcStr = params.postProcessing ? ` ${params.postProcessing}` : '';
+  const postProcStr = params.postProcessing && params.postProcessing.length > 0
+    ? ` ${params.postProcessing.join(' ')}`
+    : '';
 
   return `{ flare model:${modelStr}${tempStr}${postProcStr} \`${params.prompt}\` }`;
 }
@@ -24,91 +27,179 @@ export async function executeFlareCommand(command: string): Promise<string> {
     const response = await axios.post(`${API_BASE_URL}/process-flare`, {
       command,
     });
+    return response.data.result;
+  } catch (error: any) {
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
+    throw new Error(error.message || 'Unknown error');
+  }
+}
+
+/**
+ * Executes a single image generation node
+ */
+async function executeImageGenerationNode(node: Node<ImageGenerationNodeData>) {
+  const { setNodeStatus, updateNode } = useFlareWorkflowStore.getState();
+
+  setNodeStatus(node.id, 'running');
+
+  try {
+    const { prompt, model, width, height, seed, enhance, nologo } = node.data;
+
+    if (!prompt) {
+      throw new Error('Prompt is required');
+    }
+
+    const response = await axios.post(`${API_BASE_URL}/generate-image`, {
+      prompt,
+      model,
+      width,
+      height,
+      seed,
+      enhance,
+      nologo
+    });
 
     if (response.data.success) {
-      return response.data.result;
+      const imageUrl = response.data.url;
+      updateNode(node.id, { imageUrl, status: 'success', error: undefined });
+      setNodeStatus(node.id, 'success', { imageUrl });
     } else {
-      throw new Error(response.data.error || 'Unknown error');
+      throw new Error(response.data.error || 'Failed to generate image');
     }
   } catch (error: any) {
-    if (error.response) {
-      throw new Error(error.response.data.error || 'Server error');
-    } else if (error.request) {
-      throw new Error('No response from server. Make sure FLARE backend is running on port 8080');
-    } else {
-      throw new Error(error.message || 'Request failed');
-    }
+    const errorMessage = error.response?.data?.error || error.message || 'Generation failed';
+    setNodeStatus(node.id, 'error', null, errorMessage);
+    updateNode(node.id, { status: 'error', error: errorMessage });
   }
 }
 
 export async function executeWorkflow(
   nodes: Node[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _edges: Edge[]
 ): Promise<void> {
-  // Find nodes in execution order
+  const { setNodeStatus } = useFlareWorkflowStore.getState();
+
+  // 1. Identify workflow types
   const inputNodes = nodes.filter((n) => n.type === 'textInput');
   const modelNodes = nodes.filter((n) => n.type === 'modelQuery');
   const outputNodes = nodes.filter((n) => n.type === 'output');
+  const imageNodes = nodes.filter((n) => n.type === 'imageGeneration');
+  const postProcNodes = nodes.filter((n) => n.type === 'postProcessing');
+  const flareCommandNodes = nodes.filter((n) => n.type === 'flareCommand');
 
-  if (inputNodes.length === 0) {
-    throw new Error('No input node found');
+  const hasTextWorkflow = inputNodes.length > 0 && modelNodes.length > 0 && outputNodes.length > 0;
+  const hasImageWorkflow = imageNodes.length > 0;
+  const hasNestedWorkflow = flareCommandNodes.length > 0;
+
+  if (!hasTextWorkflow && !hasImageWorkflow && !hasNestedWorkflow) {
+    throw new Error('Incomplete workflow. Add Text Input + Model + Output OR Image Generation OR Nested Workflow node.');
   }
 
-  if (modelNodes.length === 0) {
-    throw new Error('No model query node found');
+  // 2. Execute Image Generation Nodes (Independent)
+  const imagePromises = imageNodes.map(node => executeImageGenerationNode(node));
+
+  // 3. Execute Text Workflow (if valid)
+  let textPromise = Promise.resolve();
+
+  if (hasTextWorkflow) {
+    const inputNode = inputNodes[0];
+    const prompt = inputNode.data.text || '';
+
+    if (prompt.trim()) {
+      // Collect models
+      // Support both new single-model nodes and legacy multi-model
+      const allModels = new Set<string>();
+      modelNodes.forEach(node => {
+        if (node.data.model) allModels.add(node.data.model);
+        if (node.data.models) node.data.models.forEach((m: string) => allModels.add(m));
+      });
+
+      const models = Array.from(allModels);
+
+      // Get config from first model node (simplified execution)
+      const firstModel = modelNodes[0];
+      const temperature = firstModel.data.temperature || 1.0;
+
+      // Collect post-processing
+      const postProcessingOps: string[] = [];
+      postProcNodes.forEach(node => {
+        if (node.data.operation) postProcessingOps.push(node.data.operation);
+      });
+      // Also check legacy post-processing on model node
+      if (firstModel.data.postProcessing) {
+        postProcessingOps.push(firstModel.data.postProcessing);
+      }
+
+      const command = buildFlareCommand({
+        models: models.length > 0 ? models : ['mistral'],
+        temperature,
+        postProcessing: postProcessingOps,
+        prompt
+      });
+
+      console.log('Executing FLARE command:', command);
+
+      // Set loading states
+      modelNodes.forEach(n => setNodeStatus(n.id, 'loading'));
+      outputNodes.forEach(n => setNodeStatus(n.id, 'loading'));
+      postProcNodes.forEach(n => setNodeStatus(n.id, 'loading'));
+
+      textPromise = (async () => {
+        try {
+          // Fix: Use correct endpoint path based on previous file content
+          // Previous file used /process-flare without api prefix, sticking to that
+          const response = await axios.post(`${API_BASE_URL}/process-flare`, { command });
+
+          if (response.data.success) {
+            const result = response.data.result;
+            outputNodes.forEach(n => setNodeStatus(n.id, 'completed', result));
+            modelNodes.forEach(n => setNodeStatus(n.id, 'completed'));
+            postProcNodes.forEach(n => setNodeStatus(n.id, 'completed'));
+          } else {
+            throw new Error(response.data.error || 'Unknown error');
+          }
+        } catch (error: any) {
+          const msg = error.response?.data?.error || error.message;
+          outputNodes.forEach(n => setNodeStatus(n.id, 'error', null, msg));
+          modelNodes.forEach(n => setNodeStatus(n.id, 'error', null, msg));
+        }
+      })();
+    } else {
+      console.warn('Text workflow skipped: Empty prompt');
+    }
   }
 
-  if (outputNodes.length === 0) {
-    throw new Error('No output node found');
-  }
+  // 4. Execute Nested Workflows (FlareCommand nodes)
+  const nestedPromises = flareCommandNodes.map(async (node) => {
+    setNodeStatus(node.id, 'running');
 
-  // Get the first input node's text
-  const inputNode = inputNodes[0];
-  const prompt = inputNode.data.text || '';
+    try {
+      const subGraph = node.data.subGraph;
 
-  if (!prompt.trim()) {
-    throw new Error('Input prompt is empty');
-  }
+      if (!subGraph || !subGraph.nodes || subGraph.nodes.length === 0) {
+        console.warn(`FlareCommand node ${node.id} has empty sub-graph`);
+        setNodeStatus(node.id, 'completed', '(Empty nested workflow)');
+        return;
+      }
 
-  // Get the first model node's configuration
-  const modelNode = modelNodes[0];
-  const models = modelNode.data.models || ['mistral'];
-  const temperature = modelNode.data.temperature || 1.0;
-  const postProcessing = modelNode.data.postProcessing;
+      // Recursively execute sub-graph
+      await executeWorkflow(subGraph.nodes, subGraph.edges || []);
 
-  if (models.length === 0) {
-    throw new Error('No models selected');
-  }
+      // Get result from sub-graph output node
+      const subOutputNode = subGraph.nodes.find((n: Node) => n.type === 'output');
+      const result = subOutputNode?.data?.content || '(Nested workflow completed)';
 
-  // Build FLARE command
-  const command = buildFlareCommand({
-    models,
-    temperature,
-    postProcessing,
-    prompt,
+      setNodeStatus(node.id, 'success', result);
+    } catch (error: any) {
+      const errorMessage = error.message || 'Nested workflow execution failed';
+      setNodeStatus(node.id, 'error', null, errorMessage);
+      console.error(`FlareCommand node ${node.id} failed:`, error);
+    }
   });
 
-  console.log('Executing FLARE command:', command);
-
-  // Get store update function
-  const { setNodeStatus } = useFlareWorkflowStore.getState();
-
-  // Update all nodes to loading state
-  const outputNode = outputNodes[0];
-  setNodeStatus(modelNode.id, 'loading');
-  setNodeStatus(outputNode.id, 'loading');
-
-  try {
-    // Execute command
-    const result = await executeFlareCommand(command);
-
-    // Update output node with result
-    setNodeStatus(outputNode.id, 'completed', result);
-    setNodeStatus(modelNode.id, 'completed');
-  } catch (error: any) {
-    // Update output node with error
-    setNodeStatus(outputNode.id, 'error', null, error.message);
-    setNodeStatus(modelNode.id, 'error', null, error.message);
-    throw error;
-  }
+  // Await all executions
+  await Promise.all([...imagePromises, textPromise, ...nestedPromises]);
 }
