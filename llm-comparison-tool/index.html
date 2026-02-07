@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,8 +12,10 @@
 
     <!-- Open Graph (Facebook, LinkedIn) -->
     <meta property="og:title" content="LLM Model Comparison for Pollinations.ai">
-    <meta property="og:description" content="Compare the performance of large language models like GPT, LLaMA, DeepSeek R1 and more.">
-    <meta property="og:image" content="https://image.pollinations.ai/prompt/og%3Aimage%20sharing%20thumbnail%20for%20AI%20LLM%20comparison%20tool?enhance=true&nologo=true&model=flux">
+    <meta property="og:description"
+        content="Compare the performance of large language models like GPT, LLaMA, DeepSeek R1 and more.">
+    <meta property="og:image"
+        content="https://image.pollinations.ai/prompt/og%3Aimage%20sharing%20thumbnail%20for%20AI%20LLM%20comparison%20tool?enhance=true&nologo=true&model=flux">
     <meta property="og:url" content="https://endemicmedia.github.io/FLARE/llm-comparison-tool/">
     <meta property="og:type" content="website">
 
@@ -20,12 +23,13 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="LLM Model Comparison Tool">
     <meta name="twitter:description" content="Find the best large language model for your needs. Real-time results!">
-    <meta name="twitter:image" content="https://image.pollinations.ai/prompt/og%3Aimage%20sharing%20thumbnail%20for%20AI%20LLM%20comparison%20tool?enhance=true&nologo=true&model=flux">
+    <meta name="twitter:image"
+        content="https://image.pollinations.ai/prompt/og%3Aimage%20sharing%20thumbnail%20for%20AI%20LLM%20comparison%20tool?enhance=true&nologo=true&model=flux">
 
     <!-- Additional sharing metadata -->
     <meta property="whatsapp:description" content="Compare AI models intuitively!">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    
+
     <!-- SVG Icon -->
     <link rel="apple-touch-icon" href="favicon.svg">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -45,61 +49,79 @@
             border-radius: 4px;
             font-family: monospace;
         }
+
         .markdown-content pre {
             background-color: #f4f4f4;
             padding: 10px;
             border-radius: 4px;
             overflow-x: auto;
         }
+
         .markdown-content blockquote {
             border-left: 4px solid #ccc;
             padding-left: 10px;
             color: #666;
             margin: 0;
         }
+
         /* Dark mode markdown styles */
         .dark .markdown-content code {
             background-color: #2d3748;
             color: #e2e8f0;
         }
+
         .dark .markdown-content pre {
             background-color: #2d3748;
             color: #e2e8f0;
         }
+
         .dark .markdown-content blockquote {
             border-left: 4px solid #4a5568;
             color: #a0aec0;
         }
+
         .model-status-queued {
-            color: #718096; /* gray */
+            color: #718096;
+            /* gray */
             font-style: italic;
         }
+
         .model-status-loading {
-            color: #3182ce; /* blue */
+            color: #3182ce;
+            /* blue */
             font-style: italic;
         }
+
         .model-status-completed {
             /*color: #48bb78; /* green */
         }
+
         .model-status-error {
-            color: #e53e3e; /* red */
+            color: #e53e3e;
+            /* red */
         }
+
         .fastest-model {
-            border: 2px solid #48bb78 !important; /* Green border for fastest models */
+            border: 2px solid #48bb78 !important;
+            /* Green border for fastest models */
         }
+
         /* Fullscreen modal styles */
         #fullscreen-modal {
             transition: opacity 0.3s ease;
         }
+
         #fullscreen-modal .markdown-content {
             max-width: 100%;
             word-wrap: break-word;
         }
+
         /* Fixed font size for fullscreen content */
         #fullscreen-content {
-            font-size: 1.125rem !important; /* Equivalent to text-lg */
+            font-size: 1.125rem !important;
+            /* Equivalent to text-lg */
         }
-        
+
         /* Custom slider styles */
         input[type="range"] {
             -webkit-appearance: none;
@@ -108,7 +130,7 @@
             border-radius: 3px;
             outline: none;
         }
-        
+
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -121,17 +143,17 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
             transition: transform 0.1s, box-shadow 0.1s;
         }
-        
+
         input[type="range"]::-webkit-slider-thumb:hover {
             transform: scale(1.1);
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
         }
-        
+
         input[type="range"]::-webkit-slider-thumb:active {
             cursor: grabbing;
             transform: scale(1.15);
         }
-        
+
         input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
@@ -142,27 +164,27 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
             transition: transform 0.1s, box-shadow 0.1s;
         }
-        
+
         input[type="range"]::-moz-range-thumb:hover {
             transform: scale(1.1);
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
         }
-        
+
         input[type="range"]::-moz-range-thumb:active {
             cursor: grabbing;
             transform: scale(1.15);
         }
-        
+
         .dark input[type="range"]::-webkit-slider-thumb {
             background: #60a5fa;
             border-color: #1f2937;
         }
-        
+
         .dark input[type="range"]::-moz-range-thumb {
             background: #60a5fa;
             border-color: #1f2937;
         }
-        
+
         /* Parameter info tooltip styles */
         .param-info {
             position: relative;
@@ -180,19 +202,19 @@
             cursor: help;
             flex-shrink: 0;
         }
-        
+
         .dark .param-info {
             background: #6b7280;
         }
-        
+
         .param-info:hover {
             background: #3b82f6;
         }
-        
+
         .dark .param-info:hover {
             background: #60a5fa;
         }
-        
+
         .param-info .tooltip {
             position: absolute;
             top: 50%;
@@ -214,11 +236,11 @@
             transition: opacity 0.2s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
-        
+
         .param-info:hover .tooltip {
             opacity: 1;
         }
-        
+
         .param-info .tooltip::after {
             content: '';
             position: absolute;
@@ -228,7 +250,7 @@
             border: 6px solid transparent;
             border-right-color: #1f2937;
         }
-        
+
         .tooltip-default {
             display: block;
             margin-top: 6px;
@@ -238,7 +260,7 @@
             opacity: 0.9;
             font-size: 11px;
         }
-        
+
         .tooltip-example {
             display: block;
             margin-top: 6px;
@@ -248,21 +270,21 @@
             font-size: 11px;
             font-family: monospace;
         }
-        
+
         .tooltip-example strong {
             color: #60a5fa;
         }
-        
+
         /* Matrix mode styles */
         .matrix-mode .model-parameters-section {
             display: none;
         }
-        
+
         /* Parameters positioning */
         .model-parameters-section {
             position: relative;
         }
-        
+
         #parameters-expanded {
             position: absolute;
             top: 100%;
@@ -271,12 +293,12 @@
             margin-top: 4px;
             min-width: 400px;
         }
-        
+
         .matrix-card {
             border: 2px solid transparent;
             transition: border-color 0.2s;
         }
-        
+
         .matrix-card .parameter-label {
             background: linear-gradient(45deg, #3b82f6, #8b5cf6);
             -webkit-background-clip: text;
@@ -285,27 +307,29 @@
             font-weight: 600;
             font-size: 0.75rem;
         }
-        
+
         /* Model name click indicator */
         .cursor-pointer:hover {
             color: #3b82f6 !important;
             text-decoration: underline;
         }
-        
+
         /* Override for dropdown items - no underline */
         #prompt-dropdown .cursor-pointer:hover {
             text-decoration: none !important;
         }
-        
+
         /* Maintain text color in light and dark modes */
         #prompt-dropdown .cursor-pointer:hover {
-            color: #111827 !important; /* gray-900 for light mode */
+            color: #111827 !important;
+            /* gray-900 for light mode */
         }
-        
+
         .dark #prompt-dropdown .cursor-pointer:hover {
-            color: #ffffff !important; /* white for dark mode */
+            color: #ffffff !important;
+            /* white for dark mode */
         }
-        
+
         /* Model disabled state */
         .model-disabled {
             opacity: 0.3;
@@ -313,23 +337,23 @@
             filter: grayscale(100%);
             transition: all 0.3s ease;
         }
-        
+
         .model-card {
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .model-card:hover:not(.model-disabled-container) {
             transform: scale(1.02);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         .model-disabled-container {
             cursor: pointer;
             opacity: 0.3;
             transition: all 0.3s ease;
         }
-        
+
         .model-disabled-container::after {
             content: '';
             position: absolute;
@@ -340,16 +364,32 @@
             height: 48px;
             opacity: 1;
             pointer-events: none;
+            z-index: 1;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ef4444' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'/%3E%3C/svg%3E");
             background-size: contain;
             background-repeat: no-repeat;
         }
-        
+
         .dark .model-disabled-container::after {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23dc2626' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23dc2626' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 15.636 5.636m12.728 12.728L5.636 5.636'/%3E%3C/svg%3E");
+        }
+
+        /* Ensure buttons are above all overlays and clickable */
+        .fullscreen-btn,
+        .copy-btn {
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        /* Ensure button container is also above overlays */
+        .model-card .grid {
+            position: relative;
+            z-index: 10;
         }
     </style>
 </head>
+
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
     <div class="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-md z-10">
         <div class="max-w-6xl mx-auto p-4">
@@ -357,47 +397,44 @@
                 <!-- Title and Credit -->
                 <div class="col-span-12 md:col-span-7 lg:col-span-8">
                     <h1 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">
-                        Pollinations.ai Model Comparison 
-                        <a href="https://github.com/EndemicMedia/FLARE" class="block md:inline text-sm text-orange-400 dark:text-orange-400">
+                        Pollinations.ai Model Comparison
+                        <a href="https://github.com/EndemicMedia/FLARE"
+                            class="block md:inline text-sm text-orange-400 dark:text-orange-400">
                             by EndemicMedia
                         </a>
                     </h1>
                 </div>
-                
+
                 <!-- Control Buttons -->
                 <div class="col-span-12 md:col-span-5 lg:col-span-4">
                     <div class="flex items-center justify-end space-x-2">
                         <!-- Toggle All Models Button -->
-                        <button 
-                            id="toggle-all-btn" 
+                        <button id="toggle-all-btn"
                             class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-2 py-1 rounded text-xs flex items-center space-x-1"
-                            title="Enable/Disable all models"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            title="Enable/Disable all models">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span>All</span>
                         </button>
-                        
+
                         <!-- BYOP Button -->
-                        <button 
-                            id="byop-btn" 
+                        <button id="byop-btn"
                             class="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-2 py-1 rounded text-xs"
-                            title="Bring Your Own Pollen - Use your API key"
-                        >
+                            title="Bring Your Own Pollen - Use your API key">
                             🌸 BYOP
                         </button>
-                        
+
                         <!-- Timeout Dropdown -->
                         <div class="flex items-center space-x-1">
                             <label for="timeout-dropdown" class="text-xs text-gray-700 dark:text-gray-300">
                                 Timeout:
                             </label>
-                            <select
-                                id="timeout-dropdown"
+                            <select id="timeout-dropdown"
                                 class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 text-xs rounded"
-                                aria-label="Set timeout value"
-                            >
+                                aria-label="Set timeout value">
                                 <option value="3000">3s</option>
                                 <option value="5000">5s</option>
                                 <option value="10000">10s</option>
@@ -406,13 +443,13 @@
                                 <option value="60000">60s</option>
                             </select>
                         </div>
-                        
-                        <button id="font-decrease-btn" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 rounded text-sm">-</button>
-                        <button id="font-increase-btn" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 rounded text-sm">+</button>
-                        <button 
-                            id="theme-toggle" 
-                            class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 rounded"
-                        >
+
+                        <button id="font-decrease-btn"
+                            class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 rounded text-sm">-</button>
+                        <button id="font-increase-btn"
+                            class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 rounded text-sm">+</button>
+                        <button id="theme-toggle"
+                            class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white px-2 py-1 rounded">
                             🌓
                         </button>
                     </div>
@@ -424,37 +461,41 @@
                     <!-- Model Parameters Toggle Button -->
                     <div class="model-parameters-section">
                         <!-- Collapsible Parameters -->
-                        <button 
-                            id="parameters-toggle-btn"
+                        <button id="parameters-toggle-btn"
                             class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-50 dark:hover:bg-gray-600 h-[42px] flex items-center justify-center"
-                            title="Show/Hide model parameters"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                            title="Show/Hide model parameters">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                             </svg>
                         </button>
-                        
+
                         <!-- Expanded Parameters -->
-                        <div id="parameters-expanded" class="hidden bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-lg">
-                            <button 
-                                id="parameters-collapse-btn"
+                        <div id="parameters-expanded"
+                            class="hidden bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-lg">
+                            <button id="parameters-collapse-btn"
                                 class="w-full flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white mb-3"
-                                title="Hide model parameters"
-                            >
+                                title="Hide model parameters">
                                 <span class="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                                     </svg>
                                     Parameters
                                 </span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                             <div class="grid grid-cols-1 gap-y-3">
                                 <!-- Temperature -->
                                 <div class="flex items-center space-x-3">
-                                    <label for="temperature-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                    <label for="temperature-slider"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
                                         Temp:
                                         <span class="param-info">
                                             i
@@ -470,21 +511,16 @@
                                             </span>
                                         </span>
                                     </label>
-                                    <input
-                                        type="range"
-                                        id="temperature-slider"
-                                        min="0"
-                                        max="2"
-                                        step="0.1"
-                                        value="0.7"
-                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                    />
-                                    <span id="temperature-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.7</span>
+                                    <input type="range" id="temperature-slider" min="0" max="2" step="0.1" value="0.7"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                    <span id="temperature-value"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.7</span>
                                 </div>
 
                                 <!-- Top P -->
                                 <div class="flex items-center space-x-3">
-                                    <label for="top-p-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                    <label for="top-p-slider"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
                                         Top-P:
                                         <span class="param-info">
                                             i
@@ -500,21 +536,16 @@
                                             </span>
                                         </span>
                                     </label>
-                                    <input
-                                        type="range"
-                                        id="top-p-slider"
-                                        min="0"
-                                        max="1"
-                                        step="0.05"
-                                        value="1"
-                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                    />
-                                    <span id="top-p-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">1.0</span>
+                                    <input type="range" id="top-p-slider" min="0" max="1" step="0.05" value="1"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                    <span id="top-p-value"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">1.0</span>
                                 </div>
 
                                 <!-- Max Tokens -->
                                 <div class="flex items-center space-x-3">
-                                    <label for="max-tokens-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                    <label for="max-tokens-slider"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
                                         Max:
                                         <span class="param-info">
                                             i
@@ -530,21 +561,16 @@
                                             </span>
                                         </span>
                                     </label>
-                                    <input
-                                        type="range"
-                                        id="max-tokens-slider"
-                                        min="50"
-                                        max="4000"
-                                        step="50"
-                                        value="500"
-                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                    />
-                                    <span id="max-tokens-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">500</span>
+                                    <input type="range" id="max-tokens-slider" min="50" max="4000" step="50" value="500"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                    <span id="max-tokens-value"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">500</span>
                                 </div>
 
                                 <!-- Seed -->
                                 <div class="flex items-center space-x-3">
-                                    <label for="seed-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                    <label for="seed-slider"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
                                         Seed:
                                         <span class="param-info">
                                             i
@@ -560,21 +586,16 @@
                                             </span>
                                         </span>
                                     </label>
-                                    <input
-                                        type="range"
-                                        id="seed-slider"
-                                        min="0"
-                                        max="9999"
-                                        step="1"
-                                        value="0"
-                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                    />
-                                    <span id="seed-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">rand</span>
+                                    <input type="range" id="seed-slider" min="0" max="9999" step="1" value="0"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                    <span id="seed-value"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">rand</span>
                                 </div>
 
                                 <!-- Frequency Penalty -->
                                 <div class="flex items-center space-x-3">
-                                    <label for="frequency-penalty-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                    <label for="frequency-penalty-slider"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
                                         Freq:
                                         <span class="param-info">
                                             i
@@ -590,21 +611,17 @@
                                             </span>
                                         </span>
                                     </label>
-                                    <input
-                                        type="range"
-                                        id="frequency-penalty-slider"
-                                        min="0"
-                                        max="2"
-                                        step="0.1"
+                                    <input type="range" id="frequency-penalty-slider" min="0" max="2" step="0.1"
                                         value="0"
-                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                    />
-                                    <span id="frequency-penalty-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.0</span>
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                    <span id="frequency-penalty-value"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.0</span>
                                 </div>
 
                                 <!-- Presence Penalty -->
                                 <div class="flex items-center space-x-3">
-                                    <label for="presence-penalty-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                    <label for="presence-penalty-slider"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
                                         Pres:
                                         <span class="param-info">
                                             i
@@ -620,21 +637,17 @@
                                             </span>
                                         </span>
                                     </label>
-                                    <input
-                                        type="range"
-                                        id="presence-penalty-slider"
-                                        min="0"
-                                        max="2"
-                                        step="0.1"
+                                    <input type="range" id="presence-penalty-slider" min="0" max="2" step="0.1"
                                         value="0"
-                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                    />
-                                    <span id="presence-penalty-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.0</span>
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                    <span id="presence-penalty-value"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.0</span>
                                 </div>
 
                                 <!-- Repetition Penalty -->
                                 <div class="flex items-center space-x-3">
-                                    <label for="repetition-penalty-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                    <label for="repetition-penalty-slider"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
                                         Rep:
                                         <span class="param-info">
                                             i
@@ -650,21 +663,17 @@
                                             </span>
                                         </span>
                                     </label>
-                                    <input
-                                        type="range"
-                                        id="repetition-penalty-slider"
-                                        min="0"
-                                        max="2"
-                                        step="0.1"
+                                    <input type="range" id="repetition-penalty-slider" min="0" max="2" step="0.1"
                                         value="0"
-                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                    />
-                                    <span id="repetition-penalty-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.0</span>
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                    <span id="repetition-penalty-value"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.0</span>
                                 </div>
 
                                 <!-- Top K -->
                                 <div class="flex items-center space-x-3">
-                                    <label for="top-k-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                    <label for="top-k-slider"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
                                         Top-K:
                                         <span class="param-info">
                                             i
@@ -680,21 +689,16 @@
                                             </span>
                                         </span>
                                     </label>
-                                    <input
-                                        type="range"
-                                        id="top-k-slider"
-                                        min="0"
-                                        max="100"
-                                        step="1"
-                                        value="0"
-                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                    />
-                                    <span id="top-k-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">off</span>
+                                    <input type="range" id="top-k-slider" min="0" max="100" step="1" value="0"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                    <span id="top-k-value"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">off</span>
                                 </div>
 
                                 <!-- Min P -->
                                 <div class="flex items-center space-x-3">
-                                    <label for="min-p-slider" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
+                                    <label for="min-p-slider"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 flex-shrink-0 flex items-center">
                                         Min-P:
                                         <span class="param-info">
                                             i
@@ -710,65 +714,50 @@
                                             </span>
                                         </span>
                                     </label>
-                                    <input
-                                        type="range"
-                                        id="min-p-slider"
-                                        min="0"
-                                        max="1"
-                                        step="0.05"
-                                        value="0"
-                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                    />
-                                    <span id="min-p-value" class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.00</span>
+                                    <input type="range" id="min-p-slider" min="0" max="1" step="0.05" value="0"
+                                        class="flex-grow h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                    <span id="min-p-value"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 flex-shrink-0 text-right">0.00</span>
                                 </div>
                             </div>
-                            
+
                             <!-- Reset Button -->
-                            <button 
-                                id="parameters-reset-btn"
+                            <button id="parameters-reset-btn"
                                 class="mt-3 w-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 py-2 rounded text-sm font-medium transition-colors"
-                                title="Reset to default values"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                title="Reset to default values">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg>
                                 Reset to Defaults
                             </button>
                         </div>
                     </div>
-                    
-                    <select 
-                        id="system-context" 
-                        class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
+
+                    <select id="system-context"
+                        class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <!-- dynamically populated from system.json -->
                     </select>
                     <div id="prompt-input-container" class="relative flex-grow">
-                        <input 
-                            type="text" 
-                            id="prompt-input" 
-                            list="prompt-history"
+                        <input type="text" id="prompt-input" list="prompt-history"
                             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter your prompt here..."
-                        >
+                            placeholder="Enter your prompt here...">
                         <datalist id="prompt-history">
                             <!-- Dynamically populated with previous prompts -->
                         </datalist>
                         <!-- Custom dropdown for better browser support -->
-                        <div id="prompt-dropdown" class="absolute top-full left-0 right-0 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto hidden">
+                        <div id="prompt-dropdown"
+                            class="absolute top-full left-0 right-0 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto hidden">
                             <!-- Dynamically populated dropdown items -->
                         </div>
                     </div>
-                    <button 
-                        id="submit-btn" 
-                        class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-                    >
+                    <button id="submit-btn"
+                        class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
                         Submit
                     </button>
-                    <button 
-                        id="cancel-btn" 
-                        class="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 hidden"
-                    >
+                    <button id="cancel-btn"
+                        class="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 hidden">
                         Cancel
                     </button>
                 </div>
@@ -778,10 +767,11 @@
 
     <div id="models-container" class="p-4 pt-48 overflow-y-auto">
         <!-- Multi-model view -->
-        <div id="multi-model-view" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+        <div id="multi-model-view"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
             <!-- Model results will be dynamically populated here -->
         </div>
-        
+
         <!-- Matrix view -->
         <div id="matrix-view" class="hidden">
             <!-- Matrix results will be dynamically populated here -->
@@ -789,136 +779,112 @@
     </div>
 
     <!-- Model Info Tooltip -->
-    <div 
-        id="model-tooltip" 
-        class="fixed hidden p-3 bg-gray-800 dark:bg-gray-900 text-white text-xs rounded-lg shadow-xl border border-gray-600 text-left w-64 pointer-events-none z-[9999]"
-    ></div>
+    <div id="model-tooltip"
+        class="fixed hidden p-3 bg-gray-800 dark:bg-gray-900 text-white text-xs rounded-lg shadow-xl border border-gray-600 text-left w-64 pointer-events-none z-[9999]">
+    </div>
 
     <!-- Fullscreen Modal -->
-    <div 
-        id="fullscreen-modal" 
-        class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden flex items-center justify-center p-4"
-    >
+    <div id="fullscreen-modal"
+        class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
-            <div class="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex space-x-2"> 
-                <button 
-                    class="copy-btn"
-                    title="Copy model output"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            <div
+                class="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex space-x-2">
+                <button class="copy-btn" title="Copy model output">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                     </svg>
                 </button>
-                <button 
-                    id="close-fullscreen-btn" 
-                    class=""
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <button id="close-fullscreen-btn" class="">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
             <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <div>
-                    <h2 
-                        id="fullscreen-model-name" 
-                        class="text-xl font-semibold text-gray-800 dark:text-white"
-                    ></h2>
-                    <p 
-                        id="fullscreen-model-stats" 
-                        class="text-sm text-gray-500 dark:text-gray-400"
-                    ></p>
+                    <h2 id="fullscreen-model-name" class="text-xl font-semibold text-gray-800 dark:text-white"></h2>
+                    <p id="fullscreen-model-stats" class="text-sm text-gray-500 dark:text-gray-400"></p>
                 </div>
             </div>
-            <div 
-                id="fullscreen-content" 
-                class="markdown-content p-8 text-lg dark:text-white"
-            ></div>
+            <div id="fullscreen-content" class="markdown-content p-8 text-lg dark:text-white"></div>
         </div>
     </div>
 
     <!-- BYOP Modal -->
-    <div 
-        id="byop-modal" 
-        class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden flex items-center justify-center p-4"
-    >
+    <div id="byop-modal" class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full p-6 relative">
-            <button 
-                id="close-byop-btn" 
-                class="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button id="close-byop-btn"
+                class="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
-            
+
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">🌸 Bring Your Own Pollen</h2>
-            
+
             <div class="mb-4">
                 <p class="text-gray-700 dark:text-gray-300 mb-2">Current API Key Status:</p>
                 <div id="api-key-status" class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
                     <div class="flex items-center justify-between">
-                        <span id="key-display" class="font-mono text-sm text-gray-600 dark:text-gray-400">Loading...</span>
+                        <span id="key-display"
+                            class="font-mono text-sm text-gray-600 dark:text-gray-400">Loading...</span>
                         <span id="key-type-badge" class="text-xs px-2 py-1 rounded"></span>
                     </div>
                     <div id="balance-display" class="text-sm text-gray-500 dark:text-gray-400 mt-2"></div>
                 </div>
             </div>
-            
+
             <div class="space-y-4">
                 <div>
-                    <h3 class="font-semibold text-gray-800 dark:text-white mb-2">Option 1: Use Pollinations OAuth (Recommended)</h3>
+                    <h3 class="font-semibold text-gray-800 dark:text-white mb-2">Option 1: Use Pollinations OAuth
+                        (Recommended)</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        Connect your Pollinations account to use your own pollen balance. This creates a temporary API key for this app.
+                        Connect your Pollinations account to use your own pollen balance. This creates a temporary API
+                        key for this app.
                     </p>
-                    <button 
-                        id="oauth-connect-btn" 
-                        class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition duration-300 w-full"
-                    >
+                    <button id="oauth-connect-btn"
+                        class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition duration-300 w-full">
                         Connect with Pollinations
                     </button>
                 </div>
-                
+
                 <div class="border-t border-gray-300 dark:border-gray-600 pt-4">
                     <h3 class="font-semibold text-gray-800 dark:text-white mb-2">Option 2: Enter Your API Key</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        Already have an API key? Enter it below. Get one at <a href="https://enter.pollinations.ai" target="_blank" class="text-blue-500 hover:underline">enter.pollinations.ai</a>
+                        Already have an API key? Enter it below. Get one at <a href="https://enter.pollinations.ai"
+                            target="_blank" class="text-blue-500 hover:underline">enter.pollinations.ai</a>
                     </p>
                     <div class="flex space-x-2 mb-3">
-                        <input 
-                            type="text" 
-                            id="manual-api-key" 
-                            placeholder="pk_... or sk_..." 
-                            class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                        <button 
-                            id="save-api-key-btn" 
-                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition duration-300"
-                        >
+                        <input type="text" id="manual-api-key" placeholder="pk_... or sk_..."
+                            class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                        <button id="save-api-key-btn"
+                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition duration-300">
                             Save
                         </button>
                     </div>
-                    <button 
-                        id="clear-api-key-btn" 
-                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-300 w-full"
-                    >
+                    <button id="clear-api-key-btn"
+                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-300 w-full">
                         🗑️ Clear My API Key from Browser
                     </button>
                 </div>
-                
+
                 <div class="border-t border-gray-300 dark:border-gray-600 pt-4">
-                    <button 
-                        id="reset-api-key-btn" 
-                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-300 w-full"
-                    >
+                    <button id="reset-api-key-btn"
+                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-300 w-full">
                         Reset to Default Key
                     </button>
                 </div>
             </div>
-            
+
             <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
                 <p class="text-xs text-blue-800 dark:text-blue-200">
-                    <strong>Why BYOP?</strong> With your own API key, you pay for your usage directly. No API costs for the app developer, and you control your spending.
+                    <strong>Why BYOP?</strong> With your own API key, you pay for your usage directly. No API costs for
+                    the app developer, and you control your spending.
                 </p>
             </div>
         </div>
@@ -932,19 +898,19 @@
 
         // Encoded default API key (obfuscated for basic protection)
         const _k = 'R3FOWmUzWU1ZT1dUNTZOZl9rcA==';
-        
+
         // Decode the API key
         function _d(e) {
             try {
                 return atob(e).split('').reverse().join('');
-            } catch(err) {
+            } catch (err) {
                 console.error('Key decode error');
                 return '';
             }
         }
-        
+
         const DEFAULT_API_KEY = _d(_k);
-        
+
         // Get API key from URL hash (BYOP) or localStorage or use default
         function getApiKey() {
             // Check URL hash first (from BYOP redirect)
@@ -956,13 +922,13 @@
                 window.location.hash = '';
                 return hashApiKey;
             }
-            
+
             // Check localStorage for user's API key
             const storedKey = localStorage.getItem('userApiKey');
             if (storedKey) {
                 return storedKey;
             }
-            
+
             // Fall back to default key
             return DEFAULT_API_KEY;
         }
@@ -971,10 +937,10 @@
         let currentMode = 'multi'; // 'multi' or 'matrix'
         let selectedModel = null;
         let allModels = [];
-        
+
         // Model enabled/disabled state (track by model name)
         const disabledModels = new Set();
-        
+
         // Load disabled models from localStorage
         function loadDisabledModels() {
             try {
@@ -987,7 +953,7 @@
                 console.error('Error loading disabled models:', error);
             }
         }
-        
+
         // Save disabled models to localStorage
         function saveDisabledModels() {
             try {
@@ -996,7 +962,7 @@
                 console.error('Error saving disabled models:', error);
             }
         }
-        
+
         // Toggle model enabled/disabled state
         function toggleModelState(modelName) {
             if (disabledModels.has(modelName)) {
@@ -1007,15 +973,15 @@
             saveDisabledModels();
             updateModelCardState(modelName);
         }
-        
+
         // Update model card visual state
         function updateModelCardState(modelName) {
             const modelCard = document.querySelector(`[data-model-name="${modelName}"]`);
             if (!modelCard) return;
-            
+
             const isDisabled = disabledModels.has(modelName);
             const contentDiv = modelCard.querySelector('.markdown-content');
-            
+
             if (isDisabled) {
                 modelCard.classList.add('model-disabled-container');
                 contentDiv.classList.add('model-disabled');
@@ -1024,7 +990,7 @@
                 contentDiv.classList.remove('model-disabled');
             }
         }
-        
+
         // Get list of enabled models only
         function getEnabledModels() {
             return allModels.filter(model => !disabledModels.has(model.name));
@@ -1057,7 +1023,7 @@
                 'claude': defaultSupport,
                 'claude-fast': defaultSupport,
                 'claude-large': defaultSupport,
-                
+
                 // Gemini models - limited support
                 'gemini': {
                     ...defaultSupport,
@@ -1077,7 +1043,7 @@
                     presence_penalty: false,
                     seed: false
                 },
-                
+
                 // DeepSeek and open models often support top_k and repetition_penalty
                 'deepseek': {
                     ...defaultSupport,
@@ -1093,11 +1059,11 @@
                     ...defaultSupport,
                     top_k: true
                 },
-                
+
                 // Perplexity models
                 'perplexity-fast': defaultSupport,
                 'perplexity-reasoning': defaultSupport,
-                
+
                 // Other models
                 'grok': defaultSupport,
                 'kimi': defaultSupport,
@@ -1118,17 +1084,17 @@
             const limits = modelParameterLimits.get(modelName) || {
                 tempMin: 0.0, tempMax: 1.0, topPMin: 0.1, topPMax: 1.0
             };
-            
+
             // If model only supports defaults, create a single-cell matrix
             if (limits.useDefaults) {
-                return [{ 
-                    temperature: 1.0, 
+                return [{
+                    temperature: 1.0,
                     top_p: 1.0,
                     displayLabel: `Default Only`,
                     useDefaults: true
                 }];
             }
-            
+
             // Define focused parameter combinations for manageable matrix size
             const parameterCombinations = [
                 // Core temperature/top-p variations (baseline)
@@ -1137,41 +1103,41 @@
                 { temp: 0.5, topP: 1.0, presP: 0, freqP: 0, label: "T=0.5 P=1.0" },
                 { temp: 0.7, topP: 0.4, presP: 0, freqP: 0, label: "T=0.7 P=0.4" },
                 { temp: 1.0, topP: 1.0, presP: 0, freqP: 0, label: "T=1.0 P=1.0" },
-                
+
                 // Presence penalty variations
                 { temp: 0.7, topP: 1.0, presP: -2, freqP: 0, label: "T=0.7 PP=-2" },
                 { temp: 0.7, topP: 1.0, presP: -1, freqP: 0, label: "T=0.7 PP=-1" },
                 { temp: 0.7, topP: 1.0, presP: 1, freqP: 0, label: "T=0.7 PP=+1" },
                 { temp: 0.7, topP: 1.0, presP: 2, freqP: 0, label: "T=0.7 PP=+2" },
-                
+
                 // Frequency penalty variations  
                 { temp: 0.7, topP: 1.0, presP: 0, freqP: -2, label: "T=0.7 FP=-2" },
                 { temp: 0.7, topP: 1.0, presP: 0, freqP: -1, label: "T=0.7 FP=-1" },
                 { temp: 0.7, topP: 1.0, presP: 0, freqP: 1, label: "T=0.7 FP=+1" },
                 { temp: 0.7, topP: 1.0, presP: 0, freqP: 2, label: "T=0.7 FP=+2" },
-                
+
                 // Combined penalty effects
                 { temp: 0.5, topP: 1.0, presP: 1, freqP: 1, label: "T=0.5 PP+FP=+1" },
                 { temp: 0.5, topP: 1.0, presP: -1, freqP: -1, label: "T=0.5 PP+FP=-1" },
                 { temp: 0.7, topP: 0.7, presP: 2, freqP: 1, label: "T=0.7 PP=+2 FP=+1" },
                 { temp: 0.3, topP: 0.4, presP: -1, freqP: 1, label: "T=0.3 PP=-1 FP=+1" },
-                
+
                 // High creativity + penalties
                 { temp: 1.0, topP: 0.7, presP: 1, freqP: 0, label: "T=1.0 P=0.7 PP=+1" },
                 { temp: 1.0, topP: 1.0, presP: 0, freqP: 2, label: "T=1.0 FP=+2" },
-                
+
                 // Conservative + penalties
                 { temp: 0.1, topP: 0.1, presP: 1, freqP: 1, label: "Conservative+Penalties" },
                 { temp: 0.0, topP: 0.4, presP: 2, freqP: 0, label: "T=0 P=0.4 PP=+2" }
             ];
-            
+
             // Filter combinations based on model limits and convert to expected format
             return parameterCombinations
                 .filter(combo => combo.temp >= limits.tempMin && combo.temp <= limits.tempMax)
                 .filter(combo => combo.topP >= limits.topPMin && combo.topP <= limits.topPMax)
                 .map(combo => ({
                     temperature: combo.temp,
-                    top_p: combo.topP, 
+                    top_p: combo.topP,
                     presence_penalty: combo.presP,
                     frequency_penalty: combo.freqP,
                     displayLabel: combo.label
@@ -1184,11 +1150,11 @@
             selectedModel = modelName;
             document.body.classList.add('matrix-mode');
             updateHeaderForMatrixMode();
-            
+
             // Hide multi-model view and show matrix view
             document.getElementById('multi-model-view').classList.add('hidden');
             document.getElementById('matrix-view').classList.remove('hidden');
-            
+
             renderMatrixView();
         }
 
@@ -1197,7 +1163,7 @@
             selectedModel = null;
             document.body.classList.remove('matrix-mode');
             updateHeaderForMultiMode();
-            
+
             // Hide matrix view and show multi-model view (preserving content)
             document.getElementById('matrix-view').classList.add('hidden');
             document.getElementById('multi-model-view').classList.remove('hidden');
@@ -1206,10 +1172,10 @@
         function updateHeaderForMatrixMode() {
             const titleElement = document.querySelector('h1');
             const limits = modelParameterLimits.get(selectedModel);
-            const subtitle = limits?.useDefaults 
-                ? 'Default Parameters Only' 
+            const subtitle = limits?.useDefaults
+                ? 'Default Parameters Only'
                 : 'Parameter Matrix: Temperature, Top-P, Presence & Frequency Penalties';
-            
+
             titleElement.innerHTML = `
                 <span class="cursor-pointer" onclick="exitMatrixMode()">[← Back to Multi-Model]</span>
                 <br>
@@ -1235,7 +1201,7 @@
             try {
                 // Retrieve existing prompts
                 let promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
-                
+
                 // Remove duplicates and add new prompt to the beginning
                 promptHistory = promptHistory.filter(p => p !== prompt);
                 promptHistory.unshift(prompt);
@@ -1255,12 +1221,12 @@
                 const promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
                 const datalist = document.getElementById('prompt-history');
                 const dropdown = document.getElementById('prompt-dropdown');
-                
+
                 if (!datalist) {
                     console.error('Could not find prompt-history datalist element');
                     return;
                 }
-                
+
                 // Clear existing options
                 datalist.innerHTML = '';
                 if (dropdown) dropdown.innerHTML = '';
@@ -1270,7 +1236,7 @@
                     const option = document.createElement('option');
                     option.value = prompt;
                     datalist.appendChild(option);
-                    
+
                     // Also populate custom dropdown
                     if (dropdown) {
                         const dropdownItem = document.createElement('div');
@@ -1291,17 +1257,17 @@
         function showPromptDropdown() {
             const dropdown = document.getElementById('prompt-dropdown');
             const promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
-            
+
             console.log('showPromptDropdown called');
             console.log('Dropdown element:', dropdown);
             console.log('Prompt history length:', promptHistory.length);
             console.log('Dropdown children count:', dropdown ? dropdown.children.length : 'N/A');
-            
+
             if (dropdown && promptHistory.length > 0) {
                 dropdown.classList.remove('hidden');
                 console.log('✅ Showing custom dropdown with', promptHistory.length, 'items');
                 console.log('Dropdown classes:', dropdown.className);
-                
+
                 // Check if dropdown is actually visible
                 const rect = dropdown.getBoundingClientRect();
                 const computedStyle = window.getComputedStyle(dropdown);
@@ -1348,7 +1314,7 @@
         themeToggle.addEventListener('click', () => {
             // Toggle dark mode
             const isDarkMode = htmlElement.classList.toggle('dark');
-            
+
             // Save theme preference
             localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
         });
@@ -1363,7 +1329,7 @@
 
         function toggleParameters() {
             const isExpanded = !parametersExpanded.classList.contains('hidden');
-            
+
             if (isExpanded) {
                 // Collapse
                 parametersExpanded.classList.add('hidden');
@@ -1521,7 +1487,7 @@
 
         // Reset parameters to defaults
         const parametersResetBtn = document.getElementById('parameters-reset-btn');
-        
+
         function resetParametersToDefaults() {
             // Default values
             const defaults = {
@@ -1535,35 +1501,35 @@
                 topK: 0,
                 minP: 0
             };
-            
+
             // Update sliders
             temperatureSlider.value = defaults.temperature;
             temperatureValue.textContent = defaults.temperature.toFixed(1);
-            
+
             topPSlider.value = defaults.topP;
             topPValue.textContent = defaults.topP.toFixed(2);
-            
+
             maxTokensSlider.value = defaults.maxTokens;
             maxTokensValue.textContent = defaults.maxTokens;
-            
+
             seedSlider.value = defaults.seed;
             seedValue.textContent = 'rand';
-            
+
             frequencyPenaltySlider.value = defaults.frequencyPenalty;
             frequencyPenaltyValue.textContent = defaults.frequencyPenalty.toFixed(1);
-            
+
             presencePenaltySlider.value = defaults.presencePenalty;
             presencePenaltyValue.textContent = defaults.presencePenalty.toFixed(1);
-            
+
             repetitionPenaltySlider.value = defaults.repetitionPenalty;
             repetitionPenaltyValue.textContent = defaults.repetitionPenalty.toFixed(1);
-            
+
             topKSlider.value = defaults.topK;
             topKValue.textContent = 'off';
-            
+
             minPSlider.value = defaults.minP;
             minPValue.textContent = defaults.minP.toFixed(2);
-            
+
             // Update localStorage
             localStorage.setItem('modelTemperature', defaults.temperature);
             localStorage.setItem('modelTopP', defaults.topP);
@@ -1575,13 +1541,13 @@
             localStorage.setItem('modelTopK', defaults.topK);
             localStorage.setItem('modelMinP', defaults.minP);
         }
-        
+
         parametersResetBtn.addEventListener('click', resetParametersToDefaults);
 
         // Font size controls
         const fontDecreaseBtn = document.getElementById('font-decrease-btn');
         const fontIncreaseBtn = document.getElementById('font-increase-btn');
-        
+
         // Tailwind text size classes from smallest to largest
         const fontSizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl'];
         let currentFontSizeIndex = 2; // Default to 'text-base'
@@ -1628,12 +1594,12 @@
                 const apiKey = getApiKey();
                 const response = await axios.get(
                     'https://gen.pollinations.ai/text/models',
-                    { 
+                    {
                         headers: { 'Authorization': `Bearer ${apiKey}` }
                     }
                 );
                 console.log('Models API response:', response);
-                
+
                 // /text/models returns array directly with full model details including pricing
                 let models = [];
                 if (Array.isArray(response.data)) {
@@ -1642,11 +1608,11 @@
                 } else {
                     console.warn('Models API returned unexpected data:', response.data);
                 }
-                
+
                 models.forEach((model, idx) => {
                     console.log(`Model[${idx}]:`, model);
                 });
-                
+
                 return models;
             } catch (error) {
                 console.error('Error fetching models:', error);
@@ -1665,35 +1631,35 @@
 
         function calculatePollenCost(usage, pricing) {
             if (!usage || !pricing || !pricing.promptTextTokens) return null;
-            
+
             const promptTokens = usage.prompt_tokens || 0;
             const cachedTokens = usage.prompt_tokens_details?.cached_tokens || 0;
             const completionTokens = usage.completion_tokens || 0;
-            
+
             const uncachedPromptTokens = promptTokens - cachedTokens;
-            
+
             let cost = 0;
-            
+
             // Calculate uncached prompt token cost
             cost += uncachedPromptTokens * pricing.promptTextTokens;
-            
+
             // Calculate cached prompt token cost if available
             if (pricing.promptCachedTokens && cachedTokens > 0) {
                 cost += cachedTokens * pricing.promptCachedTokens;
             }
-            
+
             // Calculate completion token cost
             if (pricing.completionTextTokens) {
                 cost += completionTokens * pricing.completionTextTokens;
             }
-            
+
             return cost;
         }
 
         function formatPollenCost(cost) {
             if (cost === null || cost === undefined) return '';
             if (cost === 0) return '0 🌸';
-            
+
             // For very small numbers, use exponential notation or many decimals
             if (cost < 0.0000000001) return cost.toExponential(2) + ' 🌸';
             if (cost < 0.000001) return cost.toFixed(10) + ' 🌸';
@@ -1704,43 +1670,43 @@
 
         function getModelInfoTooltip(model) {
             const capabilities = [];
-            
+
             // Input modalities
             if (model.input_modalities?.includes('image')) capabilities.push('👁️ Vision');
             if (model.input_modalities?.includes('audio')) capabilities.push('🎙️ Audio In');
-            
+
             // Output modalities  
             if (model.output_modalities?.includes('audio')) capabilities.push('🔊 Audio Out');
-            
+
             // Features
             if (model.tools) capabilities.push('🔧 Tools');
             if (model.reasoning) capabilities.push('🧠 Reasoning');
-            
+
             // Context window
             const contextWindow = model.context_window ? `${(model.context_window / 1000).toFixed(0)}K tokens` : 'Unknown';
-            
+
             // Pricing
             const pricing = model.pricing || {};
             const promptCost = pricing.promptTextTokens ? (pricing.promptTextTokens * 1000000).toFixed(2) : 'N/A';
             const completionCost = pricing.completionTextTokens ? (pricing.completionTextTokens * 1000000).toFixed(2) : 'N/A';
-            
+
             let tooltip = `<div class="font-semibold mb-1">${model.name}</div>`;
-            
+
             if (model.description) {
                 tooltip += `<div class="text-xs mb-2">${model.description}</div>`;
             }
-            
+
             if (capabilities.length > 0) {
                 tooltip += `<div class="text-xs mb-1">${capabilities.join(' • ')}</div>`;
             }
-            
+
             tooltip += `<div class="text-xs">📏 Context: ${contextWindow}</div>`;
             tooltip += `<div class="text-xs">💰 Input: ${promptCost}/M • Output: ${completionCost}/M</div>`;
-            
+
             if (model.paid_only) {
                 tooltip += `<div class="text-xs text-purple-400 mt-1">💎 Paid Only</div>`;
             }
-            
+
             return tooltip;
         }
 
@@ -1748,15 +1714,15 @@
 
         // Model tooltip functions
         let modelDataCache = new Map();
-        
+
         function showModelTooltip(event, modelId) {
             const model = modelDataCache.get(modelId);
             if (!model) return;
-            
+
             const tooltip = document.getElementById('model-tooltip');
             const button = event.currentTarget;
             const rect = button.getBoundingClientRect();
-            
+
             tooltip.innerHTML = getModelInfoTooltip(model);
             tooltip.style.left = (rect.right + 8) + 'px';
             tooltip.style.top = rect.top + 'px';
@@ -1772,14 +1738,14 @@
         function renderMatrixView() {
             const matrixContainer = document.getElementById('matrix-view');
             const combinations = generateParameterMatrix(selectedModel);
-            
+
             // Adaptive grid based on combinations count  
             let gridCols = 'grid-cols-5'; // default for ~20 combinations
             if (combinations.length === 1) gridCols = 'grid-cols-1'; // single default-only model
             else if (combinations.length <= 6) gridCols = 'grid-cols-3'; // smaller matrices
             else if (combinations.length <= 12) gridCols = 'grid-cols-4'; // medium matrices
             else if (combinations.length <= 20) gridCols = 'grid-cols-5'; // 20-combination focused matrix
-            
+
             matrixContainer.className = `grid ${gridCols} gap-4`;
             matrixContainer.innerHTML = '';
             combinations.forEach((combo, idx) => {
@@ -1828,7 +1794,7 @@
         async function queryModel(model, prompt, retryCount = 0, abortSignal = null, parameterOverride = null) {
             const MAX_RETRIES = 3;
             const RETRY_DELAY = 1000; // 1 second initial delay
-            
+
             try {
                 const systemContextSelect = document.getElementById('system-context');
                 if (!systemContextSelect) {
@@ -1845,7 +1811,7 @@
 
                 // Get model parameters from UI controls or override
                 let temperature, topP, maxTokens, seed, presencePenalty, frequencyPenalty, repetitionPenalty, topK, minP;
-                
+
                 // For models that only support defaults, don't override parameters
                 if (parameterOverride?.useDefaults) {
                     temperature = parseFloat(temperatureSlider.value);
@@ -1887,16 +1853,16 @@
 
                 // Check if this model has parameter restrictions
                 const limits = modelParameterLimits.get(model.name);
-                
+
                 // Get supported parameters for this model
                 const supportedParams = getModelSupportedParameters(model.name);
-                
+
                 // Only add parameters if model supports them
                 if (!limits?.useDefaults) {
                     if (supportedParams.temperature) requestBody.temperature = temperature;
                     if (supportedParams.top_p) requestBody.top_p = topP;
                     if (supportedParams.max_tokens) requestBody.max_tokens = maxTokens;
-                    
+
                     // Add penalty parameters if supported and non-default
                     if (supportedParams.presence_penalty && presencePenalty !== 0) {
                         requestBody.presence_penalty = presencePenalty;
@@ -1907,7 +1873,7 @@
                     if (supportedParams.repetition_penalty && repetitionPenalty !== 0) {
                         requestBody.repetition_penalty = repetitionPenalty;
                     }
-                    
+
                     // Add sampling parameters if supported and specified
                     if (supportedParams.seed && seed !== undefined) {
                         requestBody.seed = seed;
@@ -1924,31 +1890,31 @@
 
                 // Send request
                 const apiKey = getApiKey();
-                
+
                 const response = await axios.post(CHAT_URL, requestBody, {
                     timeout: timeoutValue, // Use selected timeout value
                     signal: abortSignal, // Add abort signal support
                     headers: { 'Authorization': `Bearer ${apiKey}` }
                 });
-                
+
                 const endTime = performance.now();
                 const duration = Math.round(endTime - startTime);
-                
+
                 // Validate response structure
                 if (!response.data) {
                     throw new Error('No response data received');
                 }
-                
+
                 if (!response.data.choices || !Array.isArray(response.data.choices) || response.data.choices.length === 0) {
                     console.error('Invalid response structure:', response.data);
                     throw new Error('Invalid response: missing choices array');
                 }
-                
+
                 if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
                     console.error('Invalid message structure:', response.data.choices[0]);
                     throw new Error('Invalid response: missing message content');
                 }
-                
+
                 return {
                     text: response.data.choices[0].message.content,
                     duration: duration,
@@ -1963,13 +1929,13 @@
                 }
 
                 console.error(`Error with ${model.name}:`, error);
-                
+
                 // Handle parameter validation errors
                 if (error.response && error.response.data && error.response.data.details) {
                     const errorMessage = error.response.data.details.error?.message || '';
                     if (errorMessage.includes('temperature') || errorMessage.includes('top_p')) {
                         console.log(`Parameter limits detected for ${model.name}:`, errorMessage);
-                        
+
                         // Check if model only supports default values
                         if (errorMessage.includes('Only the default') || errorMessage.includes('only support')) {
                             // Model only supports defaults - cache immediately and retry without parameters
@@ -1977,7 +1943,7 @@
                                 tempMin: 1.0, tempMax: 1.0, topPMin: 1.0, topPMax: 1.0,
                                 useDefaults: true
                             });
-                            
+
                             // Retry immediately without parameters if we have retries left
                             if (retryCount < MAX_RETRIES && !abortSignal?.aborted) {
                                 console.log(`Retrying ${model.name} without parameters - Attempt ${retryCount + 1}`);
@@ -1991,16 +1957,16 @@
                         }
                     }
                 }
-                
+
                 if (retryCount < MAX_RETRIES && !abortSignal?.aborted) {
                     // Exponential backoff
                     const delay = RETRY_DELAY * Math.pow(2, retryCount);
                     await new Promise(resolve => setTimeout(resolve, delay));
-                    
+
                     console.log(`Retrying ${model.name} - Attempt ${retryCount + 1}`);
                     return queryModel(model, prompt, retryCount + 1, abortSignal, parameterOverride);
                 }
-                
+
                 return {
                     text: `Error after ${MAX_RETRIES} attempts: ${error.message}`,
                     duration: Infinity
@@ -2029,10 +1995,10 @@
                     return;
                 }
                 console.log(`Rendering model card for: ${model.name}`);
-                
+
                 // Cache model data for tooltip
                 modelDataCache.set(model.name, model);
-                
+
                 const modelDiv = document.createElement('div');
                 modelDiv.classList.add('border', 'rounded-lg', 'p-3', 'bg-white', 'dark:bg-gray-800', 'shadow-sm', 'model-card', 'relative', 'overflow-visible');
                 modelDiv.setAttribute('data-model-name', model.name);
@@ -2084,7 +2050,7 @@
                         placeholder="Model response will appear here..."
                     ></div>
                 `;
-                
+
                 // Add click handler to toggle model state
                 modelDiv.addEventListener('click', (e) => {
                     // Don't toggle if clicking on buttons or labels
@@ -2093,9 +2059,9 @@
                     }
                     toggleModelState(model.name);
                 });
-                
+
                 modelsContainer.appendChild(modelDiv);
-                
+
                 // Apply saved disabled state
                 updateModelCardState(model.name);
             });
@@ -2107,262 +2073,262 @@
             return models;
         }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // Dynamically load system prompts and populate dropdown
-    async function loadSystemPrompts() {
-        // Method 1: Standard fetch
-        try {
-            console.log('Attempting to load system prompts via fetch...');
-            const response = await fetch('./system.json');
-            if (!response.ok) {
-                throw new Error('Failed to load system prompts via fetch');
-            }
-            return await response.json();
-        } catch (fetchError) {
-            console.warn('Fetch method failed:', fetchError);
-
-            // Method 2: XMLHttpRequest for local file loading
-            return new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', './system.json', true);
-                xhr.responseType = 'json';
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        console.log('Successfully loaded system prompts via XMLHttpRequest');
-                        resolve(xhr.response);
-                    } else {
-                        reject(new Error('XMLHttpRequest failed'));
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Dynamically load system prompts and populate dropdown
+            async function loadSystemPrompts() {
+                // Method 1: Standard fetch
+                try {
+                    console.log('Attempting to load system prompts via fetch...');
+                    const response = await fetch('./system.json');
+                    if (!response.ok) {
+                        throw new Error('Failed to load system prompts via fetch');
                     }
-                };
-                xhr.onerror = () => reject(new Error('XMLHttpRequest error'));
-                xhr.send();
-            });
-        }
-    }
+                    return await response.json();
+                } catch (fetchError) {
+                    console.warn('Fetch method failed:', fetchError);
 
-    console.log('Loading system prompts...');
-    try {
-        const systemPromptsData = await loadSystemPrompts();
-        SYSTEM_PROMPTS = systemPromptsData.systemPrompts;
-        const systemContextSelect = document.getElementById('system-context');
-        
-        // Clear existing options
-        systemContextSelect.innerHTML = '';
-        
-        // Populate dropdown with keys from systemPrompts
-        Object.keys(SYSTEM_PROMPTS).forEach(context => {
-            const option = document.createElement('option');
-            option.value = context;
-            option.textContent = context.charAt(0).toUpperCase() + context.slice(1);
-            systemContextSelect.appendChild(option);
-        });
-
-        // Set default value to saved or first option
-        const savedSystemContext = localStorage.getItem('systemContext') || Object.keys(SYSTEM_PROMPTS)[0];
-        systemContextSelect.value = savedSystemContext;
-    } catch (error) {
-        console.error('Error loading system prompts:', error);
-        alert('Could not load system prompts. Some functionality may be limited.');
-    }
-
-    console.log('System prompts loaded');
-
-    // Load disabled models from localStorage
-    loadDisabledModels();
-
-    const models = await initializeModelFields();
-    const submitBtn = document.getElementById('submit-btn');
-    const cancelBtn = document.getElementById('cancel-btn');
-    const promptInput = document.getElementById('prompt-input');
-    const modelsContainer = document.getElementById('models-container');
-    const fullscreenModal = document.getElementById('fullscreen-modal');
-    const fullscreenContent = document.getElementById('fullscreen-content');
-    const closeFullscreenBtn = document.getElementById('close-fullscreen-btn');
-
-    // Trigger native datalist to show all options on click/focus
-    function triggerDatalistDropdown(inputElement) {
-        console.log('Attempting to trigger datalist dropdown');
-        
-        // Method: Clear value temporarily to show all options, then restore
-        const originalValue = inputElement.value;
-        
-        // Clear the input to show all datalist options
-        inputElement.value = '';
-        
-        // Trigger input event to refresh datalist
-        const inputEvent = new Event('input', { bubbles: true });
-        inputElement.dispatchEvent(inputEvent);
-        
-        // Focus the input to ensure datalist appears
-        inputElement.focus();
-        
-        // Restore original value after a short delay
-        setTimeout(() => {
-            inputElement.value = originalValue;
-        }, 100);
-    }
-
-    // Show datalist dropdown on focus
-    promptInput.addEventListener('focus', () => {
-        const datalist = document.getElementById('prompt-history');
-        
-        // Try native trigger first, then fallback to custom dropdown
-        if (datalist && datalist.children.length > 0) {
-            setTimeout(() => {
-                triggerDatalistDropdown(promptInput);
-            }, 50);
-            
-            // Also show custom dropdown as reliable fallback
-            showPromptDropdown();
-        }
-    });
-
-    // Show datalist dropdown on click  
-    promptInput.addEventListener('click', () => {
-        const datalist = document.getElementById('prompt-history');
-        
-        if (datalist && datalist.children.length > 0) {
-            triggerDatalistDropdown(promptInput);
-            // Also show custom dropdown as reliable fallback
-            showPromptDropdown();
-        }
-    });
-
-    promptInput.addEventListener('input', (e) => {
-        
-        // Filter custom dropdown based on input
-        const value = e.target.value.toLowerCase();
-        const dropdown = document.getElementById('prompt-dropdown');
-        if (dropdown && !dropdown.classList.contains('hidden')) {
-            const items = dropdown.children;
-            let visibleCount = 0;
-            Array.from(items).forEach(item => {
-                if (item.textContent.toLowerCase().includes(value) || value === '') {
-                    item.style.display = '';
-                    visibleCount++;
-                } else {
-                    item.style.display = 'none';
+                    // Method 2: XMLHttpRequest for local file loading
+                    return new Promise((resolve, reject) => {
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('GET', './system.json', true);
+                        xhr.responseType = 'json';
+                        xhr.onload = function () {
+                            if (xhr.status === 200) {
+                                console.log('Successfully loaded system prompts via XMLHttpRequest');
+                                resolve(xhr.response);
+                            } else {
+                                reject(new Error('XMLHttpRequest failed'));
+                            }
+                        };
+                        xhr.onerror = () => reject(new Error('XMLHttpRequest error'));
+                        xhr.send();
+                    });
                 }
-            });
-            
-            if (visibleCount === 0 && value !== '') {
-                hidePromptDropdown();
             }
-        }
-    });
 
-    let dropdownHideTimeout;
-    let isDropdownInteraction = false;
-    
-    // Prevent dropdown hide when interacting with dropdown
-    const dropdown = document.getElementById('prompt-dropdown');
-    if (dropdown) {
-        dropdown.addEventListener('mouseenter', () => {
-            isDropdownInteraction = true;
-            console.log('Mouse entered dropdown, preventing hide');
-            if (dropdownHideTimeout) {
-                clearTimeout(dropdownHideTimeout);
+            console.log('Loading system prompts...');
+            try {
+                const systemPromptsData = await loadSystemPrompts();
+                SYSTEM_PROMPTS = systemPromptsData.systemPrompts;
+                const systemContextSelect = document.getElementById('system-context');
+
+                // Clear existing options
+                systemContextSelect.innerHTML = '';
+
+                // Populate dropdown with keys from systemPrompts
+                Object.keys(SYSTEM_PROMPTS).forEach(context => {
+                    const option = document.createElement('option');
+                    option.value = context;
+                    option.textContent = context.charAt(0).toUpperCase() + context.slice(1);
+                    systemContextSelect.appendChild(option);
+                });
+
+                // Set default value to saved or first option
+                const savedSystemContext = localStorage.getItem('systemContext') || Object.keys(SYSTEM_PROMPTS)[0];
+                systemContextSelect.value = savedSystemContext;
+            } catch (error) {
+                console.error('Error loading system prompts:', error);
+                alert('Could not load system prompts. Some functionality may be limited.');
             }
-        });
-        
-        dropdown.addEventListener('mouseleave', () => {
-            isDropdownInteraction = false;
-            console.log('Mouse left dropdown, allowing hide');
-        });
-    }
-    
-    promptInput.addEventListener('blur', (e) => {
-        console.log('Input blurred, isDropdownInteraction:', isDropdownInteraction);
-        
-        // Only hide if not interacting with dropdown
-        if (!isDropdownInteraction) {
-            dropdownHideTimeout = setTimeout(() => {
-                if (!isDropdownInteraction) {
-                    console.log('Hiding dropdown after blur delay');
-                    hidePromptDropdown();
-                } else {
-                    console.log('Cancelling hide - dropdown interaction detected');
-                }
-            }, 150);
-        }
-    });
 
-    // Hide dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        const dropdown = document.getElementById('prompt-dropdown');
-        const input = document.getElementById('prompt-input');
-        
-        if (dropdown && !dropdown.contains(e.target) && !input.contains(e.target)) {
-            console.log('Clicked outside, hiding dropdown');
-            isDropdownInteraction = false;
-            if (dropdownHideTimeout) {
-                clearTimeout(dropdownHideTimeout);
+            console.log('System prompts loaded');
+
+            // Load disabled models from localStorage
+            loadDisabledModels();
+
+            const models = await initializeModelFields();
+            const submitBtn = document.getElementById('submit-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const promptInput = document.getElementById('prompt-input');
+            const modelsContainer = document.getElementById('models-container');
+            const fullscreenModal = document.getElementById('fullscreen-modal');
+            const fullscreenContent = document.getElementById('fullscreen-content');
+            const closeFullscreenBtn = document.getElementById('close-fullscreen-btn');
+
+            // Trigger native datalist to show all options on click/focus
+            function triggerDatalistDropdown(inputElement) {
+                console.log('Attempting to trigger datalist dropdown');
+
+                // Method: Clear value temporarily to show all options, then restore
+                const originalValue = inputElement.value;
+
+                // Clear the input to show all datalist options
+                inputElement.value = '';
+
+                // Trigger input event to refresh datalist
+                const inputEvent = new Event('input', { bubbles: true });
+                inputElement.dispatchEvent(inputEvent);
+
+                // Focus the input to ensure datalist appears
+                inputElement.focus();
+
+                // Restore original value after a short delay
+                setTimeout(() => {
+                    inputElement.value = originalValue;
+                }, 100);
             }
-            hidePromptDropdown();
-        }
-    });
 
-    // Cancellation controller
-    let currentAbortController = null;
+            // Show datalist dropdown on focus
+            promptInput.addEventListener('focus', () => {
+                const datalist = document.getElementById('prompt-history');
 
-    // Clipboard and fullscreen functionality
-        document.getElementById('models-container').addEventListener('click', (event) => {
-            const copyBtn = event.target.closest('.copy-btn');
-            const fullscreenBtn = event.target.closest('.fullscreen-btn');
-            
-            // Handle matrix mode buttons
-            if (currentMode === 'matrix') {
-                if (copyBtn) {
-                    const matrixIndex = copyBtn.getAttribute('data-matrix-index');
-                    const matrixOutput = document.getElementById(`matrix-${matrixIndex}`);
-                    
-                    const tempTextArea = document.createElement('textarea');
-                    tempTextArea.value = matrixOutput.textContent;
-                    document.body.appendChild(tempTextArea);
-                    tempTextArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tempTextArea);
-
-                    copyBtn.innerHTML = '✓';
+                // Try native trigger first, then fallback to custom dropdown
+                if (datalist && datalist.children.length > 0) {
                     setTimeout(() => {
-                        copyBtn.innerHTML = `
+                        triggerDatalistDropdown(promptInput);
+                    }, 50);
+
+                    // Also show custom dropdown as reliable fallback
+                    showPromptDropdown();
+                }
+            });
+
+            // Show datalist dropdown on click  
+            promptInput.addEventListener('click', () => {
+                const datalist = document.getElementById('prompt-history');
+
+                if (datalist && datalist.children.length > 0) {
+                    triggerDatalistDropdown(promptInput);
+                    // Also show custom dropdown as reliable fallback
+                    showPromptDropdown();
+                }
+            });
+
+            promptInput.addEventListener('input', (e) => {
+
+                // Filter custom dropdown based on input
+                const value = e.target.value.toLowerCase();
+                const dropdown = document.getElementById('prompt-dropdown');
+                if (dropdown && !dropdown.classList.contains('hidden')) {
+                    const items = dropdown.children;
+                    let visibleCount = 0;
+                    Array.from(items).forEach(item => {
+                        if (item.textContent.toLowerCase().includes(value) || value === '') {
+                            item.style.display = '';
+                            visibleCount++;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    if (visibleCount === 0 && value !== '') {
+                        hidePromptDropdown();
+                    }
+                }
+            });
+
+            let dropdownHideTimeout;
+            let isDropdownInteraction = false;
+
+            // Prevent dropdown hide when interacting with dropdown
+            const dropdown = document.getElementById('prompt-dropdown');
+            if (dropdown) {
+                dropdown.addEventListener('mouseenter', () => {
+                    isDropdownInteraction = true;
+                    console.log('Mouse entered dropdown, preventing hide');
+                    if (dropdownHideTimeout) {
+                        clearTimeout(dropdownHideTimeout);
+                    }
+                });
+
+                dropdown.addEventListener('mouseleave', () => {
+                    isDropdownInteraction = false;
+                    console.log('Mouse left dropdown, allowing hide');
+                });
+            }
+
+            promptInput.addEventListener('blur', (e) => {
+                console.log('Input blurred, isDropdownInteraction:', isDropdownInteraction);
+
+                // Only hide if not interacting with dropdown
+                if (!isDropdownInteraction) {
+                    dropdownHideTimeout = setTimeout(() => {
+                        if (!isDropdownInteraction) {
+                            console.log('Hiding dropdown after blur delay');
+                            hidePromptDropdown();
+                        } else {
+                            console.log('Cancelling hide - dropdown interaction detected');
+                        }
+                    }, 150);
+                }
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('prompt-dropdown');
+                const input = document.getElementById('prompt-input');
+
+                if (dropdown && !dropdown.contains(e.target) && !input.contains(e.target)) {
+                    console.log('Clicked outside, hiding dropdown');
+                    isDropdownInteraction = false;
+                    if (dropdownHideTimeout) {
+                        clearTimeout(dropdownHideTimeout);
+                    }
+                    hidePromptDropdown();
+                }
+            });
+
+            // Cancellation controller
+            let currentAbortController = null;
+
+            // Clipboard and fullscreen functionality
+            document.getElementById('models-container').addEventListener('click', (event) => {
+                const copyBtn = event.target.closest('.copy-btn');
+                const fullscreenBtn = event.target.closest('.fullscreen-btn');
+
+                // Handle matrix mode buttons
+                if (currentMode === 'matrix') {
+                    if (copyBtn) {
+                        const matrixIndex = copyBtn.getAttribute('data-matrix-index');
+                        const matrixOutput = document.getElementById(`matrix-${matrixIndex}`);
+
+                        const tempTextArea = document.createElement('textarea');
+                        tempTextArea.value = matrixOutput.textContent;
+                        document.body.appendChild(tempTextArea);
+                        tempTextArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempTextArea);
+
+                        copyBtn.innerHTML = '✓';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = `
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                             </svg>
                         `;
-                    }, 1000);
-                    return;
-                }
-
-                if (fullscreenBtn) {
-                    const matrixIndex = fullscreenBtn.getAttribute('data-matrix-index');
-                    const matrixOutput = document.getElementById(`matrix-${matrixIndex}`);
-                    const matrixStats = document.getElementById(`matrix-stats-${matrixIndex}`);
-                    
-                    fullscreenContent.innerHTML = matrixOutput.innerHTML;
-                    
-                    const fullscreenModelName = document.getElementById('fullscreen-model-name');
-                    const fullscreenModelStats = document.getElementById('fullscreen-model-stats');
-                    const combinations = generateParameterMatrix(selectedModel);
-                    
-                    fullscreenModelName.textContent = `${selectedModel} - ${combinations[matrixIndex].displayLabel}`;
-                    fullscreenModelStats.innerHTML = matrixStats.innerHTML;
-                    
-                    const fullscreenCopyBtn = fullscreenModal.querySelector('.copy-btn');
-                    if (fullscreenCopyBtn) {
-                        fullscreenCopyBtn.setAttribute('data-matrix-index', matrixIndex);
+                        }, 1000);
+                        return;
                     }
-                    
-                    fullscreenModal.classList.remove('hidden');
-                    fullscreenModal.classList.add('opacity-100');
-                    return;
+
+                    if (fullscreenBtn) {
+                        const matrixIndex = fullscreenBtn.getAttribute('data-matrix-index');
+                        const matrixOutput = document.getElementById(`matrix-${matrixIndex}`);
+                        const matrixStats = document.getElementById(`matrix-stats-${matrixIndex}`);
+
+                        fullscreenContent.innerHTML = matrixOutput.innerHTML;
+
+                        const fullscreenModelName = document.getElementById('fullscreen-model-name');
+                        const fullscreenModelStats = document.getElementById('fullscreen-model-stats');
+                        const combinations = generateParameterMatrix(selectedModel);
+
+                        fullscreenModelName.textContent = `${selectedModel} - ${combinations[matrixIndex].displayLabel}`;
+                        fullscreenModelStats.innerHTML = matrixStats.innerHTML;
+
+                        const fullscreenCopyBtn = fullscreenModal.querySelector('.copy-btn');
+                        if (fullscreenCopyBtn) {
+                            fullscreenCopyBtn.setAttribute('data-matrix-index', matrixIndex);
+                        }
+
+                        fullscreenModal.classList.remove('hidden');
+                        fullscreenModal.classList.add('opacity-100');
+                        return;
+                    }
                 }
-            }
 
                 if (copyBtn) {
                     const modelName = copyBtn.getAttribute('data-model');
                     const modelOutput = document.getElementById(`model-${modelName}`);
-                    
+
                     // Create a temporary textarea to copy text
                     const tempTextArea = document.createElement('textarea');
                     tempTextArea.value = modelOutput.textContent;
@@ -2387,19 +2353,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const modelOutput = document.getElementById(`model-${modelName}`);
                     const modelNameLabel = document.querySelector(`label[class*="${modelName}"]`);
                     const modelStatsElement = document.getElementById(`model-stats-${modelName}`);
-                    
+
                     // Set fullscreen content
                     fullscreenContent.innerHTML = modelOutput.innerHTML;
-                    
+
                     // Set model name and stats
                     const fullscreenModelName = document.getElementById('fullscreen-model-name');
                     const fullscreenModelStats = document.getElementById('fullscreen-model-stats');
                     console.log('Opening fullscreen modal for model:', modelName);
                     console.log('Model output:', modelOutput.innerHTML);
-                    
+
                     fullscreenModelName.textContent = modelNameLabel ? modelNameLabel.textContent : modelName;
                     fullscreenModelStats.innerHTML = modelStatsElement ? modelStatsElement.innerHTML : '';
-                    
+
                     // Update copy button's data-model attribute
                     const fullscreenCopyBtn = fullscreenModal.querySelector('.copy-btn');
                     if (fullscreenCopyBtn) {
@@ -2408,12 +2374,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     } else {
                         console.error('Could not find fullscreen copy button');
                     }
-                    
+
                     // Show modal
                     fullscreenModal.classList.remove('hidden');
                     fullscreenModal.classList.add('opacity-100');
                 }
-        });
+            });
 
             // Close fullscreen modal
             closeFullscreenBtn.addEventListener('click', () => {
@@ -2435,7 +2401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const modelName = event.target.closest('.copy-btn').getAttribute('data-model');
                 const matrixIndex = event.target.closest('.copy-btn').getAttribute('data-matrix-index');
                 console.log('Copying content for:', currentMode === 'matrix' ? `matrix-${matrixIndex}` : `model-${modelName}`);
-                
+
                 // Create a temporary textarea to copy text
                 const tempTextArea = document.createElement('textarea');
                 tempTextArea.value = fullscreenContent.textContent;
@@ -2463,7 +2429,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             cancelBtn.addEventListener('click', () => {
                 if (currentAbortController) {
                     currentAbortController.abort();
-                    
+
                     // Reset UI
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit';
@@ -2474,7 +2440,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     allModels.forEach(model => {
                         const textarea = document.getElementById(`model-${model.name}`);
                         const statsElement = document.getElementById(`model-stats-${model.name}`);
-                        
+
                         if (textarea && textarea.innerHTML === 'Loading...') {
                             textarea.innerHTML = 'Cancelled';
                             textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
@@ -2496,7 +2462,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 savePrompt(prompt);
                 // Reload prompt history to update autocomplete
                 loadPromptHistory();
-                
+
                 if (currentMode === 'matrix') {
                     await handleMatrixSubmission(prompt);
                 } else {
@@ -2521,7 +2487,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const textarea = document.getElementById(`matrix-${idx}`);
                     const statsElement = document.getElementById(`matrix-stats-${idx}`);
                     const matrixContainer = textarea.closest('.matrix-card');
-                    
+
                     matrixContainer.classList.remove('fastest-model');
                     textarea.innerHTML = 'Queued';
                     textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
@@ -2531,13 +2497,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const processMatrixCellWithUI = async (combo, idx) => {
                     const textarea = document.getElementById(`matrix-${idx}`);
                     const statsElement = document.getElementById(`matrix-stats-${idx}`);
-                    
+
                     textarea.innerHTML = 'Loading...';
                     textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-loading';
 
                     try {
                         const result = await queryModel(selectedModelObj, prompt, 0, currentAbortController?.signal, combo);
-                        
+
                         if (currentAbortController?.signal?.aborted) {
                             textarea.innerHTML = 'Cancelled';
                             textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-queued';
@@ -2545,7 +2511,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
 
                         const markdownContent = marked.parse(result.text);
-                        
+
                         if (result.text.startsWith('Error') || result.text === 'Request cancelled') {
                             textarea.innerHTML = result.text;
                             textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-error';
@@ -2558,25 +2524,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                             textarea.innerHTML = markdownContent;
                             textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-completed';
                             textarea.closest('.matrix-card').classList.remove('opacity-50', 'grayscale');
-                            
+
                             // Show copy and fullscreen buttons
                             const copyBtn = textarea.closest('.matrix-card').querySelector('.copy-btn');
                             const fullscreenBtn = textarea.closest('.matrix-card').querySelector('.fullscreen-btn');
                             copyBtn.classList.remove('hidden');
                             fullscreenBtn.classList.remove('hidden');
-                            
+
                             // Calculate and display text statistics
                             const stats = calculateTextStatistics(result.text);
                             const pollenCost = calculatePollenCost(result.usage, result.pricing);
                             const costDisplay = pollenCost !== null ? `<br><span class="text-xs text-green-500">${formatPollenCost(pollenCost)}</span>` : '';
-                            
+
                             statsElement.innerHTML = `
                                 ${result.duration}ms | ${stats.characters}chr | ${stats.words}w
                                 <br><span class="text-xs text-gray-400">
                                 ${result.usage.prompt_tokens || 0} + ${result.usage.completion_tokens || 0} = ${result.usage.total_tokens || 0} tks
                                 </span>${costDisplay}
                             `;
-                            
+
                             matrixResults.push({ index: idx, duration: result.duration });
                         }
                     } catch (error) {
@@ -2623,10 +2589,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 submitBtn.textContent = 'Processing...';
                 submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 cancelBtn.classList.remove('hidden');
-                
+
                 // Get only enabled models
                 const enabledModels = getEnabledModels();
-                
+
                 if (enabledModels.length === 0) {
                     alert('No models enabled! Please enable at least one model by clicking on a disabled model card.');
                     submitBtn.disabled = false;
@@ -2642,10 +2608,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const textarea = document.getElementById(`model-${model.name}`);
                     const statsElement = document.getElementById(`model-stats-${model.name}`);
                     const modelContainer = textarea.closest('.border');
-                    
+
                     // Remove any previous fastest model highlights
                     modelContainer.classList.remove('fastest-model');
-                    
+
                     // Set initial state based on enabled/disabled
                     if (disabledModels.has(model.name)) {
                         textarea.innerHTML = 'Disabled - Click card to enable';
@@ -2658,10 +2624,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 });
 
-        const processModelWithUI = async (model) => {
+                const processModelWithUI = async (model) => {
                     const textarea = document.getElementById(`model-${model.name}`);
                     const statsElement = document.getElementById(`model-stats-${model.name}`);
-                    
+
                     // Update status to loading
                     textarea.innerHTML = 'Loading...';
                     textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-loading';
@@ -2669,7 +2635,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     try {
                         // Pass the abort signal to queryModel
                         const result = await queryModel(model, prompt, 0, currentAbortController?.signal);
-                        
+
                         // If cancelled, skip processing
                         if (currentAbortController?.signal?.aborted) {
                             textarea.innerHTML = 'Cancelled';
@@ -2678,8 +2644,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
 
                         const markdownContent = marked.parse(result.text);
-                        
-                if (result.text.startsWith('Error') || result.text === 'Request cancelled') {
+
+                        if (result.text.startsWith('Error') || result.text === 'Request cancelled') {
                             textarea.innerHTML = result.text;
                             textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-error';
                             textarea.closest('.border').classList.add('opacity-50', 'grayscale');
@@ -2687,32 +2653,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                             modelResults.push({ model: model.name, duration: Infinity });
                             textarea.closest('.border').querySelector('.copy-btn').classList.add('hidden');
                             textarea.closest('.border').querySelector('.fullscreen-btn').classList.add('hidden');
-                } else {
-                    textarea.innerHTML = markdownContent;
-                    textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-completed';
-                    textarea.closest('.border').classList.remove('opacity-50', 'grayscale');
-                    
-                    // Show copy and fullscreen buttons
-                    const copyBtn = textarea.closest('.border').querySelector('.copy-btn');
-                    const fullscreenBtn = textarea.closest('.border').querySelector('.fullscreen-btn');
-                    copyBtn.classList.remove('hidden');
-                    fullscreenBtn.classList.remove('hidden');
-                    
-                    // Calculate and display text statistics (no parameters in multi-model view)
-                    const stats = calculateTextStatistics(result.text);
-                    const pollenCost = calculatePollenCost(result.usage, result.pricing);
-                    const costDisplay = pollenCost !== null ? `<br><span class="text-xs text-green-500">${formatPollenCost(pollenCost)}</span>` : '';
-                    
-                    statsElement.innerHTML = `
+                        } else {
+                            textarea.innerHTML = markdownContent;
+                            textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-completed';
+                            textarea.closest('.border').classList.remove('opacity-50', 'grayscale');
+
+                            // Show copy and fullscreen buttons
+                            const copyBtn = textarea.closest('.border').querySelector('.copy-btn');
+                            const fullscreenBtn = textarea.closest('.border').querySelector('.fullscreen-btn');
+                            copyBtn.classList.remove('hidden');
+                            fullscreenBtn.classList.remove('hidden');
+
+                            // Calculate and display text statistics (no parameters in multi-model view)
+                            const stats = calculateTextStatistics(result.text);
+                            const pollenCost = calculatePollenCost(result.usage, result.pricing);
+                            const costDisplay = pollenCost !== null ? `<br><span class="text-xs text-green-500">${formatPollenCost(pollenCost)}</span>` : '';
+
+                            statsElement.innerHTML = `
                         ${result.duration}ms | ${stats.characters}chr | ${stats.words}w
                         <br><span class="text-xs text-gray-400">
                         ${result.usage.prompt_tokens || 0} + ${result.usage.completion_tokens || 0} = ${result.usage.total_tokens || 0} tks
                         </span>${costDisplay}
                     `;
-                    
-                    modelResults.push({ model: model.name, duration: result.duration });
-                }
-            } catch (error) {
+
+                            modelResults.push({ model: model.name, duration: result.duration });
+                        }
+                    } catch (error) {
                         textarea.innerHTML = `Error: ${error.message}`;
                         textarea.className = textarea.className.replace(/model-status-\w+/g, '') + ' model-status-error';
                         statsElement.textContent = 'Error retrieving stats';
@@ -2775,16 +2741,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const keyDisplay = document.getElementById('key-display');
                 const keyTypeBadge = document.getElementById('key-type-badge');
                 const balanceDisplay = document.getElementById('balance-display');
-                
+
                 // Mask the key
                 const maskedKey = apiKey.substring(0, 8) + '...' + apiKey.substring(apiKey.length - 4);
                 keyDisplay.textContent = maskedKey;
-                
+
                 // Determine key type
                 const isDefault = apiKey === DEFAULT_API_KEY;
                 const isSecret = apiKey.startsWith('sk_');
                 const isPublishable = apiKey.startsWith('pk_');
-                
+
                 if (isDefault) {
                     keyTypeBadge.textContent = 'Default Key';
                     keyTypeBadge.className = 'text-xs px-2 py-1 rounded bg-blue-500 text-white';
@@ -2798,7 +2764,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     keyTypeBadge.textContent = 'Custom Key';
                     keyTypeBadge.className = 'text-xs px-2 py-1 rounded bg-gray-500 text-white';
                 }
-                
+
                 // Try to fetch balance
                 try {
                     const balanceResponse = await axios.get('https://gen.pollinations.ai/account/balance', {
@@ -2926,19 +2892,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <!-- Pollinations Logo -->
                 <div class="flex items-center gap-3">
                     <span class="text-sm text-gray-600 dark:text-gray-400">Powered by</span>
-                    <a href="https://pollinations.ai" target="_blank" rel="noopener noreferrer" class="hover:opacity-80 transition-opacity">
-                        <img src="https://raw.githubusercontent.com/pollinations/pollinations/main/assets/logo-text.svg" alt="Pollinations.ai" class="h-8">
+                    <a href="https://pollinations.ai" target="_blank" rel="noopener noreferrer"
+                        class="hover:opacity-80 transition-opacity">
+                        <img src="https://raw.githubusercontent.com/pollinations/pollinations/main/assets/logo-text.svg"
+                            alt="Pollinations.ai" class="h-8">
                     </a>
                 </div>
-                
+
                 <!-- Badge -->
                 <div class="flex items-center">
                     <a href="https://pollinations.ai" target="_blank" rel="noopener noreferrer">
-                        <img src="https://img.shields.io/badge/Built%20with-Pollinations-8a2be2?style=for-the-badge&logo=data:image/svg+xml,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20viewBox%3D%220%200%20124%20124%22%3E%3Ccircle%20cx%3D%2262%22%20cy%3D%2262%22%20r%3D%2262%22%20fill%3D%22%23ffffff%22/%3E%3C/svg%3E&logoColor=white&labelColor=6a0dad" alt="Built with Pollinations">
+                        <img src="https://img.shields.io/badge/Built%20with-Pollinations-8a2be2?style=for-the-badge&logo=data:image/svg+xml,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20viewBox%3D%220%200%20124%20124%22%3E%3Ccircle%20cx%3D%2262%22%20cy%3D%2262%22%20r%3D%2262%22%20fill%3D%22%23ffffff%22/%3E%3C/svg%3E&logoColor=white&labelColor=6a0dad"
+                            alt="Built with Pollinations">
                     </a>
                 </div>
             </div>
         </div>
     </footer>
 </body>
+
 </html>
