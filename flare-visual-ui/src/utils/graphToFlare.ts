@@ -64,7 +64,8 @@ export function compileGraphToFlare(
     const { order, cycles } = topologicalSort(subgraphNodes, subgraphEdges);
 
     if (cycles.length > 0) {
-      warnings.push(`Cycle detected in workflow starting from "${textInputNode.data.text?.substring(0, 20)}..."`);
+      const inputText = 'text' in textInputNode.data ? textInputNode.data.text : undefined;
+      warnings.push(`Cycle detected in workflow starting from "${inputText?.substring(0, 20)}..."`);
       continue; // Skip this workflow
     }
 

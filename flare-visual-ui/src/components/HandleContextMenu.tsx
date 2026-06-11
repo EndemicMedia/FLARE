@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { type Node, type Edge } from 'reactflow';
+import { type Node as FlowNode, type Edge } from 'reactflow';
 import { getCompatibleTargets, type CompatibleTarget } from '../utils/getCompatibleTargets';
 
 interface HandleContextMenuProps {
@@ -7,7 +7,7 @@ interface HandleContextMenuProps {
     sourceHandle: string;
     handleType: 'source' | 'target';
     position: { x: number; y: number };
-    nodes: Node[];
+    nodes: FlowNode[];
     edges: Edge[];
     onClose: () => void;
     onConnect: (targetNodeId: string, targetHandle: string) => void;

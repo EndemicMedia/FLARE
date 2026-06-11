@@ -19,11 +19,11 @@ export interface LayoutOptions {
 /**
  * Apply Dagre layout algorithm to nodes
  */
-export function getLayoutedElements(
-    nodes: Node[],
-    edges: Edge[],
+export function getLayoutedElements<N extends Node, E extends Edge>(
+    nodes: N[],
+    edges: E[],
     options: LayoutOptions = {}
-): { nodes: Node[]; edges: Edge[] } {
+): { nodes: N[]; edges: E[] } {
     const {
         direction = 'LR', // Left to Right by default
         nodeSpacing = 50,

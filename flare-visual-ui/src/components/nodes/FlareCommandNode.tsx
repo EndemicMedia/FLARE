@@ -7,23 +7,15 @@
 
 import { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import type { NodeProps, Node, Edge } from 'reactflow';
+import type { NodeProps } from 'reactflow';
 import { FiChevronDown, FiChevronRight, FiX } from 'react-icons/fi';
 import { useFlareWorkflowStore } from '../../store/flareWorkflowStore';
 import { useHandleContextMenu } from '../../contexts/HandleContextMenuContext';
+import type { FlareCommandNodeData } from '../../types/nodes';
 import '../../styles/nodes.css';
 
-// Flare command node data interface
-export interface FlareCommandNodeData {
-    subGraph: {
-        nodes: Node[];
-        edges: Edge[];
-    };
-    compiled?: string;
-    result?: string;
-    status?: 'idle' | 'running' | 'success' | 'error';
-    error?: string;
-}
+// Re-export for backwards compatibility (now defined in types/nodes.ts)
+export type { FlareCommandNodeData } from '../../types/nodes';
 
 // Prevent drag from blocking interactions
 const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();

@@ -11,7 +11,7 @@ import { applyNodeChanges, applyEdgeChanges, type OnNodesChange, type OnEdgesCha
 import type { FlareNode, NodeData, NodeStatus } from '../types/nodes';
 import type { FlareEdge } from '../types/edges';
 import type { ExecutionState, NodeExecutionStatus } from '../types/workflow';
-import { saveToLocalStorage, loadFromLocalStorage, updateURLWithWorkflow, loadWorkflowFromURL, saveToFile, loadFromFile, type WorkflowData } from '../utils/workflowPersistence';
+import { updateURLWithWorkflow, saveToFile, loadFromFile, type WorkflowData } from '../utils/workflowPersistence';
 
 /**
  * History state for undo/redo
@@ -225,7 +225,7 @@ export const useFlareWorkflowStore = create<FlareWorkflowState>()(
       addNode: (node) => {
         const newNode: FlareNode = {
           ...node,
-          id: node.id || generateId('node'),
+          id: ('id' in node && node.id) || generateId('node'),
         };
 
         // Record history
@@ -303,7 +303,7 @@ export const useFlareWorkflowStore = create<FlareWorkflowState>()(
       addEdge: (edge) => {
         const newEdge: FlareEdge = {
           ...edge,
-          id: edge.id || generateId('edge'),
+          id: ('id' in edge && edge.id) || generateId('edge'),
         };
 
         // Record history

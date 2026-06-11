@@ -12,7 +12,7 @@ import { useThemeStore } from '../store/themeStore';
 const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
 export const ThemeToggle = memo(function ThemeToggle() {
-    const { theme, resolvedTheme, setTheme } = useThemeStore();
+    const { resolvedTheme, setTheme } = useThemeStore();
 
     const toggleTheme = () => {
         const newTheme = resolvedTheme === 'light' ? 'dark' : 'light';

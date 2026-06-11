@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FLARE — Fractal Language for Autonomous Recursive Expansion</title>
+  <meta name="description" content="FLARE is a language for multi-model AI prompting — query several models at once and post-process the responses. Browser-only, powered by Pollinations.ai." />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --bg-code: #0a0e14;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #9da7b3;
+      --accent: #f97316;
+      --accent-soft: #fdba74;
+      --link: #58a6ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+    .hero {
+      text-align: center;
+      padding: 4.5rem 0 3rem;
+    }
+    .hero .flame {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.02em;
+      background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: var(--accent);
+    }
+    .hero .subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+    .hero .tagline {
+      max-width: 640px;
+      margin: 1.25rem auto 0;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+    .hero .tagline strong { color: var(--text); font-weight: 600; }
+    .badges {
+      margin-top: 1.25rem;
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-muted);
+      background: var(--bg-card);
+    }
+    section { padding: 1.5rem 0; }
+    h2 {
+      font-size: 1.35rem;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    h2 span { color: var(--accent); }
+    .code-block {
+      position: relative;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      overflow-x: auto;
+    }
+    .code-block code {
+      font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      color: var(--text);
+    }
+    .code-block .kw { color: var(--accent); }
+    .code-block .param { color: #79c0ff; }
+    .code-block .str { color: #7ee787; }
+    .copy-btn {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+    .ops {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .op {
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--accent-soft);
+    }
+    .op small { color: var(--text-muted); font-family: inherit; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      display: block;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .card .icon { font-size: 1.5rem; }
+    .card h3 {
+      margin: 0.5rem 0 0.25rem;
+      font-size: 1.05rem;
+    }
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .card .go {
+      display: inline-block;
+      margin-top: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--link);
+    }
+    footer {
+      margin-top: 3rem;
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--link); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 480px) {
+      .hero { padding: 3rem 0 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <span class="flame" aria-hidden="true">&#128293;</span>
+      <h1>FLARE</h1>
+      <p class="subtitle">Fractal Language for Autonomous Recursive Expansion</p>
+      <p class="tagline">
+        A language for <strong>multi-model AI prompting</strong> — query several models at once and
+        post-process the responses: <strong>vote</strong>, <strong>summarize</strong>, <strong>combine</strong>,
+        <strong>diff</strong>, <strong>expand</strong>, <strong>filter</strong>.
+      </p>
+      <div class="badges">
+        <span class="badge">Browser-only</span>
+        <span class="badge">No backend required</span>
+        <span class="badge">Powered by Pollinations.ai</span>
+      </div>
+    </header>
+
+    <section aria-labelledby="syntax-heading">
+      <h2 id="syntax-heading"><span>&gt;</span> FLARE syntax</h2>
+      <div class="code-block">
+        <button class="copy-btn" id="copyBtn" type="button" aria-label="Copy example to clipboard">Copy</button>
+        <code>{ <span class="kw">flare</span> <span class="param">model:</span>openai,mistral <span class="param">temp:</span>0.7 <span class="kw">vote</span> <span class="str">`Write a haiku about AI`</span> }</code>
+      </div>
+      <div class="ops">
+        <span class="op">vote <small>— pick the best</small></span>
+        <span class="op">sum <small>— summarize</small></span>
+        <span class="op">comb <small>— combine</small></span>
+        <span class="op">diff <small>— compare</small></span>
+        <span class="op">exp <small>— expand</small></span>
+        <span class="op">filter <small>— refine</small></span>
+      </div>
+    </section>
+
+    <section aria-labelledby="tools-heading">
+      <h2 id="tools-heading"><span>&gt;</span> Try it</h2>
+      <div class="grid">
+        <a class="card" href="./app/">
+          <span class="icon" aria-hidden="true">&#129513;</span>
+          <h3>Visual Workflow Editor</h3>
+          <p>Build FLARE pipelines visually — wire models and post-processing steps on a node canvas.</p>
+          <span class="go">Open editor &rarr;</span>
+        </a>
+        <a class="card" href="./llm-comparison-tool/">
+          <span class="icon" aria-hidden="true">&#9878;&#65039;</span>
+          <h3>LLM Comparison Tool</h3>
+          <p>Send one prompt to many models side by side and compare responses in real time.</p>
+          <span class="go">Compare models &rarr;</span>
+        </a>
+        <a class="card" href="./slopcaster/">
+          <span class="icon" aria-hidden="true">&#127908;</span>
+          <h3>Slopcaster</h3>
+          <p>Let two AI models hold a conversation — and listen in on the generated podcast.</p>
+          <span class="go">Start a cast &rarr;</span>
+        </a>
+        <a class="card" href="./simple-routing/">
+          <span class="icon" aria-hidden="true">&#128256;</span>
+          <h3>Simple Routing</h3>
+          <p>A minimal demo of routing prompts to the right model based on the task.</p>
+          <span class="go">See the demo &rarr;</span>
+        </a>
+        <a class="card" href="https://github.com/EndemicMedia/FLARE" rel="noopener">
+          <span class="icon" aria-hidden="true">&#128025;</span>
+          <h3>GitHub Repository</h3>
+          <p>Source code, FLARE language docs, parser, and issue tracker.</p>
+          <span class="go">View on GitHub &rarr;</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      FLARE — open source on <a href="https://github.com/EndemicMedia/FLARE" rel="noopener">GitHub</a>
+      &middot; model access via <a href="https://pollinations.ai" rel="noopener">Pollinations.ai</a>
+    </p>
+  </footer>
+
+  <script>
+    document.getElementById('copyBtn').addEventListener('click', function () {
+      var text = '{ flare model:openai,mistral temp:0.7 vote `Write a haiku about AI` }';
+      var btn = this;
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'Copied!';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+      });
+    });
+  </script>
+</body>
+</html>

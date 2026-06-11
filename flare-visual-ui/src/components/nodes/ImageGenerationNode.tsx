@@ -10,21 +10,11 @@ import type { NodeProps } from 'reactflow';
 import { FiImage, FiChevronDown, FiChevronRight, FiX } from 'react-icons/fi';
 import { useFlareWorkflowStore } from '../../store/flareWorkflowStore';
 import { useHandleContextMenu } from '../../contexts/HandleContextMenuContext';
+import type { ImageGenerationNodeData } from '../../types/nodes';
 import '../../styles/nodes.css';
 
-// Image generation node data interface
-export interface ImageGenerationNodeData {
-    prompt?: string;
-    width?: number;
-    height?: number;
-    model?: string;
-    seed?: number | null;
-    enhance?: boolean;
-    nologo?: boolean;
-    status?: 'idle' | 'running' | 'success' | 'error';
-    imageUrl?: string;
-    error?: string;
-}
+// Re-export for backwards compatibility (now defined in types/nodes.ts)
+export type { ImageGenerationNodeData } from '../../types/nodes';
 
 // Prevent drag from blocking interactions
 const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();

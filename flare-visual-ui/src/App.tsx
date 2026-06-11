@@ -4,9 +4,6 @@ import ReactFlow, {
   Controls,
   Background,
   BackgroundVariant,
-  addEdge,
-  useNodesState,
-  useEdgesState,
   type Connection,
   type Edge,
   type Node,
@@ -32,6 +29,12 @@ import { useWorkflowSync } from './hooks/useWorkflowSync';
 import { executeWorkflow } from './utils/workflowExecutor';
 import { getLayoutedElements } from './utils/autoLayout';
 import { validateConnection } from './utils/connectionValidator';
+import type { FlareNode } from './types/nodes';
+
+// Cast helpers: ReactFlow callbacks hand back raw Node objects, but the store
+// works with FlareNode (Node narrowed to our NodeType/NodeData unions).
+const asFlareNode = (node: Node): FlareNode => node as FlareNode;
+const asFlareNodes = (nodes: Node[]): FlareNode[] => nodes as FlareNode[];
 
 // Register custom node types
 const nodeTypes: NodeTypes = {
@@ -110,7 +113,7 @@ function App() {
   // Initialize with demo data if empty and no URL hash
   useEffect(() => {
     if (nodes.length === 0 && !window.location.hash) {
-      setNodes(initialNodes);
+      setNodes(asFlareNodes(initialNodes));
       setEdges(initialEdges);
     }
   }, []);
@@ -128,7 +131,7 @@ function App() {
       data: { text: '', placeholder: 'Enter your prompt...' },
     };
     console.log('Adding TextInput node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
   const addModelQueryNode = () => {
@@ -139,7 +142,7 @@ function App() {
       data: { models: ['mistral'], temperature: 1.0, postProcessing: '' },
     };
     console.log('Adding ModelQuery node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
   const addOutputNode = () => {
@@ -150,18 +153,7 @@ function App() {
       data: { displayMode: 'text' as const, content: null },
     };
     console.log('Adding Output node:', newNode);
-    addNode(newNode);
-  };
-
-  const addParameterNode = () => {
-    const newNode: Node = {
-      id: `param-${Date.now()}`,
-      type: 'parameter',
-      position: { x: Math.random() * 200 + 250, y: Math.random() * 200 + 100 },
-      data: { paramType: 'temperature', value: 0.7, min: 0.0, max: 2.0 },
-    };
-    console.log('Adding Parameter node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
   const addPostProcessingNode = () => {
@@ -172,7 +164,7 @@ function App() {
       data: { operation: 'vote' },
     };
     console.log('Adding PostProcessing node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
   const addImageGenerationNode = () => {
@@ -189,7 +181,7 @@ function App() {
       },
     };
     console.log('Adding ImageGeneration node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
   const addFlareCommandNode = () => {
@@ -206,7 +198,7 @@ function App() {
       },
     };
     console.log('Adding FlareCommand node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
 
