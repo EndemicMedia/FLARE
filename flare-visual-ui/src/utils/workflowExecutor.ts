@@ -1,9 +1,10 @@
 import type { Node, Edge } from 'reactflow';
-import axios from 'axios';
 import { useFlareWorkflowStore } from '../store/flareWorkflowStore';
 import type { ImageGenerationNodeData } from '../components/nodes/ImageGenerationNode';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+import {
+  executeFlareCommand as engineExecuteFlareCommand,
+  buildImageUrl,
+} from '../engine';
 
 interface FlareCommandParams {
   models: string[];
@@ -22,24 +23,20 @@ export function buildFlareCommand(params: FlareCommandParams): string {
   return `{ flare model:${modelStr}${tempStr}${postProcStr} \`${params.prompt}\` }`;
 }
 
+/**
+ * Execute a FLARE command using the client-side engine (no backend needed).
+ * Returns the final post-processed result text.
+ */
 export async function executeFlareCommand(command: string): Promise<string> {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/process-flare`, {
-      command,
-    });
-    return response.data.result;
-  } catch (error: any) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
-    }
-    throw new Error(error.message || 'Unknown error');
-  }
+  const { result } = await engineExecuteFlareCommand(command);
+  return result;
 }
 
 /**
- * Executes a single image generation node
+ * Executes a single image generation node — builds the Pollinations image URL
+ * directly in the browser (images are generated on-demand when fetched).
  */
-async function executeImageGenerationNode(node: Node<ImageGenerationNodeData>) {
+function executeImageGenerationNode(node: Node<ImageGenerationNodeData>) {
   const { setNodeStatus, updateNode } = useFlareWorkflowStore.getState();
 
   setNodeStatus(node.id, 'running');
@@ -51,25 +48,20 @@ async function executeImageGenerationNode(node: Node<ImageGenerationNodeData>) {
       throw new Error('Prompt is required');
     }
 
-    const response = await axios.post(`${API_BASE_URL}/generate-image`, {
+    const imageUrl = buildImageUrl({
       prompt,
       model,
       width,
       height,
-      seed,
+      seed: seed ?? undefined,
       enhance,
-      nologo
+      nologo,
     });
 
-    if (response.data.success) {
-      const imageUrl = response.data.url;
-      updateNode(node.id, { imageUrl, status: 'success', error: undefined });
-      setNodeStatus(node.id, 'success', { imageUrl });
-    } else {
-      throw new Error(response.data.error || 'Failed to generate image');
-    }
+    updateNode(node.id, { imageUrl, status: 'success', error: undefined });
+    setNodeStatus(node.id, 'success', { imageUrl });
   } catch (error: any) {
-    const errorMessage = error.response?.data?.error || error.message || 'Generation failed';
+    const errorMessage = error.message || 'Generation failed';
     setNodeStatus(node.id, 'error', null, errorMessage);
     updateNode(node.id, { status: 'error', error: errorMessage });
   }
@@ -99,7 +91,7 @@ export async function executeWorkflow(
   }
 
   // 2. Execute Image Generation Nodes (Independent)
-  const imagePromises = imageNodes.map(node => executeImageGenerationNode(node));
+  imageNodes.forEach(node => executeImageGenerationNode(node));
 
   // 3. Execute Text Workflow (if valid)
   let textPromise = Promise.resolve();
@@ -149,20 +141,14 @@ export async function executeWorkflow(
 
       textPromise = (async () => {
         try {
-          // Fix: Use correct endpoint path based on previous file content
-          // Previous file used /process-flare without api prefix, sticking to that
-          const response = await axios.post(`${API_BASE_URL}/process-flare`, { command });
+          // Execute entirely client-side via the FLARE engine
+          const { result } = await engineExecuteFlareCommand(command);
 
-          if (response.data.success) {
-            const result = response.data.result;
-            outputNodes.forEach(n => setNodeStatus(n.id, 'completed', result));
-            modelNodes.forEach(n => setNodeStatus(n.id, 'completed'));
-            postProcNodes.forEach(n => setNodeStatus(n.id, 'completed'));
-          } else {
-            throw new Error(response.data.error || 'Unknown error');
-          }
+          outputNodes.forEach(n => setNodeStatus(n.id, 'completed', result));
+          modelNodes.forEach(n => setNodeStatus(n.id, 'completed'));
+          postProcNodes.forEach(n => setNodeStatus(n.id, 'completed'));
         } catch (error: any) {
-          const msg = error.response?.data?.error || error.message;
+          const msg = error.message || 'Unknown error';
           outputNodes.forEach(n => setNodeStatus(n.id, 'error', null, msg));
           modelNodes.forEach(n => setNodeStatus(n.id, 'error', null, msg));
         }
@@ -201,5 +187,5 @@ export async function executeWorkflow(
   });
 
   // Await all executions
-  await Promise.all([...imagePromises, textPromise, ...nestedPromises]);
+  await Promise.all([textPromise, ...nestedPromises]);
 }

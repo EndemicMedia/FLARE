@@ -10,7 +10,7 @@ import ReactFlow, {
   type NodeTypes,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { FiCode } from 'react-icons/fi';
+import { FiCode, FiSettings } from 'react-icons/fi';
 import { TextInputNode } from './components/nodes/TextInputNode';
 import { ModelQueryNode } from './components/nodes/ModelQueryNode';
 import { ParameterNode } from './components/nodes/ParameterNode';
@@ -20,6 +20,7 @@ import { ImageGenerationNode } from './components/nodes/ImageGenerationNode';
 import { FlareCommandNode } from './components/nodes/FlareCommandNode';
 import { CustomEdge } from './components/edges/CustomEdge';
 import { SyntaxView } from './components/SyntaxView';
+import { SettingsModal } from './components/SettingsModal';
 import { ThemeToggle } from './components/ThemeToggle';
 import { HandleContextMenu } from './components/HandleContextMenu';
 import { HandleContextMenuContext } from './contexts/HandleContextMenuContext';
@@ -103,6 +104,7 @@ function App() {
   useWorkflowSync();
 
   const [showSyntax, setShowSyntax] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     sourceNodeId: string;
     sourceHandle: string;
@@ -363,12 +365,23 @@ function App() {
           {isRunning ? '⏳ Running...' : '▶ Run Workflow'}
         </button>
 
+        <button
+          onClick={() => setShowSettings(true)}
+          className="px-3 py-2 bg-white text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm font-medium"
+          title="Settings (API key)"
+          aria-label="Settings"
+        >
+          <FiSettings />
+        </button>
+
         <div className="text-sm text-gray-500 flex items-center gap-3">
           <span className="mr-2">Nodes: {nodes.length}</span>
           <span>Connections: {edges.length}</span>
           <ThemeToggle />
         </div>
       </div>
+
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
 
       {/* Canvas */}
       <main style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
