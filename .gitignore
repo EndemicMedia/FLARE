@@ -155,3 +155,6 @@ llm-comparison-tool/deepthinking.md
 lm-studio-presets-main/
 /flare-visual-ui/playwright-report
 flare-visual-ui/test-results/.last-run.json
+
+# Local GitHub Pages build output (assembled by deploy workflow)
+_site/
