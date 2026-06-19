@@ -1,0 +1,31 @@
+{
+  "name": "@flare/core",
+  "version": "1.0.0",
+  "description": "FLARE isomorphic core - parser, model querying, and post-processing for Node.js and browser",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./parser": {
+      "import": "./dist/parser/index.js",
+      "types": "./dist/parser/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.6"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT"
+}
