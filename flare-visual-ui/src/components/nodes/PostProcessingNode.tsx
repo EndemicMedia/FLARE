@@ -1,5 +1,5 @@
 import { memo, useState, useEffect, useMemo } from 'react';
-import { Handle, Position, useReactFlow } from 'reactflow';
+import { Handle, Position } from 'reactflow';
 import type { NodeProps } from 'reactflow';
 import type { PostProcessingNodeData } from '../../types/nodes';
 import { FiFilter, FiPlus, FiMinus, FiX } from 'react-icons/fi';

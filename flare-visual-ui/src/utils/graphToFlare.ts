@@ -64,7 +64,8 @@ export function compileGraphToFlare(
     const { order, cycles } = topologicalSort(subgraphNodes, subgraphEdges);
 
     if (cycles.length > 0) {
-      warnings.push(`Cycle detected in workflow starting from "${textInputNode.data.text?.substring(0, 20)}..."`);
+      const inputText = 'text' in textInputNode.data ? textInputNode.data.text : undefined;
+      errors.push(`Cycle detected in workflow starting from "${inputText?.substring(0, 20)}..."`);
       continue; // Skip this workflow
     }
 
@@ -96,7 +97,7 @@ export function compileGraphToFlare(
   const finalCommand = flareCommands.join('\n\n');
 
   return {
-    success: true,
+    success: errors.length === 0,
     flareCommand: finalCommand,
     errors,
     warnings

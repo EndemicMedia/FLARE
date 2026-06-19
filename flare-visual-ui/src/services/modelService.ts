@@ -107,10 +107,11 @@ export async function fetchAvailableModels(): Promise<ModelOption[]> {
             (response.data && Array.isArray((response.data as any).data)) ? (response.data as any).data : [];
 
         if (modelsList.length > 0) {
-            modelsCache = modelsList.map(transformModel);
+            const fetchedModels: ModelOption[] = modelsList.map(transformModel);
+            modelsCache = fetchedModels;
             cacheTimestamp = Date.now();
-            console.log(`Fetched ${modelsCache.length} models from API`);
-            return modelsCache;
+            console.log(`Fetched ${fetchedModels.length} models from API`);
+            return fetchedModels;
         }
     } catch (error) {
         console.warn('Failed to fetch models from API, using fallback:', error);

@@ -5,15 +5,24 @@
  * Compatible with ReactFlow and maps to FLARE language semantics.
  */
 
+import type { Node, Edge } from 'reactflow';
+
 /**
  * Available node types in the workflow
  */
-export type NodeType = 'textInput' | 'modelQuery' | 'parameter' | 'postProcessing' | 'output';
+export type NodeType =
+  | 'textInput'
+  | 'modelQuery'
+  | 'parameter'
+  | 'postProcessing'
+  | 'output'
+  | 'imageGeneration'
+  | 'flareCommand';
 
 /**
  * Node execution status
  */
-export type NodeStatus = 'idle' | 'loading' | 'completed' | 'error';
+export type NodeStatus = 'idle' | 'loading' | 'running' | 'success' | 'completed' | 'error';
 
 /**
  * Base properties shared by all node data types
@@ -81,6 +90,34 @@ export interface OutputNodeData extends BaseNodeData {
 }
 
 /**
+ * Image Generation Node
+ * Represents image generation using the Pollinations API
+ */
+export interface ImageGenerationNodeData extends BaseNodeData {
+  prompt?: string;
+  width?: number;
+  height?: number;
+  model?: string;
+  seed?: number | null;
+  enhance?: boolean;
+  nologo?: boolean;
+  imageUrl?: string;
+}
+
+/**
+ * Flare Command Node
+ * Represents a nested FLARE workflow within the main graph
+ */
+export interface FlareCommandNodeData extends BaseNodeData {
+  subGraph: {
+    nodes: Node[];
+    edges: Edge[];
+  };
+  compiled?: string;
+  result?: string;
+}
+
+/**
  * Union type for all possible node data types
  */
 export type NodeData =
@@ -88,18 +125,15 @@ export type NodeData =
   | ModelQueryNodeData
   | ParameterNodeData
   | PostProcessingNodeData
-  | OutputNodeData;
+  | OutputNodeData
+  | ImageGenerationNodeData
+  | FlareCommandNodeData;
 
 /**
  * Complete node structure for the workflow
- * Compatible with ReactFlow's Node interface
+ * Based on ReactFlow's Node interface so it inherits position/selected/etc.
  */
-export interface FlareNode {
-  id: string;
-  type: NodeType;
-  position: { x: number; y: number };
-  data: NodeData;
-}
+export type FlareNode = Node<NodeData> & { type: NodeType };
 
 /**
  * Type guard for TextInputNodeData

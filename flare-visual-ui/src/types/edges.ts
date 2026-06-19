@@ -5,19 +5,13 @@
  * Compatible with ReactFlow's Edge interface.
  */
 
+import type { Edge } from 'reactflow';
+
 /**
  * Edge structure connecting two nodes
+ * Based on ReactFlow's Edge interface (sourceHandle/targetHandle may be string | null)
  */
-export interface FlareEdge {
-  id: string;
-  source: string;
-  target: string;
-  sourceHandle?: string;
-  targetHandle?: string;
-  type?: 'default' | 'smoothstep' | 'straight' | 'step';
-  animated?: boolean;
-  label?: string;
-}
+export type FlareEdge = Edge;
 
 /**
  * Handle types for connection validation

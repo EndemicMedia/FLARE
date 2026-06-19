@@ -7,7 +7,6 @@
 import type { FlareNode } from '../types/nodes';
 import type { FlareEdge } from '../types/edges';
 import type { ParsedFlareCommand } from '../types/backend';
-import type { ParsedFlareCommand } from '../types/backend';
 import { getLayoutedElements } from './autoLayout';
 
 export interface ParseResult {

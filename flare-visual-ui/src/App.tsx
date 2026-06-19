@@ -4,16 +4,13 @@ import ReactFlow, {
   Controls,
   Background,
   BackgroundVariant,
-  addEdge,
-  useNodesState,
-  useEdgesState,
   type Connection,
   type Edge,
   type Node,
   type NodeTypes,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { FiCode } from 'react-icons/fi';
+import { FiCode, FiSettings } from 'react-icons/fi';
 import { TextInputNode } from './components/nodes/TextInputNode';
 import { ModelQueryNode } from './components/nodes/ModelQueryNode';
 import { ParameterNode } from './components/nodes/ParameterNode';
@@ -23,6 +20,7 @@ import { ImageGenerationNode } from './components/nodes/ImageGenerationNode';
 import { FlareCommandNode } from './components/nodes/FlareCommandNode';
 import { CustomEdge } from './components/edges/CustomEdge';
 import { SyntaxView } from './components/SyntaxView';
+import { SettingsModal } from './components/SettingsModal';
 import { ThemeToggle } from './components/ThemeToggle';
 import { HandleContextMenu } from './components/HandleContextMenu';
 import { HandleContextMenuContext } from './contexts/HandleContextMenuContext';
@@ -32,6 +30,12 @@ import { useWorkflowSync } from './hooks/useWorkflowSync';
 import { executeWorkflow } from './utils/workflowExecutor';
 import { getLayoutedElements } from './utils/autoLayout';
 import { validateConnection } from './utils/connectionValidator';
+import type { FlareNode } from './types/nodes';
+
+// Cast helpers: ReactFlow callbacks hand back raw Node objects, but the store
+// works with FlareNode (Node narrowed to our NodeType/NodeData unions).
+const asFlareNode = (node: Node): FlareNode => node as FlareNode;
+const asFlareNodes = (nodes: Node[]): FlareNode[] => nodes as FlareNode[];
 
 // Register custom node types
 const nodeTypes: NodeTypes = {
@@ -100,6 +104,7 @@ function App() {
   useWorkflowSync();
 
   const [showSyntax, setShowSyntax] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     sourceNodeId: string;
     sourceHandle: string;
@@ -110,7 +115,7 @@ function App() {
   // Initialize with demo data if empty and no URL hash
   useEffect(() => {
     if (nodes.length === 0 && !window.location.hash) {
-      setNodes(initialNodes);
+      setNodes(asFlareNodes(initialNodes));
       setEdges(initialEdges);
     }
   }, []);
@@ -128,7 +133,7 @@ function App() {
       data: { text: '', placeholder: 'Enter your prompt...' },
     };
     console.log('Adding TextInput node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
   const addModelQueryNode = () => {
@@ -139,7 +144,7 @@ function App() {
       data: { models: ['mistral'], temperature: 1.0, postProcessing: '' },
     };
     console.log('Adding ModelQuery node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
   const addOutputNode = () => {
@@ -150,18 +155,7 @@ function App() {
       data: { displayMode: 'text' as const, content: null },
     };
     console.log('Adding Output node:', newNode);
-    addNode(newNode);
-  };
-
-  const addParameterNode = () => {
-    const newNode: Node = {
-      id: `param-${Date.now()}`,
-      type: 'parameter',
-      position: { x: Math.random() * 200 + 250, y: Math.random() * 200 + 100 },
-      data: { paramType: 'temperature', value: 0.7, min: 0.0, max: 2.0 },
-    };
-    console.log('Adding Parameter node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
   const addPostProcessingNode = () => {
@@ -172,7 +166,7 @@ function App() {
       data: { operation: 'vote' },
     };
     console.log('Adding PostProcessing node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
   const addImageGenerationNode = () => {
@@ -189,7 +183,7 @@ function App() {
       },
     };
     console.log('Adding ImageGeneration node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
   const addFlareCommandNode = () => {
@@ -206,7 +200,7 @@ function App() {
       },
     };
     console.log('Adding FlareCommand node:', newNode);
-    addNode(newNode);
+    addNode(asFlareNode(newNode));
   };
 
 
@@ -371,12 +365,23 @@ function App() {
           {isRunning ? '⏳ Running...' : '▶ Run Workflow'}
         </button>
 
+        <button
+          onClick={() => setShowSettings(true)}
+          className="px-3 py-2 bg-white text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm font-medium"
+          title="Settings (API key)"
+          aria-label="Settings"
+        >
+          <FiSettings />
+        </button>
+
         <div className="text-sm text-gray-500 flex items-center gap-3">
           <span className="mr-2">Nodes: {nodes.length}</span>
           <span>Connections: {edges.length}</span>
           <ThemeToggle />
         </div>
       </div>
+
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
 
       {/* Canvas */}
       <main style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
