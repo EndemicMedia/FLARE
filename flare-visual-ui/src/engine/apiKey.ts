@@ -7,7 +7,7 @@
 const STORAGE_KEY = 'flareApiKey';
 
 /** Shared default key (intentionally public, per project decision). */
-export const DEFAULT_API_KEY = 'Ak59D5TL82X6feti';
+export const DEFAULT_API_KEY = 'sk_EnngsXCASw0kBiuso2zekJuhIxS1l0sB';
 
 function hasBrowserStorage(): boolean {
   try {

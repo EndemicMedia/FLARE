@@ -1,9 +1,7 @@
 /**
  * Pollinations.ai chat completion client with retry logic.
- * Ported from backend src/services/executeModelQuery.js, with the
- * no-retry-on-4xx check fixed to inspect the response status directly.
+ * Uses native fetch to avoid axios header issues with CORS/CDN.
  */
-import axios from 'axios';
 import { apiConfig, modelDefaults, errorMessages } from './config';
 import { getApiKey } from './apiKey';
 
@@ -42,18 +40,13 @@ export async function executeModelQuery({
         content: prompt.trim(),
       },
     ],
-    referrer: apiConfig.pollinations.referrer,
     // Quirk preserved from the backend: 'openai' rejects custom temperature
     ...(model === 'openai' ? {} : { temperature }),
     ...(seed ? { seed } : {}),
   };
 
-  const headers = {
-    ...apiConfig.headers,
-    Authorization: `Bearer ${getApiKey()}`,
-  };
-
-  const url = `${apiConfig.pollinations.baseUrl}${apiConfig.pollinations.chatEndpoint}`;
+  const apiKey = getApiKey();
+  const url = `${apiConfig.pollinations.baseUrl}${apiConfig.pollinations.chatEndpoint}?key=${encodeURIComponent(apiKey)}`;
 
   let lastError: Error | undefined;
 
@@ -61,34 +54,37 @@ export async function executeModelQuery({
     try {
       console.log(`Querying ${model} (attempt ${attempt}/${apiConfig.retry.maxAttempts})`);
 
-      const response = await axios.post(url, requestBody, {
-        headers,
-        timeout: apiConfig.pollinations.timeout,
-        // Never throw on HTTP status — we inspect it directly so the
-        // no-retry-on-4xx logic actually works (backend bug fixed here).
-        validateStatus: () => true,
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), apiConfig.pollinations.timeout);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal,
       });
 
-      if (response.status >= 400) {
-        const errorData = response.data;
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
         if (response.status === 429) {
-          // Rate limit — retryable
           throw new Error(errorMessages.rateLimitError);
         } else if (response.status < 500) {
-          // Client error — do NOT retry
           throw new NonRetryableError(
             errorData?.error?.message || `API error: ${response.status}`
           );
         } else {
-          // Server error — retryable
           throw new Error(`Server error: ${response.status}`);
         }
       }
 
+      const data = await response.json();
+
       // Validate response structure
-      const content = response.data?.choices?.[0]?.message?.content;
+      const content = data?.choices?.[0]?.message?.content;
       if (!content || typeof content !== 'string') {
-        console.warn('Unexpected API response structure:', JSON.stringify(response.data));
+        console.warn('Unexpected API response structure:', JSON.stringify(data));
         throw new Error(errorMessages.invalidResponse);
       }
 

@@ -11,7 +11,7 @@ export const apiConfig = {
     modelsEndpoint: '/v1/models',
     defaultModel: 'openai',
     referrer: 'endemicmedia.github.io',
-    apiKey: process.env.POLLINATIONS_API_KEY || 'Ak59D5TL82X6feti',
+    apiKey: process.env.POLLINATIONS_API_KEY || 'sk_EnngsXCASw0kBiuso2zekJuhIxS1l0sB',
     timeout: 60000, // 60 seconds
   },
   
