@@ -27,8 +27,10 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@flare/core": ["../packages/core/src/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "../packages/core/src"],
+  "exclude": ["../packages/core/src/__tests__"]
 }

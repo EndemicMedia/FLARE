@@ -1,7 +1,7 @@
 // START: processFlareCommand function
 /**
  * Process single FLARE command
- * Main orchestration function for parsing, querying, and post-processing
+ * Main orchestration function — delegates to @flare/core isomorphic engine
  */
 import { parseFlareCommand } from '../parser/parseFlareCommand.js';
 import { queryMultipleModels } from './queryMultipleModels.js';

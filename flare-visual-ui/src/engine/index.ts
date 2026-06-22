@@ -1,73 +1,60 @@
 /**
  * Client-side FLARE execution engine — public API.
- * Runs entirely in the browser; all AI calls go directly to Pollinations.ai.
+ * Delegates to @flare/core for parsing, querying, and post-processing.
+ * Browser-specific features (BYOP keys, image generation) remain local.
  */
-import { parseFlareCommand, validateParsedCommand } from './parseFlare';
-import { queryMultipleModels, type ModelQueryResult } from './queryMultipleModels';
-import { applyPostProcessing } from './postProcessing';
+import {
+  parseFlareCommand,
+  validateParsedCommand,
+  queryMultipleModels as coreQueryMultipleModels,
+  applyPostProcessing as coreApplyPostProcessing,
+  createContext,
+  type FlareExecutionResult,
+  type ModelQueryResult,
+  type ParsedFlareCommand,
+  type PostProcessingCommand,
+  postProcessingCommands,
+  calculateSimilarity,
+  applyCombination,
+  applyFiltering,
+} from '@flare/core';
+import { getApiKey } from './apiKey';
 
-export interface FlareExecutionResult {
-  /** Final result text after post-processing */
-  result: string;
-  /** Per-model raw results (including failures) */
-  modelResponses: ModelQueryResult[];
-}
+export type { FlareExecutionResult, ModelQueryResult, ParsedFlareCommand, PostProcessingCommand };
 
 /**
- * Execute a flat FLARE command string end-to-end:
- * parse → query models in parallel → apply post-processing.
- *
- * Example: executeFlareCommand('{ flare model:mistral,openai temp:0.7 vote `Explain quantum computing` }')
+ * Execute a flat FLARE command string end-to-end using the browser context.
+ * Uses the BYOP key from localStorage/URL hash.
  */
 export async function executeFlareCommand(command: string): Promise<FlareExecutionResult> {
   const parsed = parseFlareCommand(command);
   validateParsedCommand(parsed);
 
-  const modelResponses = await queryMultipleModels(parsed.model, parsed.command, parsed.temp);
+  const context = createContext({ apiKey: getApiKey() });
+
+  const modelResponses = await coreQueryMultipleModels(
+    parsed.model,
+    parsed.command,
+    parsed.temp,
+    context
+  );
 
   const successful = modelResponses.filter((r) => r.success);
-  const result = await applyPostProcessing(successful, parsed.postProcessing, parsed);
+  if (successful.length === 0) {
+    const errors = modelResponses.map((r) => `${r.model}: ${r.error}`).join('; ');
+    throw new Error(`All models failed. Errors: ${errors}`);
+  }
+
+  const result = await coreApplyPostProcessing(successful, parsed.postProcessing, parsed, context);
 
   return { result, modelResponses };
 }
 
-// Parser
-export {
-  parseFlareCommand,
-  validateParsedCommand,
-  postProcessingCommands,
-  type ParsedFlareCommand,
-  type PostProcessingCommand,
-} from './parseFlare';
+// Re-export from @flare/core
+export { parseFlareCommand, validateParsedCommand, postProcessingCommands };
+export { calculateSimilarity, applyCombination, applyFiltering };
 
-// Model querying
-export { executeModelQuery, type ModelQueryOptions } from './pollinationsClient';
-export { queryMultipleModels, type ModelQueryResult } from './queryMultipleModels';
-
-// Post-processing
-export {
-  applyPostProcessing,
-  applyVoting,
-  applySummarization,
-  applyCombination,
-  applyDifference,
-  applyExpansion,
-  applyFiltering,
-  calculateSimilarity,
-  type PostProcessingContext,
-} from './postProcessing';
-
-// Image generation
+// Re-export browser-specific modules
 export { buildImageUrl, type ImageGenerationOptions } from './imageGeneration';
-
-// API key management
-export {
-  getApiKey,
-  setApiKey,
-  clearApiKey,
-  isUsingDefaultKey,
-  DEFAULT_API_KEY,
-} from './apiKey';
-
-// Configuration
+export { getApiKey, setApiKey, clearApiKey, isUsingDefaultKey, DEFAULT_API_KEY } from './apiKey';
 export { apiConfig, modelDefaults, postProcessingConfig, errorMessages } from './config';

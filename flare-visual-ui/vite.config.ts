@@ -9,7 +9,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src'),
+      '@flare/core': path.resolve(__dirname, '../packages/core/src/index.ts')
     }
   },
   server: {
