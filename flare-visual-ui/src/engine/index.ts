@@ -57,4 +57,4 @@ export { calculateSimilarity, applyCombination, applyFiltering };
 // Re-export browser-specific modules
 export { buildImageUrl, type ImageGenerationOptions } from './imageGeneration';
 export { getApiKey, setApiKey, clearApiKey, isUsingDefaultKey, DEFAULT_API_KEY } from './apiKey';
-export { apiConfig, modelDefaults, postProcessingConfig, errorMessages } from './config';
+export { apiConfig, modelDefaults, postProcessingConfig, errorMessages } from '@flare/core';

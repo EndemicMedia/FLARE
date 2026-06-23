@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { buildImageUrl } from '../../../engine/imageGeneration';
-import { apiConfig } from '../../../engine/config';
+import { apiConfig } from '@flare/core';
 
 describe('buildImageUrl', () => {
   it('builds a URL on the Pollinations image endpoint with the encoded prompt', () => {

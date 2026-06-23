@@ -4,7 +4,7 @@
  * Pollinations generates images on-demand when the URL is fetched, so this
  * is a pure function — no network call needed.
  */
-import { apiConfig } from './config';
+import { apiConfig } from '@flare/core';
 
 export interface ImageGenerationOptions {
   prompt: string;

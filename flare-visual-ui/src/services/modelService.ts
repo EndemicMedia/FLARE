@@ -5,8 +5,6 @@
  * Provides caching and fallback to hardcoded models.
  */
 
-import axios from 'axios';
-
 export interface PollinationsModel {
     id: string;
     name: string;
@@ -98,13 +96,23 @@ export async function fetchAvailableModels(): Promise<ModelOption[]> {
 
     try {
         console.log('Fetching models from Pollinations API...');
-        const response = await axios.get<PollinationsModel[]>(POLLINATIONS_MODELS_URL, {
-            timeout: 10000,
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-        // Check if response.data is an array (old API) or has .data property (OpenAI format)
-        const modelsList = Array.isArray(response.data) ? response.data :
-            (response.data && Array.isArray((response.data as any).data)) ? (response.data as any).data : [];
+        const response = await fetch(POLLINATIONS_MODELS_URL, {
+            signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Check if response is an array (old API) or has .data property (OpenAI format)
+        const modelsList: PollinationsModel[] = Array.isArray(data) ? data :
+            (data && Array.isArray(data.data)) ? data.data : [];
 
         if (modelsList.length > 0) {
             const fetchedModels: ModelOption[] = modelsList.map(transformModel);
