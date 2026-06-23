@@ -74,11 +74,19 @@ describe('validateParsedCommand', () => {
   });
 
   it('throws on empty model array', () => {
-    expect(() => validateParsedCommand({ model: [], temp: 1.0, postProcessing: [], command: 'test' })).toThrow();
+    expect(() => validateParsedCommand({ model: [], temp: 1.0, postProcessing: [], command: 'test' })).toThrow(/model/i);
   });
 
   it('throws on empty command', () => {
-    expect(() => validateParsedCommand({ model: ['openai'], temp: 1.0, postProcessing: [], command: '' })).toThrow();
+    expect(() => validateParsedCommand({ model: ['openai'], temp: 1.0, postProcessing: [], command: '' })).toThrow(/empty/i);
+  });
+
+  it('throws on invalid post-processing command', () => {
+    expect(() => validateParsedCommand({ model: ['openai'], temp: 0.7, postProcessing: ['invalid_cmd'], command: 'test' })).toThrow(/Unknown post-processing command: invalid_cmd/);
+  });
+
+  it('throws on invalid temperature', () => {
+    expect(() => validateParsedCommand({ model: ['openai'], temp: -1, postProcessing: [], command: 'test' })).toThrow(/Temperature must be between/);
   });
 });
 

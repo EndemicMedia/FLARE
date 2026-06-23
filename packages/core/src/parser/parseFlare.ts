@@ -77,6 +77,8 @@ export function parseFlareCommand(commandString: string): ParsedFlareCommand {
           if (value && value !== 'true') {
             (parsed as unknown as Record<string, unknown>)[`${key}_model`] = value;
           }
+        } else {
+          console.warn(`Unknown FLARE parameter: ${key}`);
         }
         break;
       }
@@ -94,13 +96,24 @@ export function parseFlareCommand(commandString: string): ParsedFlareCommand {
  * Validate a parsed FLARE command and throw on invalid state.
  */
 export function validateParsedCommand(parsed: ParsedFlareCommand): void {
-  if (!parsed.model || parsed.model.length === 0) {
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('Invalid parsed command object');
+  }
+  if (!Array.isArray(parsed.model) || parsed.model.length === 0) {
     throw new Error('At least one model must be specified');
   }
-  if (!parsed.command || parsed.command.trim() === '') {
-    throw new Error('Prompt cannot be empty');
-  }
-  if (parsed.temp < validation.temperature.min || parsed.temp > validation.temperature.max) {
+  if (typeof parsed.temp !== 'number' || parsed.temp < validation.temperature.min || parsed.temp > validation.temperature.max) {
     throw new Error(`Temperature must be between ${validation.temperature.min} and ${validation.temperature.max}`);
+  }
+  if (!parsed.command || typeof parsed.command !== 'string' || parsed.command.trim() === '') {
+    throw new Error('Command prompt cannot be empty');
+  }
+  if (!Array.isArray(parsed.postProcessing)) {
+    throw new Error('Post-processing must be an array');
+  }
+  for (const cmd of parsed.postProcessing) {
+    if (!postProcessingCommands.has(cmd)) {
+      throw new Error(`Unknown post-processing command: ${cmd}`);
+    }
   }
 }

@@ -4,12 +4,12 @@
  * Handles image generation requests to gen.pollinations.ai
  */
 import axios from 'axios';
-import { apiConfig } from '../globals.js';
+import { apiConfig } from '../../../packages/core/dist/index.js';
 
 export class PollinationsImageClient {
     constructor(apiKey = null) {
         this.baseURL = apiConfig.pollinations.baseUrl;
-        this.apiKey = apiKey || apiConfig.pollinations.apiKey;
+        this.apiKey = apiKey || process.env.POLLINATIONS_API_KEY || 'sk_EnngsXCASw0kBiuso2zekJuhIxS1l0sB';
         this.defaultModel = 'flux';
     }
 
