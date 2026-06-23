@@ -6,6 +6,7 @@ import {
   extractAndParseFlareCommands,
   countFlareCommands,
   hasFlareCommands,
+  replaceFlareCommandsInText,
   postProcessingCommands,
 } from '../parser/index.js';
 
@@ -163,5 +164,28 @@ describe('hasFlareCommands', () => {
 
   it('returns false for empty input', () => {
     expect(hasFlareCommands('')).toBe(false);
+  });
+});
+
+describe('replaceFlareCommandsInText', () => {
+  it('replaces commands with results', () => {
+    const text = 'Before { flare model:openai `hello` } After';
+    const result = replaceFlareCommandsInText(text, ['REPLACED']);
+    expect(result).toBe('Before REPLACED After');
+  });
+
+  it('replaces multiple commands in order', () => {
+    const text = '{ flare model:a `1` } and { flare model:b `2` }';
+    const result = replaceFlareCommandsInText(text, ['FIRST', 'SECOND']);
+    expect(result).toBe('FIRST and SECOND');
+  });
+
+  it('returns original text when no results provided', () => {
+    const text = 'some text { flare model:a `1` }';
+    expect(replaceFlareCommandsInText(text, [])).toBe(text);
+  });
+
+  it('returns original text for empty input', () => {
+    expect(replaceFlareCommandsInText('', ['x'])).toBe('');
   });
 });

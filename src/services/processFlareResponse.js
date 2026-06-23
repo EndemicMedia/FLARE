@@ -1,12 +1,17 @@
 // START: processFlareResponse function
 /**
- * Process text containing embedded FLARE commands
- * Extracts, processes, and replaces FLARE commands in text
+ * Process text containing embedded FLARE commands.
+ * Delegates to @flare/core for parsing, execution, and text replacement.
  */
-import { extractAndParseFlareCommands } from '../parser/extractAndParseFlareCommands.js';
-import { replaceFlareCommandsInText } from '../parser/replaceFlareCommandsInText.js';
-import { queryMultipleModels } from './queryMultipleModels.js';
-import { applyPostProcessing } from './applyPostProcessing.js';
+import {
+  extractAndParseFlareCommands,
+  replaceFlareCommandsInText,
+  createContext,
+  queryMultipleModels,
+  applyPostProcessing,
+} from '../../packages/core/dist/index.js';
+
+const context = createContext();
 
 export async function processFlareResponse(responseText) {
   console.log('🔍 Processing text with embedded FLARE commands...');
@@ -16,7 +21,6 @@ export async function processFlareResponse(responseText) {
   }
 
   try {
-    // Extract and parse all FLARE commands from the text
     const flareCommands = extractAndParseFlareCommands(responseText);
     
     if (flareCommands.length === 0) {
@@ -26,29 +30,29 @@ export async function processFlareResponse(responseText) {
 
     console.log(`📋 Found ${flareCommands.length} FLARE command(s) in text`);
 
-    // Process all FLARE commands
     const commandResults = [];
     for (let i = 0; i < flareCommands.length; i++) {
       try {
         console.log(`🔄 Processing embedded command ${i + 1}/${flareCommands.length}`);
         
-        // Query models for this command
         const modelResults = await queryMultipleModels(
           flareCommands[i].model,
           flareCommands[i].command,
-          flareCommands[i].temp
+          flareCommands[i].temp,
+          context
         );
 
-        // Apply post-processing if specified
         let result;
         if (flareCommands[i].postProcessing.length > 0) {
           result = await applyPostProcessing(
             modelResults,
             flareCommands[i].postProcessing,
-            flareCommands[i]
+            flareCommands[i],
+            context
           );
         } else {
-          result = modelResults[0].response;
+          const successful = modelResults.find(r => r.success);
+          result = successful ? successful.response : '[No successful model response]';
         }
 
         commandResults.push(result);
@@ -60,7 +64,6 @@ export async function processFlareResponse(responseText) {
       }
     }
 
-    // Replace FLARE commands in the original text with their results
     const processedText = replaceFlareCommandsInText(responseText, commandResults);
     
     console.log('✅ Text processing completed');

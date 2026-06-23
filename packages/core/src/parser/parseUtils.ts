@@ -50,3 +50,35 @@ export function hasFlareCommands(text: string): boolean {
   if (!text || typeof text !== 'string') return false;
   return patterns.flareGlobal.test(text);
 }
+
+/**
+ * Replace FLARE commands in text with their results.
+ * Replacements happen in reverse order to preserve string indices.
+ */
+export function replaceFlareCommandsInText(originalText: string, commandResults: string[]): string {
+  if (!originalText || typeof originalText !== 'string') return originalText;
+  if (!Array.isArray(commandResults) || commandResults.length === 0) return originalText;
+
+  let processedText = originalText;
+  const commandStrings = extractFlareCommands(originalText);
+
+  for (let i = commandStrings.length - 1; i >= 0; i--) {
+    if (commandResults[i] !== undefined) {
+      const result = typeof commandResults[i] === 'string'
+        ? commandResults[i]
+        : String(commandResults[i] || '');
+
+      const commandText = commandStrings[i];
+      const escapedCommand = commandText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escapedCommand, 'g');
+
+      let replacementCount = 0;
+      processedText = processedText.replace(regex, (match) => {
+        replacementCount++;
+        return replacementCount === 1 ? result : match;
+      });
+    }
+  }
+
+  return processedText;
+}

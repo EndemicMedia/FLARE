@@ -13,6 +13,7 @@ export {
   extractAndParseFlareCommands,
   countFlareCommands,
   hasFlareCommands,
+  replaceFlareCommandsInText,
   patterns,
   defaults,
   postProcessingCommands,
