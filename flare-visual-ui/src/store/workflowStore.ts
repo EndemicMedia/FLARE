@@ -6,7 +6,7 @@ interface WorkflowState {
   edges: Edge[];
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
-  updateNodeData: (nodeId: string, data: any) => void;
+  updateNodeData: (nodeId: string, data: Record<string, unknown>) => void;
   addNode: (node: Node) => void;
   isRunning: boolean;
   setIsRunning: (running: boolean) => void;

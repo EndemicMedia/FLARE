@@ -326,7 +326,7 @@
             let currentBot = 1;
             let waitingForUserInterruption = false;
             let pollutionsModelsPopulated = false; // Flag to track if Pollinations models have been populated
-            let currentApiProvider = 'puter'; // 'puter' or 'pollinations'
+            let currentApiProvider = 'pollinations'; // 'puter' or 'pollinations'
             
             // DOM elements
             const bot1Select = document.getElementById('bot1-model');
@@ -356,8 +356,13 @@
             const puterModelGroup = document.querySelectorAll('.puter-models');
             const pollModelGroup = document.querySelectorAll('.pollinations-models');
             
-            // We'll populate Pollinations models only when the tab is clicked for the first time
-            // Not populating on page load anymore
+            // Initialize UI to Pollinations as default provider
+            puterApiTab.classList.remove('api-tab-active');
+            pollApiTab.classList.add('api-tab-active');
+            puterModelGroup.forEach(group => group.style.display = 'none');
+            pollModelGroup.forEach(group => group.style.display = '');
+            // Populate Pollinations models in the background on page load
+            populatePollutionsModels().then(() => { pollutionsModelsPopulated = true; });
 
             // API Provider Tab Switching
             puterApiTab.addEventListener('click', () => {

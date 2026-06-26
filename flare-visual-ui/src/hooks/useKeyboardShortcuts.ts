@@ -7,6 +7,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { useFlareWorkflowStore } from '../store/flareWorkflowStore';
+import { logger } from '../utils/logger';
 
 interface KeyboardShortcutsOptions {
     onExecute?: () => void;
@@ -51,7 +52,7 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}) {
             selectedEdges.forEach(e => removeEdge(e.id));
 
             if (selectedNodes.length > 0 || selectedEdges.length > 0) {
-                console.log('Keyboard: Deleted', selectedNodes.length, 'nodes and', selectedEdges.length, 'edges');
+                logger.debug('Keyboard: Deleted', selectedNodes.length, 'nodes and', selectedEdges.length, 'edges');
             }
         }
 
@@ -59,14 +60,14 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}) {
         if (isMeta && lowerKey === 'e') {
             event.preventDefault();
             options.onExecute?.();
-            console.log('Keyboard: Execute workflow');
+            logger.debug('Keyboard: Execute workflow');
         }
 
         // Save workflow: Ctrl/Cmd + S
         if (isMeta && lowerKey === 's') {
             event.preventDefault();
             options.onSave?.();
-            console.log('Keyboard: Save workflow');
+            logger.debug('Keyboard: Save workflow');
         }
 
         // Undo: Ctrl/Cmd + Z (Strictly no shift)
@@ -74,7 +75,7 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}) {
             event.preventDefault();
             if (canUndo()) {
                 undo();
-                console.log('Keyboard: Undo');
+                logger.debug('Keyboard: Undo');
             }
         }
 
@@ -84,7 +85,7 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}) {
             event.preventDefault();
             if (canRedo()) {
                 redo();
-                console.log('Keyboard: Redo');
+                logger.debug('Keyboard: Redo');
             }
         }
 
@@ -92,7 +93,7 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}) {
         if (lowerKey === 'escape') {
             event.preventDefault();
             resetExecution();
-            console.log('Keyboard: Reset execution');
+            logger.debug('Keyboard: Reset execution');
         }
     }, [nodes, edges, removeNode, removeEdge, resetExecution, undo, redo, canUndo, canRedo, options]);
 

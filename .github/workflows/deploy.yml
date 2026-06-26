@@ -22,11 +22,19 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm ci
+
+      - name: Install core package dependencies
+        run: npm ci
+        working-directory: packages/core
+
+      - name: Build @flare/core
+        run: npm run build
+        working-directory: packages/core
 
       - name: Run unit tests
         run: npm run test:unit
@@ -39,9 +47,17 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: flare-visual-ui/package-lock.json
+
+      - name: Install core package dependencies
+        run: npm ci
+        working-directory: packages/core
+
+      - name: Build @flare/core
+        run: npm run build
+        working-directory: packages/core
 
       - name: Install UI dependencies
         run: npm ci

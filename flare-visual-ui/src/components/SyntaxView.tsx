@@ -52,8 +52,8 @@ export const SyntaxView = () => {
       } else {
         setError(result.error || 'Failed to parse FLARE command');
       }
-    } catch (e: any) {
-      setError(e.message || 'Error parsing command');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Error parsing command');
     }
   }, [setNodes, setEdges]);
 

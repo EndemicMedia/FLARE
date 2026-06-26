@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -18,18 +18,21 @@ import { PostProcessingNode } from './components/nodes/PostProcessingNode';
 import { OutputNode } from './components/nodes/OutputNode';
 import { ImageGenerationNode } from './components/nodes/ImageGenerationNode';
 import { FlareCommandNode } from './components/nodes/FlareCommandNode';
+import { logger } from './utils/logger';
 import { CustomEdge } from './components/edges/CustomEdge';
 import { SyntaxView } from './components/SyntaxView';
 import { SettingsModal } from './components/SettingsModal';
 import { ThemeToggle } from './components/ThemeToggle';
 import { HandleContextMenu } from './components/HandleContextMenu';
 import { HandleContextMenuContext } from './contexts/HandleContextMenuContext';
+import { TemplateManager } from './components/TemplateManager';
 import { useFlareWorkflowStore } from './store/flareWorkflowStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useWorkflowSync } from './hooks/useWorkflowSync';
 import { executeWorkflow } from './utils/workflowExecutor';
 import { getLayoutedElements } from './utils/autoLayout';
 import { validateConnection } from './utils/connectionValidator';
+import { ExecutionMonitor } from './components/ExecutionMonitor';
 import type { FlareNode } from './types/nodes';
 
 // Cast helpers: ReactFlow callbacks hand back raw Node objects, but the store
@@ -101,10 +104,13 @@ function App() {
   } = useFlareWorkflowStore();
 
   // Auto-sync workflow to URL and localStorage
-  useWorkflowSync();
+  const { shareWorkflow } = useWorkflowSync();
 
   const [showSyntax, setShowSyntax] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCopied, setShowCopied] = useState(false);
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const validationTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [contextMenu, setContextMenu] = useState<{
     sourceNodeId: string;
     sourceHandle: string;
@@ -112,13 +118,15 @@ function App() {
     position: { x: number; y: number };
   } | null>(null);
 
-  // Initialize with demo data if empty and no URL hash
+  /* eslint-disable react-hooks/exhaustive-deps */
+  // Intentionally runs once on mount only — exhaustive deps would re-run on every render
   useEffect(() => {
     if (nodes.length === 0 && !window.location.hash) {
       setNodes(asFlareNodes(initialNodes));
       setEdges(initialEdges);
     }
   }, []);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const onConnect = useCallback(
     (params: Connection | Edge) => storeAddEdge(params as Edge),
@@ -132,7 +140,7 @@ function App() {
       position: { x: Math.random() * 200 + 50, y: Math.random() * 200 + 100 },
       data: { text: '', placeholder: 'Enter your prompt...' },
     };
-    console.log('Adding TextInput node:', newNode);
+    logger.debug('Adding TextInput node:', newNode);
     addNode(asFlareNode(newNode));
   };
 
@@ -143,7 +151,7 @@ function App() {
       position: { x: Math.random() * 200 + 400, y: Math.random() * 200 + 100 },
       data: { models: ['mistral'], temperature: 1.0, postProcessing: '' },
     };
-    console.log('Adding ModelQuery node:', newNode);
+    logger.debug('Adding ModelQuery node:', newNode);
     addNode(asFlareNode(newNode));
   };
 
@@ -154,7 +162,7 @@ function App() {
       position: { x: Math.random() * 200 + 850, y: Math.random() * 200 + 100 },
       data: { displayMode: 'text' as const, content: null },
     };
-    console.log('Adding Output node:', newNode);
+    logger.debug('Adding Output node:', newNode);
     addNode(asFlareNode(newNode));
   };
 
@@ -165,7 +173,7 @@ function App() {
       position: { x: Math.random() * 200 + 650, y: Math.random() * 200 + 100 },
       data: { operation: 'vote' },
     };
-    console.log('Adding PostProcessing node:', newNode);
+    logger.debug('Adding PostProcessing node:', newNode);
     addNode(asFlareNode(newNode));
   };
 
@@ -182,7 +190,7 @@ function App() {
         nologo: true
       },
     };
-    console.log('Adding ImageGeneration node:', newNode);
+    logger.debug('Adding ImageGeneration node:', newNode);
     addNode(asFlareNode(newNode));
   };
 
@@ -199,7 +207,7 @@ function App() {
         compiled: '{ flare ... }',
       },
     };
-    console.log('Adding FlareCommand node:', newNode);
+    logger.debug('Adding FlareCommand node:', newNode);
     addNode(asFlareNode(newNode));
   };
 
@@ -208,9 +216,10 @@ function App() {
     setExecutionState('running');
     try {
       await executeWorkflow(nodes, edges);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       console.error('Workflow execution error:', error);
-      alert(`Workflow Error: ${error.message}`);
+      alert(`Workflow Error: ${message}`);
     } finally {
       setExecutionState('idle');
     }
@@ -219,8 +228,19 @@ function App() {
   // Keyboard shortcuts (after handleRunWorkflow is defined)
   useKeyboardShortcuts({
     onExecute: handleRunWorkflow,
-    onSave: () => console.log('Save workflow (TODO: implement)'),
+    onSave: () => saveWorkflowToFile(),
   });
+
+  const handleShare = async () => {
+    const url = shareWorkflow();
+    try {
+      await navigator.clipboard.writeText(url);
+      setShowCopied(true);
+      setTimeout(() => setShowCopied(false), 2000);
+    } catch {
+      logger.warn('Clipboard write failed, URL is in the address bar');
+    }
+  };
 
   const handleAutoLayout = () => {
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges, {
@@ -236,7 +256,10 @@ function App() {
     (connection: Connection | Edge) => {
       const { isValid, message } = validateConnection(connection, nodes, edges);
       if (!isValid && message) {
-        console.warn(message);
+        logger.debug('Invalid connection:', message);
+        if (validationTimerRef.current) clearTimeout(validationTimerRef.current);
+        setValidationMessage(message);
+        validationTimerRef.current = setTimeout(() => setValidationMessage(null), 2500);
       }
       return isValid;
     },
@@ -317,7 +340,7 @@ function App() {
             if (file) {
               try {
                 await loadWorkflowFromFile(file);
-                console.log('Workflow loaded successfully');
+                logger.debug('Workflow loaded successfully');
               } catch (error) {
                 console.error('Failed to load workflow:', error);
                 alert('Failed to load workflow. Please check the file format.');
@@ -340,6 +363,16 @@ function App() {
           title="Load workflow from file"
         >
           📂 Load
+        </button>
+
+        <TemplateManager />
+
+        <button
+          onClick={handleShare}
+          className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors text-sm font-medium"
+          title="Copy shareable link to clipboard"
+        >
+          {showCopied ? '✓ Copied!' : '🔗 Share'}
         </button>
 
         <button
@@ -382,6 +415,23 @@ function App() {
       </div>
 
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+
+      {/* Connection validation toast */}
+      {validationMessage && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-red-700/90 text-white text-sm px-4 py-2 rounded-lg shadow-lg pointer-events-none">
+          ⚠️ {validationMessage}
+        </div>
+      )}
+
+      {/* Share copied toast */}
+      {showCopied && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-green-700/90 text-white text-sm px-4 py-2 rounded-lg shadow-lg pointer-events-none">
+          ✓ Link copied to clipboard!
+        </div>
+      )}
+
+      {/* Execution progress overlay */}
+      <ExecutionMonitor />
 
       {/* Canvas */}
       <main style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>

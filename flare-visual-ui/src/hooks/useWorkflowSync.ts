@@ -2,9 +2,9 @@
  * Hook to auto-sync workflow state to URL and localStorage
  */
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useFlareWorkflowStore } from '../store/flareWorkflowStore';
-import { saveToLocalStorage, loadWorkflowFromURL } from '../utils/workflowPersistence';
+import { saveToLocalStorage, loadWorkflowFromURL, encodeWorkflowToURL } from '../utils/workflowPersistence';
 
 /**
  * Debounce utility
@@ -46,4 +46,16 @@ export function useWorkflowSync() {
 
         debouncedSync();
     }, [nodes, edges, syncToURL]);
+
+    /**
+     * Serialize the current workflow to the URL hash and return the full
+     * shareable URL so callers can copy it to the clipboard.
+     */
+    const shareWorkflow = useCallback((): string => {
+        const hash = encodeWorkflowToURL(nodes, edges);
+        window.location.hash = hash.replace(/^#/, '');
+        return window.location.href;
+    }, [nodes, edges]);
+
+    return { shareWorkflow };
 }

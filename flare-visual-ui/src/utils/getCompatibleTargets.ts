@@ -87,7 +87,7 @@ function getNodeHandles(node: Node): Array<{ id: string; type: 'source' | 'targe
             handles.push({ id: 'output', type: 'source', label: 'Output' });
             break;
 
-        case 'postProcessing':
+        case 'postProcessing': {
             // Post-processing can have multiple inputs
             const inputCount = node.data?.inputCount || 2;
             for (let i = 0; i < inputCount; i++) {
@@ -95,6 +95,7 @@ function getNodeHandles(node: Node): Array<{ id: string; type: 'source' | 'targe
             }
             handles.push({ id: 'output', type: 'source', label: 'Output' });
             break;
+        }
 
         case 'imageGeneration':
             handles.push({ id: 'input', type: 'target', label: 'Input' });

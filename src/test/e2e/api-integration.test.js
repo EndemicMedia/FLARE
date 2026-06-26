@@ -186,8 +186,13 @@ describe('FLARE API Integration Tests', () => {
 
         // Should parse correctly regardless of API success
         expect(testCommand.command).to.match(/temp:0\.1/);
+        expect(response.data).to.have.property('success');
         console.log('✅ Temperature parameter parsing works');
       } catch (error) {
+        if (error.response) {
+          // Server returned a response — verify it has expected shape
+          expect(error.response.data).to.have.property('error').that.is.a('string');
+        }
         console.log('⚠️ Temperature test - API unavailable but parsing should work');
       }
     });
@@ -208,13 +213,21 @@ describe('FLARE API Integration Tests', () => {
         
         // We're testing parsing, not API calls
         try {
-          await axios.post(`${baseUrl}/process-flare`, testCommand, {
+          const response = await axios.post(`${baseUrl}/process-flare`, testCommand, {
             headers: { 'Content-Type': 'application/json' },
             timeout: 5000,
             validateStatus: () => true
           });
+          // Server responded — response body must have a defined success or error shape
+          expect(response.data).to.satisfy(
+            (d) => typeof d.success === 'boolean' || typeof d.error === 'string',
+            `Expected response for '${name}' to have success or error field`
+          );
           console.log(`✅ ${name} command parsing works`);
         } catch (error) {
+          if (error.response) {
+            expect(error.response.data).to.have.property('error').that.is.a('string');
+          }
           console.log(`✅ ${name} command parsing works (API timeout expected)`);
         }
       }

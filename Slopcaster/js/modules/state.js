@@ -14,7 +14,7 @@ window.slopcaster.state = {
     currentBot: 1, // Which bot speaks next
     waitingForUserInterruption: false,
     pollutionsModelsPopulated: false,
-    currentApiProvider: 'puter', // 'puter' or 'pollinations'
+    currentApiProvider: 'pollinations', // 'puter' or 'pollinations'
     
     // Playback State
     isPlaying: false, // Audio playback active

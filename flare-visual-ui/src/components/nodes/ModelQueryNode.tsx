@@ -6,6 +6,7 @@ import { FiCpu, FiChevronDown, FiChevronRight, FiX } from 'react-icons/fi';
 import { SingleModelSelector } from './SingleModelSelector';
 import { useFlareWorkflowStore } from '../../store/flareWorkflowStore';
 import { useHandleContextMenu } from '../../contexts/HandleContextMenuContext';
+import { logger } from '../../utils/logger';
 import '../../styles/nodes.css';
 
 // Prevent drag from blocking interactions
@@ -24,7 +25,7 @@ export const ModelQueryNode = memo(function ModelQueryNode({ data, id, selected 
   const { openHandleContextMenu } = useHandleContextMenu();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  console.log(`ModelQueryNode rendering - id: ${id}, selected: ${selected}`, data);
+  logger.debug(`ModelQueryNode rendering - id: ${id}, selected: ${selected}`, data);
 
   // Get the first model from the array (for backwards compatibility)
   const selectedModel = data.models?.[0] || data.model || null;

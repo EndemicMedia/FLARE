@@ -5,6 +5,8 @@ import {
   applyFiltering,
   applyVoting,
   applySummarization,
+  applyDifference,
+  applyExpansion,
   applyPostProcessing,
 } from '../postProcessing/index.js';
 import type { FlareContext } from '../config/context.js';
@@ -15,6 +17,18 @@ function mockContext(response: string): FlareContext {
     httpClient: {
       async post(): Promise<HttpResponse> {
         return { status: 200, data: { choices: [{ message: { content: response } }] } };
+      },
+    },
+    keyResolver: () => 'test-key',
+  };
+}
+
+/** Context whose model query fails immediately (non-retryable), to exercise fallback paths. */
+function failingContext(): FlareContext {
+  return {
+    httpClient: {
+      async post(): Promise<HttpResponse> {
+        return { status: 400, data: { error: { message: 'bad request' } } };
       },
     },
     keyResolver: () => 'test-key',
@@ -100,6 +114,54 @@ describe('applySummarization', () => {
     const ctx = mockContext('A combined summary');
     const result = await applySummarization(['resp1', 'resp2'], { model: ['mistral'] }, ctx);
     expect(result).toBe('A combined summary');
+  });
+
+  it('falls back to combined text when the model fails', async () => {
+    const ctx = failingContext();
+    const result = await applySummarization(['resp1', 'resp2'], { model: ['mistral'] }, ctx);
+    expect(result).toContain('resp1');
+    expect(result).toContain('resp2');
+  });
+});
+
+describe('applyDifference', () => {
+  it('returns the single response without calling the model', async () => {
+    const ctx = mockContext('should not be called');
+    const result = await applyDifference(['only'], {}, ctx);
+    expect(result).toBe('only');
+  });
+
+  it('analyzes differences across multiple responses via model', async () => {
+    const ctx = mockContext('Key difference: tone');
+    const result = await applyDifference(['resp1', 'resp2'], { model: ['mistral'] }, ctx);
+    expect(result).toBe('Key difference: tone');
+  });
+
+  it('falls back to joined responses when the model fails', async () => {
+    const ctx = failingContext();
+    const result = await applyDifference(['resp1', 'resp2'], { model: ['mistral'] }, ctx);
+    expect(result).toContain('resp1');
+    expect(result).toContain('resp2');
+  });
+});
+
+describe('applyExpansion', () => {
+  it('expands a single response via model', async () => {
+    const ctx = mockContext('Expanded with more detail');
+    const result = await applyExpansion(['base'], { model: ['mistral'] }, ctx);
+    expect(result).toBe('Expanded with more detail');
+  });
+
+  it('expands using additional responses as context', async () => {
+    const ctx = mockContext('Expanded using extra context');
+    const result = await applyExpansion(['base', 'extra'], { model: ['mistral'] }, ctx);
+    expect(result).toBe('Expanded using extra context');
+  });
+
+  it('falls back to the base response when the model fails', async () => {
+    const ctx = failingContext();
+    const result = await applyExpansion(['base', 'extra'], { model: ['mistral'] }, ctx);
+    expect(result).toBe('base');
   });
 });
 

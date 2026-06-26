@@ -5,6 +5,8 @@
  * Provides caching and fallback to hardcoded models.
  */
 
+import { logger } from '../utils/logger';
+
 export interface PollinationsModel {
     id: string;
     name: string;
@@ -90,12 +92,12 @@ function transformModel(model: PollinationsModel): ModelOption {
 export async function fetchAvailableModels(): Promise<ModelOption[]> {
     // Return cached models if still valid
     if (modelsCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
-        console.log('Using cached models');
+        logger.debug('Using cached models');
         return modelsCache;
     }
 
     try {
-        console.log('Fetching models from Pollinations API...');
+        logger.debug('Fetching models from Pollinations API...');
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
@@ -118,7 +120,7 @@ export async function fetchAvailableModels(): Promise<ModelOption[]> {
             const fetchedModels: ModelOption[] = modelsList.map(transformModel);
             modelsCache = fetchedModels;
             cacheTimestamp = Date.now();
-            console.log(`Fetched ${fetchedModels.length} models from API`);
+            logger.debug(`Fetched ${fetchedModels.length} models from API`);
             return fetchedModels;
         }
     } catch (error) {

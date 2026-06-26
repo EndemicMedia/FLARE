@@ -56,6 +56,14 @@ window.slopcaster.settingsPanel = {
         
         // Check Puter availability
         this.checkPuterAvailability();
+
+        // Apply initial provider state: make Pollinations the default active tab
+        this.puterApiTab.classList.remove('api-tab-active');
+        this.pollApiTab.classList.add('api-tab-active');
+        this.puterModelGroups.forEach(group => group.style.display = 'none');
+        this.pollModelGroups.forEach(group => group.style.display = '');
+        // Populate Pollinations models in the background
+        window.slopcaster.llm.populatePollinationsModels();
     },
     
     /**

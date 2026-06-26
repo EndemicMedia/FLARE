@@ -7,6 +7,7 @@ import { processFlareCommand } from '../services/processFlareCommand.js';
 import { processFlareResponse } from '../services/processFlareResponse.js';
 import { generateImage } from './routes/generateImage.js';
 import { httpStatus } from './globals.js';
+import { parseFlareCommand, validateParsedCommand } from '../../packages/core/dist/index.js';
 
 export function setupApiRoutes(app) {
   // Main FLARE processing endpoint
@@ -63,6 +64,36 @@ export function setupApiRoutes(app) {
 
       res.status(httpStatus.INTERNAL_ERROR).json({
         error: error.message || "Internal server error processing text.",
+        success: false
+      });
+    }
+  });
+
+  // Parse-only endpoint: validates and returns the parsed FLARE structure
+  // without executing any model queries. Used by the visual editor to
+  // convert FLARE syntax into an editable graph.
+  app.post('/parse-flare', (req, res) => {
+    try {
+      const { command } = req.body;
+
+      if (!command || typeof command !== 'string' || command.trim() === '') {
+        return res.status(httpStatus.BAD_REQUEST).json({
+          error: 'Missing or invalid FLARE command. Please provide a valid command string.',
+          success: false
+        });
+      }
+
+      const parsed = parseFlareCommand(command.trim());
+      validateParsedCommand(parsed);
+
+      res.status(httpStatus.OK).json({
+        success: true,
+        parsed,
+        command: command.trim()
+      });
+    } catch (error) {
+      res.status(httpStatus.BAD_REQUEST).json({
+        error: error.message || 'Failed to parse FLARE command.',
         success: false
       });
     }

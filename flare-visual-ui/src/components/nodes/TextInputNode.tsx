@@ -5,6 +5,7 @@ import type { TextInputNodeData } from '../../types/nodes';
 import { FiEdit3, FiX } from 'react-icons/fi';
 import { useFlareWorkflowStore } from '../../store/flareWorkflowStore';
 import { useHandleContextMenu } from '../../contexts/HandleContextMenuContext';
+import { logger } from '../../utils/logger';
 import '../../styles/nodes.css';
 
 // Prevent drag from blocking input interactions
@@ -15,7 +16,7 @@ export const TextInputNode = memo(function TextInputNode({ data, id, selected }:
   const removeNode = useFlareWorkflowStore((state) => state.removeNode);
   const { openHandleContextMenu } = useHandleContextMenu();
 
-  console.log(`TextInputNode rendering - id: ${id}, selected: ${selected}`, data);
+  logger.debug(`TextInputNode rendering - id: ${id}, selected: ${selected}`, data);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateNode(id, { text: e.target.value });

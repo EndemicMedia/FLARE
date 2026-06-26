@@ -11,7 +11,11 @@ import type { NodeProps } from 'reactflow';
 import { FiChevronDown, FiChevronRight, FiX } from 'react-icons/fi';
 import { useFlareWorkflowStore } from '../../store/flareWorkflowStore';
 import { useHandleContextMenu } from '../../contexts/HandleContextMenuContext';
-import type { FlareCommandNodeData } from '../../types/nodes';
+import type { FlareCommandNodeData, FlareNode } from '../../types/nodes';
+import type { FlareEdge } from '../../types/edges';
+import { SubGraphEditorModal } from '../SubGraphEditorModal';
+import { MiniFlareCanvas } from '../MiniFlareCanvas';
+import { logger } from '../../utils/logger';
 import '../../styles/nodes.css';
 
 // Re-export for backwards compatibility (now defined in types/nodes.ts)
@@ -26,18 +30,32 @@ export const FlareCommandNode = memo(function FlareCommandNode({
     selected
 }: NodeProps<FlareCommandNodeData>) {
     const removeNode = useFlareWorkflowStore((state) => state.removeNode);
+    const updateNode = useFlareWorkflowStore((state) => state.updateNode);
     const { openHandleContextMenu } = useHandleContextMenu();
     const [expanded, setExpanded] = useState(false);
+    const [showEditor, setShowEditor] = useState(false);
 
     const nodeCount = data.subGraph?.nodes?.length || 0;
     const edgeCount = data.subGraph?.edges?.length || 0;
 
     const handleEditSubGraph = () => {
-        // TODO: Open sub-graph editor modal
-        console.log('Edit sub-graph:', id);
+        logger.debug('Edit sub-graph:', id);
+        setShowEditor(true);
     };
 
     return (
+        <>
+        {showEditor && (
+            <SubGraphEditorModal
+                nodeId={id}
+                subGraph={{
+                    nodes: (data.subGraph?.nodes || []) as FlareNode[],
+                    edges: (data.subGraph?.edges || []) as FlareEdge[],
+                }}
+                onSave={(newSubGraph) => updateNode(id, { subGraph: newSubGraph })}
+                onClose={() => setShowEditor(false)}
+            />
+        )}
         <div className={`flare-node flare-command-node ${data.status || 'idle'} ${selected ? 'selected' : ''}`}>
             <button className="node-close-btn" onClick={(e) => { e.stopPropagation(); removeNode(id); }} title="Remove node">
                 <FiX size={14} />
@@ -86,14 +104,10 @@ export const FlareCommandNode = memo(function FlareCommandNode({
                         </div>
                         <div className="nested-graph-preview">
                             {nodeCount > 0 ? (
-                                <div className="mini-canvas-placeholder">
-                                    {/* TODO: Implement MiniFlareCanvas component */}
-                                    <div className="placeholder-text">
-                                        📊 Sub-graph visualization
-                                        <br />
-                                        <small>(Mini canvas coming soon)</small>
-                                    </div>
-                                </div>
+                                <MiniFlareCanvas
+                                    nodes={(data.subGraph?.nodes || []) as FlareNode[]}
+                                    edges={(data.subGraph?.edges || []) as FlareEdge[]}
+                                />
                             ) : (
                                 <div className="empty-subgraph">
                                     <span>Empty workflow</span>
@@ -149,5 +163,6 @@ export const FlareCommandNode = memo(function FlareCommandNode({
                 }}
             />
         </div>
+        </>
     );
 });

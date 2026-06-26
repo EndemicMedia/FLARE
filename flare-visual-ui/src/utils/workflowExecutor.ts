@@ -5,6 +5,7 @@ import {
   executeFlareCommand as engineExecuteFlareCommand,
   buildImageUrl,
 } from '../engine';
+import { logger } from './logger';
 
 interface FlareCommandParams {
   models: string[];
@@ -60,8 +61,8 @@ function executeImageGenerationNode(node: Node<ImageGenerationNodeData>) {
 
     updateNode(node.id, { imageUrl, status: 'success', error: undefined });
     setNodeStatus(node.id, 'success', { imageUrl });
-  } catch (error: any) {
-    const errorMessage = error.message || 'Generation failed';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Generation failed';
     setNodeStatus(node.id, 'error', null, errorMessage);
     updateNode(node.id, { status: 'error', error: errorMessage });
   }
@@ -69,7 +70,6 @@ function executeImageGenerationNode(node: Node<ImageGenerationNodeData>) {
 
 export async function executeWorkflow(
   nodes: Node[],
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _edges: Edge[]
 ): Promise<void> {
   const { setNodeStatus } = useFlareWorkflowStore.getState();
@@ -132,7 +132,7 @@ export async function executeWorkflow(
         prompt
       });
 
-      console.log('Executing FLARE command:', command);
+      logger.debug('Executing FLARE command:', command);
 
       // Set loading states
       modelNodes.forEach(n => setNodeStatus(n.id, 'loading'));
@@ -147,8 +147,8 @@ export async function executeWorkflow(
           outputNodes.forEach(n => setNodeStatus(n.id, 'completed', result));
           modelNodes.forEach(n => setNodeStatus(n.id, 'completed'));
           postProcNodes.forEach(n => setNodeStatus(n.id, 'completed'));
-        } catch (error: any) {
-          const msg = error.message || 'Unknown error';
+        } catch (error: unknown) {
+          const msg = error instanceof Error ? error.message : 'Unknown error';
           outputNodes.forEach(n => setNodeStatus(n.id, 'error', null, msg));
           modelNodes.forEach(n => setNodeStatus(n.id, 'error', null, msg));
         }
@@ -179,8 +179,8 @@ export async function executeWorkflow(
       const result = subOutputNode?.data?.content || '(Nested workflow completed)';
 
       setNodeStatus(node.id, 'success', result);
-    } catch (error: any) {
-      const errorMessage = error.message || 'Nested workflow execution failed';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Nested workflow execution failed';
       setNodeStatus(node.id, 'error', null, errorMessage);
       console.error(`FlareCommand node ${node.id} failed:`, error);
     }
