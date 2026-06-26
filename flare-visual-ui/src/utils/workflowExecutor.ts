@@ -72,7 +72,7 @@ export async function executeWorkflow(
   nodes: Node[],
   _edges: Edge[]
 ): Promise<void> {
-  const { setNodeStatus } = useFlareWorkflowStore.getState();
+  const { setNodeStatus, updateNode } = useFlareWorkflowStore.getState();
 
   // 1. Identify workflow types
   const inputNodes = nodes.filter((n) => n.type === 'textInput');
@@ -144,12 +144,18 @@ export async function executeWorkflow(
           // Execute entirely client-side via the FLARE engine
           const { result } = await engineExecuteFlareCommand(command);
 
-          outputNodes.forEach(n => setNodeStatus(n.id, 'completed', result));
+          outputNodes.forEach(n => {
+            setNodeStatus(n.id, 'completed', result);
+            updateNode(n.id, { content: result, error: undefined });
+          });
           modelNodes.forEach(n => setNodeStatus(n.id, 'completed'));
           postProcNodes.forEach(n => setNodeStatus(n.id, 'completed'));
         } catch (error: unknown) {
           const msg = error instanceof Error ? error.message : 'Unknown error';
-          outputNodes.forEach(n => setNodeStatus(n.id, 'error', null, msg));
+          outputNodes.forEach(n => {
+            setNodeStatus(n.id, 'error', null, msg);
+            updateNode(n.id, { content: null, error: msg });
+          });
           modelNodes.forEach(n => setNodeStatus(n.id, 'error', null, msg));
         }
       })();

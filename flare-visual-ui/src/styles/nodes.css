@@ -44,8 +44,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--node-bg, white);
+  border: 1px solid var(--border-color, #ddd);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,11 +133,13 @@
 .text-input-field {
   width: 100%;
   padding: 8px;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-color, #ced4da);
   border-radius: 4px;
   font-family: inherit;
   font-size: 13px;
   resize: vertical;
+  background: var(--node-bg, white);
+  color: var(--text-primary, #212529);
 }
 
 .text-input-field:focus {
@@ -161,11 +163,11 @@
 
 .node-select {
   padding: 6px;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-color, #ced4da);
   border-radius: 4px;
   font-size: 12px;
-  background: white;
-  color: #212529;
+  background: var(--node-bg, white);
+  color: var(--text-primary, #212529);
   cursor: pointer;
 }
 
@@ -576,8 +578,9 @@
 
 .mode-button {
   padding: 4px 8px;
-  border: 1px solid #dee2e6;
-  background: white;
+  border: 1px solid var(--border-color, #dee2e6);
+  background: var(--node-bg, white);
+  color: var(--text-primary, #212529);
   border-radius: 4px;
   cursor: pointer;
   font-size: 11px;
@@ -588,7 +591,7 @@
 }
 
 .mode-button:hover {
-  background: #f8f9fa;
+  background: var(--bg-tertiary, #f8f9fa);
 }
 
 .mode-button.active {
@@ -599,8 +602,9 @@
 
 .copy-button {
   padding: 4px 8px;
-  border: 1px solid #dee2e6;
-  background: white;
+  border: 1px solid var(--border-color, #dee2e6);
+  background: var(--node-bg, white);
+  color: var(--text-primary, #212529);
   border-radius: 4px;
   cursor: pointer;
   font-size: 11px;
@@ -619,10 +623,10 @@
 .output-display {
   max-height: 300px;
   overflow-y: auto;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-color, #dee2e6);
   border-radius: 4px;
   padding: 8px;
-  background: #f8f9fa;
+  background: var(--bg-secondary, #f8f9fa);
 }
 
 .output-placeholder {
@@ -635,7 +639,7 @@
 .output-text {
   font-size: 12px;
   line-height: 1.5;
-  color: #212529;
+  color: var(--text-primary, #212529);
   white-space: pre-wrap;
 }
 
@@ -643,22 +647,22 @@
   font-family: 'Courier New', monospace;
   font-size: 11px;
   line-height: 1.4;
-  color: #212529;
+  color: var(--text-primary, #212529);
   margin: 0;
 }
 
 .output-markdown {
   font-size: 12px;
   line-height: 1.6;
-  color: #212529;
+  color: var(--text-primary, #212529);
 }
 
 /* ReactFlow Handles */
 .node-handle {
   width: 10px;
   height: 10px;
-  background: #3498db;
-  border: 2px solid white;
+  background: var(--accent-primary, #3498db);
+  border: 2px solid var(--node-bg, white);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -727,11 +731,12 @@
 
 .param-input {
   padding: 6px 10px;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-color, #ced4da);
   border-radius: 4px;
   font-size: 12px;
   width: 100%;
-  background: white;
+  background: var(--node-bg, white);
+  color: var(--text-primary, #212529);
 }
 
 .param-input:focus {
@@ -1326,8 +1331,9 @@
 .context-menu-footer kbd {
   display: inline-block;
   padding: 2px 6px;
-  background: white;
-  border: 1px solid #dee2e6;
+  background: var(--node-bg, white);
+  border: 1px solid var(--border-color, #dee2e6);
+  color: var(--text-primary, inherit);
   border-radius: 3px;
   font-family: 'Courier New', monospace;
   font-size: 10px;
