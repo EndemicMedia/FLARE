@@ -27,6 +27,7 @@ export const OutputNode = memo(function OutputNode({ data, id, selected }: NodeP
 
   const renderContent = () => {
     if (!data.content) {
+      if (data.error) return null; // error div rendered separately below
       return <div className="output-placeholder">No output yet. Run the workflow to see results.</div>;
     }
 

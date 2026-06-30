@@ -42,6 +42,13 @@ export async function executeFlareCommand(command: string): Promise<FlareExecuti
   const successful = modelResponses.filter((r) => r.success);
   if (successful.length === 0) {
     const errors = modelResponses.map((r) => `${r.model}: ${r.error}`).join('; ');
+    const has403 = errors.includes('403');
+    if (has403 && isUsingDefaultKey()) {
+      throw new Error(
+        'API request blocked (403). The shared default key may be rate-limited or blocked for automated contexts. ' +
+        'Open Settings (⚙) and enter your own Pollinations API key to continue.'
+      );
+    }
     throw new Error(`All models failed. Errors: ${errors}`);
   }
 

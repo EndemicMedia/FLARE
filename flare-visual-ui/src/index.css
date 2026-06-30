@@ -32,6 +32,13 @@
   --node-header-bg: #f8f9fa;
   --node-shadow: rgba(0, 0, 0, 0.1);
 
+  --node-error-bg: #fff0f0;
+  --node-error-text: #cc3333;
+  --node-warning-bg: #fff3cd;
+  --node-warning-text: #856404;
+  --node-info-bg: #e7f5ff;
+  --node-info-text: #1971c2;
+
   --toolbar-bg: #ffffff;
   --header-bg: #ffffff;
 
@@ -65,6 +72,13 @@
   --node-bg: #21262d;
   --node-header-bg: #161b22;
   --node-shadow: rgba(0, 0, 0, 0.4);
+
+  --node-error-bg: #3d1c1c;
+  --node-error-text: #f87171;
+  --node-warning-bg: #3d2e00;
+  --node-warning-text: #fbbf24;
+  --node-info-bg: #0d2a45;
+  --node-info-text: #79c0ff;
 
   --toolbar-bg: #161b22;
   --header-bg: #161b22;

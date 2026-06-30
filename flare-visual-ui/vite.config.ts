@@ -4,6 +4,7 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
+  root: path.resolve(__dirname),
   // The Pages deploy workflow sets VITE_BASE_PATH=/FLARE/app/
   base: process.env.VITE_BASE_PATH || '/',
   plugins: [react()],

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -8,6 +8,7 @@ import ReactFlow, {
   type Edge,
   type Node,
   type NodeTypes,
+  type ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { FiCode, FiSettings } from 'react-icons/fi';
@@ -117,6 +118,19 @@ function App() {
     handleType: 'source' | 'target';
     position: { x: number; y: number };
   } | null>(null);
+
+  // ReactFlow instance — captured on init so we can auto-fit the view.
+  const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
+
+  // Auto-zoom to fit all nodes whenever a node is added or removed.
+  useEffect(() => {
+    if (!reactFlowInstance.current) return;
+    const id = window.setTimeout(
+      () => reactFlowInstance.current?.fitView({ duration: 300, padding: 0.2 }),
+      50
+    );
+    return () => window.clearTimeout(id);
+  }, [nodes.length]);
 
   /* eslint-disable react-hooks/exhaustive-deps */
   // Intentionally runs once on mount only — exhaustive deps would re-run on every render
@@ -270,19 +284,19 @@ function App() {
 
   return (
     <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <header className="bg-white shadow-sm border-b">
+      <header className="app-header">
         <div className="max-w-full mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold">
             FLARE Visual Workflow Builder
           </h1>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm mt-1">
             Build AI orchestration workflows visually
           </p>
         </div>
       </header>
 
       {/* Toolbar */}
-      <div className="bg-white border-b px-4 py-3 flex gap-2">
+      <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700 px-4 py-3 flex gap-2">
         <button
           onClick={addTextInputNode}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm font-medium"
@@ -320,7 +334,7 @@ function App() {
           🔄 Nested Workflow
         </button>
 
-        <div className="flex-1"></div>
+        <div className="toolbar-spacer"></div>
 
         <button
           onClick={handleAutoLayout}
@@ -377,10 +391,7 @@ function App() {
 
         <button
           onClick={() => setShowSyntax(!showSyntax)}
-          className={`px-4 py-2 border rounded font-medium text-sm flex items-center gap-2 transition-colors ${showSyntax
-            ? 'bg-gray-200 text-gray-800 border-gray-300'
-            : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-            }`}
+          className={`px-4 py-2 border rounded font-medium text-sm flex items-center gap-2 transition-colors btn-icon ${showSyntax ? 'btn-toggle-active' : ''}`}
           title="Toggle FLARE Syntax View"
         >
           <FiCode />
@@ -391,7 +402,7 @@ function App() {
           onClick={handleRunWorkflow}
           disabled={isRunning}
           className={`px-6 py-2 rounded font-medium text-sm transition-colors ${isRunning
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
             : 'bg-orange-500 text-white hover:bg-orange-600'
             }`}
         >
@@ -400,14 +411,14 @@ function App() {
 
         <button
           onClick={() => setShowSettings(true)}
-          className="px-3 py-2 bg-white text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm font-medium"
+          className="btn-icon px-3 py-2"
           title="Settings (API key)"
           aria-label="Settings"
         >
           <FiSettings />
         </button>
 
-        <div className="text-sm text-gray-500 flex items-center gap-3">
+        <div className="toolbar-meta">
           <span className="mr-2">Nodes: {nodes.length}</span>
           <span>Connections: {edges.length}</span>
           <ThemeToggle />
@@ -435,7 +446,7 @@ function App() {
 
       {/* Canvas */}
       <main style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        <div style={{ flex: 1, position: 'relative' }}>
+        <div className="reactflow-canvas" style={{ flex: 1, position: 'relative' }}>
           <HandleContextMenuContext.Provider
             value={{
               openHandleContextMenu: (nodeId, handleId, handleType, position) => {
@@ -456,6 +467,7 @@ function App() {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
+              onInit={(instance) => { reactFlowInstance.current = instance; }}
               isValidConnection={isValidConnection}
               fitView
               defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
