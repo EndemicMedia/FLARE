@@ -18,7 +18,7 @@ import {
   applyCombination,
   applyFiltering,
 } from '@flare/core';
-import { getApiKey } from './apiKey';
+import { getApiKey, isUsingDefaultKey } from './apiKey';
 
 export type { FlareExecutionResult, ModelQueryResult, ParsedFlareCommand, PostProcessingCommand };
 
